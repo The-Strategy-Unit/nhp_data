@@ -20,6 +20,8 @@ import mitigators
 
 spark = DatabricksSession.builder.getOrCreate()
 
+recreate_all = dbutils.widgets.get("recreate_all") == "True"
+
 # COMMAND ----------
 
 path = ["mitigators", "ip"]
@@ -48,7 +50,7 @@ for m in (pbar := tqdm(all_mitigators)):
     pbar.set_description(f"Processing {m}:")
 
     try:
-        m.save()
+        m.save(recreate_all)
     except Exception as e:
         errors[str(m)] = e
 
