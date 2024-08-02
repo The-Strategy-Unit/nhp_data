@@ -29,7 +29,7 @@ def _virtual_wards_admissions(*args):
     return (
         nhp_apc.filter(F.col("admimeth").rlike("^2"))
         .filter(F.col("dismeth").isin(["1", "2", "3"]))
-        .join(procedures, ["epikey", "fyear"], "anti")
+        .filter(F.col("age") >= 18)
         .admission_has(primary_diagnosis, *args)
         .select("epikey")
         .withColumn("sample_rate", F.lit(1.0))
@@ -41,7 +41,10 @@ def _virtual_wards_admissions(*args):
 
 def virtual_wards_ari():
     """Virtual Wards: Acute Respiratory Infection (ARI)"""
-    return _virtual_wards_admissions("B(3[34]|97)", "J(?!0[^69])", "U0[467]")
+    return (
+        _virtual_wards_admissions("B(3[34]|97)", "J(0[6-9]|[1-9])", "U0[467]")
+        .join(procedures, ["epikey", "fyear"], "anti")
+    )
 
 
 def virtual_wards_heart_failure():
