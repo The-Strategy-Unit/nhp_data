@@ -13,7 +13,7 @@ diagnosis.
 
 from pyspark.sql import functions as F
 
-from hes_datasets import nhp_apc, primary_diagnosis
+from hes_datasets import nhp_apc, any_diagnosis
 from mitigators import efficiency_mitigator
 
 
