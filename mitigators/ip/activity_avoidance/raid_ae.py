@@ -25,6 +25,7 @@ def _raid_ae():
     return (
         nhp_apc.admission_has(primary_diagnosis, "F")
         .filter(F.col("admimeth") == "21")
+        .filter(F.col("dismeth") != "4")
         .join(procedures, ["epikey", "fyear"], "anti")
         .select("epikey")
         .withColumn("sample_rate", F.lit(1.0))
