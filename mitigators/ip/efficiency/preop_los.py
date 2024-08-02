@@ -24,17 +24,17 @@ def _preop_los(days):
         .filter(~F.col("procedure_code").rlike("^([UYZ]|X62)"))
         .filter(F.col("admidate") <= F.col("date"))
         .filter(F.col("date") <= F.col("disdate"))
-        .filter(F.date_diff(F.col("admidate"), F.col("date")) == days)
+        .filter(F.date_diff(F.col("date"), F.col("admidate")) == days)
         .select("epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
 
 
-@efficiency_mitigator()
+@efficiency_mitigator("pre-op_los_1-day")
 def _preop_los_1_day():
     return _preop_los(1)
 
 
-@efficiency_mitigator()
+@efficiency_mitigator("pre-op_los_2-day")
 def _preop_los_2_day():
     return _preop_los(2)
