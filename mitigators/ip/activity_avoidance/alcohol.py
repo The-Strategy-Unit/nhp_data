@@ -102,7 +102,7 @@ def _alcohol_partially_attributable(condition_group):
         # this gives a significant performance boost in practice
         .join(
             icd10_codes,
-            F.expr("icd10 RLIKE diagnoses"),
+            F.expr("icd10 RLIKE concat('^', diagnoses)"),
         )
     )
 
@@ -117,8 +117,8 @@ def _alcohol_partially_attributable(condition_group):
                 F.col("age") <= F.col("max_age"),
                 F.col("nhp_apc.sex") == F.col("aaf.sex"),
                 F.col("mortality_flag").isNull()
-                | ((F.col("mortality_flag") == 1) & (F.col("dismeth") == 4))
-                | ((F.col("mortality_flag") != 1) & (F.col("dismeth") != 4)),
+                | ((F.col("mortality_flag") == 1) & (F.col("dismeth") == "4"))
+                | ((F.col("mortality_flag") != 1) & (F.col("dismeth") != "4")),
             ],
         )
         .groupBy("epikey")
