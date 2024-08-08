@@ -55,7 +55,7 @@ def _smoking():
         .join(
             saf.alias("saf"),
             [
-                F.expr(r"diagnosis RLIKE saf.diagnoses"),
+                F.expr("diagnosis RLIKE concat('^', saf.diagnoses)"),
                 F.col("nhp_apc.sex") == F.col("saf.sex"),
             ],
         )
