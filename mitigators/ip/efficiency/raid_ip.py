@@ -21,7 +21,7 @@ from mitigators import efficiency_mitigator
 def _raid_ip():
     return (
         nhp_apc.admission_has(any_diagnosis, "F")
-        .filter(F.col("admimeth").rlike("2"))
+        .filter(F.col("admimeth").rlike("^2"))
         .filter(F.col("dismeth") != "4")
         .select("epikey")
         .withColumn("sample_rate", F.lit(1.0))
