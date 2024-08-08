@@ -43,7 +43,7 @@ def virtual_wards_ari():
     """Virtual Wards: Acute Respiratory Infection (ARI)"""
     return (
         _virtual_wards_admissions("B(3[34]|97)", "J(0[6-9]|[1-9])", "U0[467]")
-        .join(procedures, ["epikey", "fyear"], "anti")
+        .join(procedures, ["epikey"], "anti")
     )
 
 
