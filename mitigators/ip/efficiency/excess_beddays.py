@@ -56,7 +56,7 @@ def _excess_beddays(group):
 
     return (
         nhp_apc.join(ebd, ["sushrg"])
-        .filter(F.col("admimeth").startswith(admimeth))
+        .filter(F.col("admimeth").startswith("1" if group == "elective" else "2"))
         .filter(F.col("speldur") > F.col("trimpoint"))
         .select("epikey")
         .withColumn("sample_rate", F.lit(1.0))
