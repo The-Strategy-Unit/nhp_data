@@ -65,7 +65,7 @@ def _prostatic_hyperplasia():
         nhp_apc.admission_has(
             primary_procedure, "M(6(1[123489]|41|5[1-689]|6[12]|8[13])|7(04|1[189]))"
         )
-        .admission_not(primary_diagnosis, "N40")
+        .admission_has(primary_diagnosis, "N40")
         .admission_not(any_diagnosis, "N1([39]|7[01289]|8[1-59])")
         .filter(F.col("sex") == "1")
         .filter((F.col("admiage") >= 19) & (F.col("admiage") <= 120))

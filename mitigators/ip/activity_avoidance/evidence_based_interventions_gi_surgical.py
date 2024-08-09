@@ -30,9 +30,9 @@ from mitigators.ip.activity_avoidance.evidence_based_interventions import (
 
 def _colonoscopy():
     # pylint: disable=line-too-long
-    """Appendicectomy without confirmation of appendicitis
+    """Appropriate colonoscopy in the management of hereditary colorectal cancer
 
-    source: https://ebi.aomrc.org.uk/interventions/appendicectomy-without-confirmation-of-appendicitis/
+    source: https://ebi.aomrc.org.uk/interventions/appropriate-colonoscopy-in-the-management-of-hereditary-colorectal-cancer/
     """
     # pylint: enable=line-too-long
     return (

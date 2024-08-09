@@ -38,7 +38,7 @@ def _varicose_vein():
 
     return nhp_apc.admission_has(
         primary_procedure, "L8(4[1-689]|[568][12389]|7[1-9])"
-    ).admission_not(primary_diagnosis, "I83", "O(220|878)", "Q278")
+    ).admission_has(primary_diagnosis, "I83", "O(220|878)", "Q278")
 
 
 @activity_avoidance_mitigator()
