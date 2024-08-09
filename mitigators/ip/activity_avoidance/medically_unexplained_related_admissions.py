@@ -28,7 +28,7 @@ def _medically_unexplained_related_admissions():
             "H931",
             "K5(80|9[01])",
             "M545",
-            "R(0(02|7[14])|12X|251|42X|R5[13]X)",
+            "R(0(02|7[14])|12X|251|42X|5[13]X)",
         )
         .filter(F.col("admimeth").rlike("^2"))
         .select("epikey")
