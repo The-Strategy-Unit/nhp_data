@@ -54,10 +54,8 @@ class Mitigator:
                 f"strategy={self.mitigator_name}",
             ]
         )
-        if recreate:
-            dbutils.fs.rm(save_path, True)
 
-        if os.path.exists(save_path):
+        if os.path.exists(save_path) and not recreate:
             return
 
         self.get().repartition(1).write.mode("overwrite").parquet(save_path)
