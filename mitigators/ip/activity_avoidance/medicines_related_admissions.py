@@ -71,7 +71,7 @@ def _medicines_related_admissions_implicit_anti_diabetics():
 @activity_avoidance_mitigator()
 def _medicines_related_admissions_implicit_benzodiasepines():
     return _medicines_related_admissions_implicit(
-        ["R55X", "S(060|52[0-8]|628|720|)", "W"], ["F"]
+        ["R55X", "S(060|52[0-8]|628|720)", "W"], ["F"]
     )
 
 
