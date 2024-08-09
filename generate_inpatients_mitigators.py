@@ -20,6 +20,7 @@ import mitigators
 
 spark = DatabricksSession.builder.getOrCreate()
 
+dbutils.widgets.dropdown("recreate_all", "False", ["True", "False"], "Recreate All?")
 recreate_all = dbutils.widgets.get("recreate_all") == "True"
 
 # COMMAND ----------
