@@ -78,7 +78,7 @@ def _medicines_related_admissions_implicit_benzodiasepines():
 @activity_avoidance_mitigator()
 def _medicines_related_admissions_implicit_diurectics():
     return _medicines_related_admissions_implicit(
-        ["E8(6X|7[56])", "I4(70|9[89])", "R5(5X|71)"], "I1(0X|[12][09]|3[01239]|50)"
+        ["E8(6X|7[56])", "I4(70|9[89])", "R5(5X|71)"], ["I1(0X|[12][09]|3[01239]|50)"]
     )
 
 
