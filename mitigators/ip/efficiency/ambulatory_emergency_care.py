@@ -163,8 +163,8 @@ def _ambulatory_emergency_care_high():
     r, s, f = _aec_r, _aec_s, _aec_f
 
     return _ambulatory_emergency_care(
-        f(r(["DZ(09[NPQ]|28[AB])"]), r(["I26[09]", "R0[79]"]))
-        | f(r(["DZ16[QR]"]), r(["C782", "J9([01]|4[08])"]))
+        f(r(["DZ(09[NPQ]|28[AB])"]), r(["I26[09]", "R0[79]1"]))
+        | f(r(["DZ16[QR]"]), r(["C782", "J9([01]X|4[08])"]))
         | f(r(["DZ22[PQ]"]), r(["J2(0|22X)"]))
         | f(
             r(["DZ(19[LMN]|2(5[KLM]|7[TU]))"]),
@@ -219,7 +219,7 @@ def _ambulatory_emergency_care_high():
             ),
         )
         | f(
-            s("^SA0", ["1[HJK]", "3[H]", "4[HJKL]", "5[HJ]", "6[HJK]", "9[HJKL]"]),
+            s("^SA0", ["1[HJK]", "3H", "4[HJKL]", "5[HJ]", "6[HJK]", "9[HJKL]"]),
             s(
                 "^D",
                 [
@@ -235,7 +235,7 @@ def _ambulatory_emergency_care_high():
                             "9[012489]",
                         ],
                     ),
-                    "D64[89]",
+                    "64[89]",
                 ],
             ),
         )
