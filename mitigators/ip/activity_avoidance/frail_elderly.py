@@ -80,51 +80,36 @@ def _frail_elderly():
         .select("diagnosis", "score")
     )
 
-    diags = (
+    frs_scores = (
         diagnoses
         .join(frs_ref_mapping, "diagnosis")
-        .groupBy(["fyear", "procode3", "epikey"])
-        .agg(F.sum("score").alias("score"))
-    )
-
-    frs_scores = nhp_apc.filter(F.col("disdate") < date(2100, 1, 1)).join(
-        diags, ["epikey", "fyear"]
-    )
-
-    prior = (
-        frs_scores.alias("prior")
+        .join(nhp_apc, "epikey")
         .withColumn("start", F.col("disdate"))
         .withColumn("end", F.date_add(F.col("disdate"), 2 * 365))
-        .select(
-            F.col("person_id"),
-            F.col("start"),
-            F.col("end"),
-            F.col("score").alias("prior_score"),
-        )
+        .select("person_id", "epikey", "diagnosis", "score", "start", "end")
     )
 
     return (
-        frs_scores.alias("current")
-        .filter(F.col("admimeth").startswith("2"))
-        .filter(F.col("age") >= 75)
+        nhp_apc.alias("i")
         .join(
-            prior.hint("range_join", 60),
+            frs_scores.alias("frs_scores").hint("range_join", 60),
             [
-                F.col("current.person_id") == F.col("prior.person_id"),
+                F.col("i.person_id") == F.col("frs_scores.person_id"),
                 # current admission is within 2 years of prior discharge
-                F.col("admidate") > F.col("start"),
-                F.col("admidate") <= F.col("end"),
+                (
+                    (F.col("admidate") > F.col("start")) & (F.col("admidate") <= F.col("end"))
+                    |
+                    (F.col("i.epikey") == F.col("frs_scores.epikey"))
+                )
             ],
         )
-        .orderBy("current.person_id", "start", "end", "admidate")
-        .groupBy("epikey", "fyear", "score")
-        .agg(F.sum("prior_score").alias("prior_score"))
-        .withColumn("score", F.col("prior_score") + F.col("score"))
-        .select(
-            F.col("epikey").alias("epikey"),
-            F.col("fyear").alias("fyear"),
-            F.col("score"),
-        )
+        .filter(F.col("admimeth").startswith("2"))
+        .filter(F.col("age") >= 75)
+        .withColumn("diagnosis", F.col("diagnosis").substr(1, 3))
+        .select("i.epikey", "fyear", "diagnosis", "score")
+        .distinct()
+        .groupby("epikey", "fyear")
+        .agg(F.sum("score").alias("score"))
         .persist()
     )
 
