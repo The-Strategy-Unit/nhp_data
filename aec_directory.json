@@ -1,0 +1,775 @@
+{
+  "General Medicine": {
+    "Deep vein thrombosis": {
+      "group": "very high",
+      "hrg_codes": [
+        "YQ51[CDE]"
+      ],
+      "icd10_codes": [
+        "I80[123]",
+        "I822",
+        "M79[68]"
+      ]
+    },
+    "Pulmonary embolism": {
+      "group": "high",
+      "hrg_codes": [
+        "DZ09[NPQ]",
+        "DZ28[AB]"
+      ],
+      "icd10_codes": [
+        "I26[09]",
+        "R0[79]1"
+      ]
+    },
+    "Pneumothorax": {
+      "group": "low",
+      "hrg_codes": [
+        "DZ26[NP]"
+      ],
+      "icd10_codes": [
+        "J93[0189]"
+      ]
+    },
+    "Pleural effusions": {
+      "group": "high",
+      "hrg_codes": [
+        "DZ16[QR]"
+      ],
+      "icd10_codes": [
+        "C782",
+        "J111",
+        "J9[01]X",
+        "J94[08]"
+      ]
+    },
+    "Asthma": {
+      "group": "low",
+      "hrg_codes": [
+        "DZ15[PQR]"
+      ],
+      "icd10_codes": [
+        "J45[0189]"
+      ]
+    },
+    "Chronic obstructive pulmonary disease": {
+      "group": "low",
+      "hrg_codes": [
+        "DZ65[FGHJK]"
+      ],
+      "icd10_codes": [
+        "J21[0189]",
+        "J4[02]X",
+        "J410",
+        "J43[1289]",
+        "J44[0189]"
+      ]
+    },
+    "Community-acquired pneumonia": {
+      "group": "low",
+      "hrg_codes": [
+        "DZ11[TUV]",
+        "DZ23[MN]"
+      ],
+      "icd10_codes": [
+        "J1[01]0",
+        "J12[012389]",
+        "J1[34]X",
+        "J15[3-9]",
+        "J16[08]",
+        "J17[018]",
+        "J18[0189]"
+      ]
+    },
+    "Lower respiratory tract infections without COPD": {
+      "group": "high",
+      "hrg_codes": [
+        "DZ22[PQ]"
+      ],
+      "icd10_codes": [
+        "J20[0-9]",
+        "J22X"
+      ]
+    },
+    "Other respiratory conditions": {
+      "group": "high",
+      "hrg_codes": [
+        "DZ19[LMN]",
+        "DZ25[KLM]",
+        "DZ27[TU]"
+      ],
+      "icd10_codes": [
+        "E662",
+        "J80X",
+        "J84[0189]",
+        "J96[019]",
+        "J96[019][019]",
+        "J98[014689]",
+        "J998",
+        "Q340",
+        "R04[289]",
+        "R05X",
+        "R06[024]",
+        "R098"
+      ]
+    },
+    "Congestive cardiac failure": {
+      "group": "moderate",
+      "hrg_codes": [
+        "EB03[DE]"
+      ],
+      "icd10_codes": [
+        "I110",
+        "I13[02]",
+        "I50[019]"
+      ]
+    },
+    "Supraventricular tachycardias & other unspecified tachycardias": {
+      "group": "moderate",
+      "hrg_codes": [
+        "EB07[BCDE]"
+      ],
+      "icd10_codes": [
+        "I44[014-7]",
+        "I45[0-689]",
+        "I47[19]",
+        "I48[0-49]",
+        "I49[124589]",
+        "R00[0128]"
+      ]
+    },
+    "Low risk chest pain": {
+      "group": "moderate",
+      "hrg_codes": [
+        "EB14[CDE]",
+        "EB10[CDE]",
+        "EB12[ABC]",
+        "EB13[ABCD]",
+        "DZ28[AB]"
+      ],
+      "icd10_codes": [
+        "I20[189]",
+        "I24[189]",
+        "I25[012689]",
+        "M94[01]",
+        "R01[12]",
+        "R07[234]",
+        "R091",
+        "Z03[45]"
+      ]
+    },
+    "Transient ischaemic attack": {
+      "group": "high",
+      "hrg_codes": [
+        "AA29[CDEF]"
+      ],
+      "icd10_codes": [
+        "G45[0-489]"
+      ]
+    },
+    "First seizure": {
+      "group": "high",
+      "hrg_codes": [
+        "AA26[EFGH]"
+      ],
+      "icd10_codes": [
+        "R568"
+      ]
+    },
+    "Seizure in known epileptic": {
+      "group": "high",
+      "hrg_codes": [
+        "AA26[EFGH]"
+      ],
+      "icd10_codes": [
+        "G253",
+        "G40[0-9]",
+        "R568"
+      ]
+    },
+    "Acute headache": {
+      "group": "moderate",
+      "hrg_codes": [
+        "AA31[CDE]"
+      ],
+      "icd10_codes": [
+        "G43[0-389]",
+        "G44[01348]",
+        "G971",
+        "R51X"
+      ]
+    },
+    "Upper gastro-intestinal haemorrhage": {
+      "group": "low",
+      "hrg_codes": [
+        "FZ38[MNP]"
+      ],
+      "icd10_codes": [
+        "K20X",
+        "K21[09]",
+        "K22[16]",
+        "K2[5-8][046]",
+        "K29[012]"
+      ]
+    },
+    "Gastroenteritis": {
+      "group": "high",
+      "hrg_codes": [
+        "FZ36[NPQ]"
+      ],
+      "icd10_codes": [
+        "A02[0289]",
+        "A04[45689]",
+        "A05[489]",
+        "A07[12]",
+        "A08[0-5]",
+        "A09[09]",
+        "K25[01289]"
+      ]
+    },
+    "Inflammatory bowel disease": {
+      "group": "high",
+      "hrg_codes": [
+        "FZ37[QRS]"
+      ],
+      "icd10_codes": [
+        "K50[0189]",
+        "K51[02-59]",
+        "K523"
+      ]
+    },
+    "Abnormal liver function": {
+      "group": "high",
+      "hrg_codes": [
+        "GC12[JK]",
+        "GC17[JK]",
+        "GC01F"
+      ],
+      "icd10_codes": [
+        "C22[012]",
+        "C23X",
+        "C22[3479]",
+        "C24[0189]",
+        "C25[0-4789]",
+        "C787",
+        "D135",
+        "D376",
+        "K70[0-49]",
+        "K72[019]",
+        "K73[01289]",
+        "K74[0-6]",
+        "K75[2-489]",
+        "K76[01689]",
+        "K80[0-58]",
+        "K81[0189]",
+        "K82[1-489]",
+        "K83[1489]",
+        "K86[0-389]",
+        "K870",
+        "K915",
+        "R16[012]",
+        "R17X",
+        "R945"
+      ]
+    },
+    "Anaemia": {
+      "group": "high",
+      "hrg_codes": [
+        "SA01[HJK]",
+        "SA03H",
+        "SA04[HJKL]",
+        "SA05[HJ]",
+        "SA06[HJK]",
+        "SA09[HJKL]"
+      ],
+      "icd10_codes": [
+        "D46[012479]",
+        "D50[0189]",
+        "D51[0-389]",
+        "D52[0189]",
+        "D5[37]1",
+        "D58[01289]",
+        "D59[012489]",
+        "D64[89]"
+      ]
+    },
+    "Hypoglycaemia": {
+      "group": "high",
+      "hrg_codes": [
+        "KB01[CDEF]"
+      ],
+      "icd10_codes": [
+        "E16[012]"
+      ]
+    },
+    "Diabetes": {
+      "group": "high",
+      "hrg_codes": [
+        "KB01[CDEF]",
+        "KB02[HJK]",
+        "KB03[DE]"
+      ],
+      "icd10_codes": [
+        "E1[01][0-9]",
+        "E1[34][2-9]",
+        "E16[012]"
+      ]
+    },
+    "Cellulitis of limb": {
+      "group": "high",
+      "hrg_codes": [
+        "JD07[HJK]"
+      ],
+      "icd10_codes": [
+        "I891",
+        "L010",
+        "L03[0-389]",
+        "L08[089]"
+      ]
+    },
+    "Known oesophageal stenosis (either stented or unstented)": {
+      "group": "high",
+      "hrg_codes": [
+        "FZ91[KLM]",
+        "FZ92[JK]"
+      ],
+      "icd10_codes": [
+        "C15[0-589]",
+        "K22[0245789]",
+        "K238",
+        "R1[23]X",
+        "T181"
+      ]
+    },
+    "PEG related complications": {
+      "group": "very high",
+      "hrg_codes": [
+        "FZ91[KLM]"
+      ],
+      "icd10_codes": [
+        "T85[58]",
+        "Z431"
+      ]
+    },
+    "Self-harm and accidental overdose": {
+      "group": "high",
+      "hrg_codes": [
+        "WH04[DE]"
+      ],
+      "icd10_codes": [
+        "T3[6-9][0-9X]",
+        "T[45][0-9][0-9X]",
+        "T6[0-5][0-9X]",
+        "T68X",
+        "T699"
+      ],
+      "secondary_icd10_codes": [
+        "X6[0-9][0-9X]"
+      ]
+    },
+    "Falls including syncope or collapse": {
+      "group": "high",
+      "hrg_codes": [
+        "EB08[ABCDE]",
+        "WH16[AB]",
+        "WH09[EFG]"
+      ],
+      "icd10_codes": [
+        "I951",
+        "R268",
+        "R296",
+        "R5[45]X",
+        "T671"
+      ]
+    },
+    "Urinary tract infections": {
+      "group": "moderate",
+      "hrg_codes": [
+        "LA04[QRS]"
+      ],
+      "icd10_codes": [
+        "N11[0189]",
+        "N136",
+        "N30[0-489]",
+        "N34[123]",
+        "N390"
+      ]
+    },
+    "Electrolyte disturbance": {
+      "group": "moderate",
+      "hrg_codes": [
+        "KC05[KLMN]"
+      ],
+      "icd10_codes": [
+        "E222",
+        "E612",
+        "E83[45]",
+        "E86X",
+        "E87[015-8]"
+      ]
+    },
+    "Low risk acute kidney injury": {
+      "group": "moderate",
+      "hrg_codes": [
+        "LA07[NP]"
+      ],
+      "icd10_codes": [
+        "N17[89]",
+        "N990"
+      ]
+    },
+    "Ascites": {
+      "group": "high",
+      "hrg_codes": [
+        "FZ13C"
+      ],
+      "icd10_codes": [
+        "R18X"
+      ]
+    }
+  },
+  "Trauma and Orthopaedics": {
+    "Acutely hot painful joint": {
+      "group": "moderate",
+      "hrg_codes": [
+        "HD23[FGHJ]",
+        "HD26[DEFG]"
+      ],
+      "icd10_codes": [
+        "M02[0-389]",
+        "M05[089]",
+        "M06[0-489]",
+        "M10[02349]",
+        "M109[0-9]",
+        "M11[09]",
+        "M13[09]",
+        "M139[0-9]",
+        "M255",
+        "M255[0-46-9]",
+        "M25[69]",
+        "M66[01]",
+        "M673",
+        "M712"
+      ]
+    },
+    "Appendicular fractures not requiring immediate internal fixation": {
+      "group": "high",
+      "hrg_codes": [
+        "HE21[FG]",
+        "HE22[GHJK]",
+        "HE31[EFG]",
+        "HE32[CDE]",
+        "HE51[EFGH]",
+        "HE52[CDEF]",
+        "HE41[BCD]",
+        "HE42[CDE]"
+      ],
+      "icd10_codes": [
+        "S42[023489]",
+        "S43[0-3]",
+        "S52[0-9]",
+        "S53[0-3]",
+        "S62[0-8]",
+        "S63[02]",
+        "S67[08]",
+        "S724",
+        "S82[0-689]",
+        "S83[0-3]",
+        "S92[0-579]",
+        "S9290",
+        "S93[01]",
+        "S971"
+      ]
+    },
+    "Non-traumatic vertebral fractures": {
+      "group": "very high",
+      "hrg_codes": [
+        "HC27[LMN]",
+        "HD39[GH]"
+      ],
+      "icd10_codes": [
+        "M80[0-59]",
+        "M80[059][89]",
+        "M84[34]"
+      ]
+    },
+    "Low risk pubic rami fractures": {
+      "group": "very high",
+      "hrg_codes": [
+        "HE11[GH]",
+        "HE12[CDE]"
+      ],
+      "icd10_codes": [
+        "S325",
+        "S3250"
+      ]
+    },
+    "Hip pain secondary to a fall and non-weight bearing": {
+      "group": "high",
+      "hrg_codes": [
+        "HE11[GH]",
+        "HE12[CDE]"
+      ],
+      "icd10_codes": [
+        "M2555",
+        "S760"
+      ]
+    }
+  },
+  "General Surgery": {
+    "Lower gastro-intestinal haemorrhage": {
+      "group": "high",
+      "hrg_codes": [
+        "FZ38[MNP]"
+      ],
+      "icd10_codes": [
+        "K625",
+        "K922"
+      ]
+    },
+    "Obstructive jaundice": {
+      "group": "moderate",
+      "hrg_codes": [
+        "GC18[AB]"
+      ],
+      "icd10_codes": [
+        "C23X",
+        "C24[0189]",
+        "C25[0139]",
+        "D135",
+        "D376",
+        "K805",
+        "K82[1-489]",
+        "K83[19]",
+        "K870",
+        "R17X"
+      ]
+    },
+    "Acute abdominal pain not requiring operative intervention": {
+      "group": "moderate",
+      "hrg_codes": [
+        "FZ90B"
+      ],
+      "icd10_codes": [
+        "I880",
+        "K255",
+        "K297",
+        "K56[34]",
+        "K566",
+        "K59[0189]",
+        "K913",
+        "N832",
+        "N940",
+        "R10[1-4]",
+        "R11X",
+        "R19[01458]"
+      ]
+    },
+    "Cutaneous abscesses requiring surgical drainage": {
+      "group": "high",
+      "hrg_codes": [
+        "FZ91[KLM]",
+        "FZ22[DE]",
+        "FZ23A",
+        "FZ21D",
+        "JA13[BC]",
+        "JA4[45]Z"
+      ],
+      "icd10_codes": [
+        "K61[0-4]",
+        "K620",
+        "L02[0-489]",
+        "L05[09]",
+        "L72[01]",
+        "N61X"
+      ]
+    },
+    "Minor head injury": {
+      "group": "high",
+      "hrg_codes": [
+        "AA26[EFGH]",
+        "CB02[DEF]"
+      ],
+      "icd10_codes": [
+        "S060",
+        "S09[89]"
+      ]
+    },
+    "Right upper quadrant pain": {
+      "group": "high",
+      "hrg_codes": [
+        "FZ91[KLM]"
+      ],
+      "icd10_codes": [
+        "K563",
+        "K80[0-48]",
+        "K81[0189]",
+        "K82[0489]",
+        "K83[0189]",
+        "K870"
+      ]
+    },
+    "Painful non-obstructed hernia": {
+      "group": "high",
+      "hrg_codes": [
+        "FZ91[KLM]",
+        "FZ18[JK]"
+      ],
+      "icd10_codes": [
+        "K40[29]",
+        "K41[29]",
+        "K429",
+        "K43[259]",
+        "K458",
+        "K469"
+      ]
+    },
+    "Haemorrhoids": {
+      "group": "very high",
+      "hrg_codes": [
+        "FZ22[DE]",
+        "FZ23A",
+        "FZ21D"
+      ],
+      "icd10_codes": [
+        "K64[0-389]",
+        "O224",
+        "O872"
+      ]
+    },
+    "Right iliac fossa pain": {
+      "group": "moderate",
+      "hrg_codes": [
+        "FZ91[KLM]",
+        "FZ20[HJ]"
+      ],
+      "icd10_codes": [
+        "K35[38]",
+        "K37X",
+        "K500"
+      ]
+    },
+    "Left iliac fossa pain": {
+      "group": "moderate",
+      "hrg_codes": [
+        "FZ91[KLM]",
+        "MB09[EF]"
+      ],
+      "icd10_codes": [
+        "K562",
+        "K57[1359]",
+        "N739"
+      ]
+    },
+    "Other anorectal issues": {
+      "group": "high",
+      "hrg_codes": [
+        "FZ22[DE]",
+        "FZ23A",
+        "FZ21D"
+      ],
+      "icd10_codes": [
+        "K594",
+        "K60[0-35]",
+        "T185"
+      ]
+    },
+    "Acute painful bladder outflow obstruction": {
+      "group": "high",
+      "hrg_codes": [
+        "LB16[GHJK]",
+        "LB28[EFG]"
+      ],
+      "icd10_codes": [
+        "N39[34]",
+        "R3[23]X",
+        "R391",
+        "N320",
+        "N40X",
+        "N42[89]"
+      ]
+    },
+    "Renal/ureteric stones": {
+      "group": "high",
+      "hrg_codes": [
+        "LB40[EFG]"
+      ],
+      "icd10_codes": [
+        "N20[0129]",
+        "N21[0189]",
+        "N23X"
+      ]
+    },
+    "Gross haematuria": {
+      "group": "high",
+      "hrg_codes": [
+        "LA09[PQ]",
+        "LB37[CDE]",
+        "LB38[FGH]"
+      ],
+      "icd10_codes": [
+        "R30[09]",
+        "R31X"
+      ]
+    },
+    "Chronic indwelling catheter related problems": {
+      "group": "high",
+      "hrg_codes": [
+        "LB15E",
+        "LB20[EFG]",
+        "LB18Z"
+      ],
+      "icd10_codes": [
+        "T83[015689]"
+      ]
+    },
+    "Acute scrotal pain": {
+      "group": "high",
+      "hrg_codes": [
+        "LB35[EFGH]",
+        "LB54A"
+      ],
+      "icd10_codes": [
+        "N34[0-4]",
+        "N44X",
+        "N45[09]",
+        "N49[01290]",
+        "N508"
+      ]
+    }
+  },
+  "Obstetrics and Gynaecology": {
+    "Early pregnancy bleeding": {
+      "group": "very high",
+      "hrg_codes": [
+        "MB08B"
+      ],
+      "icd10_codes": [
+        "O02[0189]",
+        "O03[1-9]",
+        "O0[56][49]",
+        "O20[089]"
+      ]
+    },
+    "Hyperemesis gravidarum": {
+      "group": "moderate",
+      "hrg_codes": [
+        "NZ1[89][AB]",
+        "NZ20[AB]"
+      ],
+      "icd10_codes": [
+        "O21[01289]"
+      ]
+    },
+    "Diseases of Bartholin's gland": {
+      "group": "very high",
+      "hrg_codes": [
+        "MA2[23]Z",
+        "MB09[DEF]"
+      ],
+      "icd10_codes": [
+        "N75[0189]"
+      ]
+    }
+  }
+}
