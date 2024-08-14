@@ -59,5 +59,6 @@ def _smoking():
                 F.col("nhp_apc.sex") == F.col("saf.sex"),
             ],
         )
-        .select(F.col("epikey"), F.col("value").alias("sample_rate"))
+        .groupBy("epikey")
+        .agg(F.max("value").alias("sample_rate"))
     )
