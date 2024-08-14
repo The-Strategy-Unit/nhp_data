@@ -12,7 +12,7 @@ inpatient LOS through supported discharge.
 
 from pyspark.sql import functions as F
 
-from hes_datasets import nhp_apc, primary_diagnosis
+from hes_datasets import nhp_apc
 from mitigators import efficiency_mitigator
 
 
@@ -21,7 +21,7 @@ def _stroke_early_supported_discharge():
     return (
         nhp_apc.filter(F.col("admimeth").rlike("^2"))
         .filter(F.col("dismeth") != "4")
-        .admission_has(primary_diagnosis, "I6[^9]")
+        .filter(F.col("sushrg").rlike("^AA(2[23]|35)"))
         .select("epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
