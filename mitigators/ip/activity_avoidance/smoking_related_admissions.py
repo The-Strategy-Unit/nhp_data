@@ -48,16 +48,29 @@ def _smoking():
         .csv("/Volumes/su_data/nhp/reference_data/smoking_attributable_fractions.csv")
     )
 
-    return (
-        nhp_apc.join(diagnoses, ["epikey", "fyear"])
-        .alias("nhp_apc")
-        .filter(F.col("diag_order") == 1)
+    icd10_codes = spark.read.table("su_data.reference.icd10_codes")
+
+    saf_mapping = (
+        saf
         .join(
-            saf.alias("saf"),
-            [
-                F.expr("diagnosis RLIKE concat('^', saf.diagnoses)"),
-                F.col("nhp_apc.sex") == F.col("saf.sex"),
-            ],
+            icd10_codes,
+            F.expr("icd10 RLIKE concat('^', diagnoses)")
+        )
+        .select(
+            F.col("icd10").alias("diagnosis"),
+            F.col("sex"),
+            F.col("value")
+        )
+    )
+
+    return (
+        nhp_apc.join(
+            diagnoses.filter(F.col("diag_order") == 1),
+            ["epikey", "fyear"]
+        )
+        .join(
+            saf_mapping,
+            ["diagnosis", "sex"],
         )
         .groupBy("epikey")
         .agg(F.max("value").alias("sample_rate"))
