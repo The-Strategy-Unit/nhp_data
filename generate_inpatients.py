@@ -91,16 +91,27 @@ hes_apc_processed = (
     .filter(F.col("speldur").isNotNull())
     .filter(F.col("hsagrp").isNotNull())
     # add has_procedure column
-    .join(procedures, "epikey", "left")
-    .withColumn(
-        "has_procedure", F.when(procedures.epikey.isNull(), False).otherwise(True)
+    .join(
+        procedures
+        .filter(F.col("procedure_order") == 1)
+        .filter(~F.col("procedure_code").rlike("^O(1[1-46]|28|3[01346]|4[2-8]|5[23]|)"))
+        .filter(~F.col("procedure_code").rlike("^X[6-9]"))
+        .filter(~F.col("procedure_code").rlike("^[UYZ]"))
+        .select(F.col("epikey"), F.lit(True).alias("has_procedure")),
+        "epikey",
+        "left"
     )
     # add is_main_icb column
-    .join(main_icbs, "provider", "left")
-    .withColumn(
-        "is_main_icb", F.when(F.col("icb") == F.col("main_icb"), True).otherwise(False)
-    )
-    .drop("main_icb")
+    .join(
+        main_icbs
+        .select(
+            F.col("provider"),
+            F.col("main_icb").alias("icb"),
+            F.lit(True).alias("is_main_icb")
+        ),
+        ["provider", "icb"],
+        "left")
+    .na.fill(False, ["has_procedure", "is_main_icb"])
     .select(
         F.col("epikey"),
         F.col("fyear"),

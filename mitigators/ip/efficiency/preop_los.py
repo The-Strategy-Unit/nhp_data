@@ -19,9 +19,9 @@ from mitigators import efficiency_mitigator
 
 def _preop_los(days):
     return (
-        nhp_apc.filter(F.col("admimeth").startswith("1"))
-        .join(procedures.filter(F.col("procedure_order") == 1), ["epikey", "fyear"])
-        .filter(~F.col("procedure_code").rlike("^([UYZ]|X62)"))
+        nhp_apc
+        .filter(F.col("admimeth").startswith("1"))
+        .filter(F.col("has_procedure"))
         .filter(F.col("admidate") <= F.col("date"))
         .filter(F.col("date") <= F.col("disdate"))
         .filter(F.date_diff(F.col("date"), F.col("admidate")) == days)
