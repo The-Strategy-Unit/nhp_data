@@ -9,6 +9,7 @@
 from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
+from delta.tables import DeltaTable
 
 spark = DatabricksSession.builder.getOrCreate()
 
@@ -110,7 +111,8 @@ hes_apc_processed = (
             F.lit(True).alias("is_main_icb")
         ),
         ["provider", "icb"],
-        "left")
+        "left"
+    )
     .na.fill(False, ["has_procedure", "is_main_icb"])
     .select(
         F.col("epikey"),
@@ -147,8 +149,21 @@ hes_apc_processed = (
 
 # COMMAND ----------
 
+target = (
+    DeltaTable.createIfNotExists(spark)
+    .tableName("su_data.nhp.apc")
+    .addColumns(hes_apc_processed.schema)
+    .execute()
+)
+
 (
-    hes_apc_processed.write.partitionBy("fyear", "provider")
-    .mode("overwrite")
-    .saveAsTable("su_data.nhp.apc")
+    target.alias("t")
+    .merge(
+        hes_apc_processed.alias("s"),
+        "t.epikey = s.epikey"
+    )
+    .whenMatchedUpdateAll(condition=" or ".join([f"t.{i} != s.{i}" for i in hes_apc_processed.columns]))
+    .whenNotMatchedInsertAll()
+    .whenNotMatchedBySourceDelete()
+    .execute()
 )
