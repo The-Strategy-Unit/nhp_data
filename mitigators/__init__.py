@@ -28,8 +28,6 @@ class Mitigator:
     Should be created by decorating a function that generates a mitigator DataFrame with @mitigator.
     """
 
-    __save_path = "/Volumes/su_data/nhp/apc_mitigators"
-
     def __init__(self, mitigator_type: str, mitigator_name: str, definition: DataFrame):
         self.mitigator_type = mitigator_type
         self.mitigator_name = mitigator_name
@@ -52,7 +50,7 @@ class Mitigator:
         source = (
             self.get()
             .withColumn("type", F.lit(self.mitigator_type))
-            .withColumn("strategy", F.lit(self.strategy))
+            .withColumn("strategy", F.lit(self.mitigator_name))
         )
         
         # get the table to load the mitigators to
@@ -80,7 +78,7 @@ class Mitigator:
             # delete rows for this strategy that no longer exist
             .whenNotMatchedBySourceDelete(
                 condition=" and ".join([
-                    f"target.strategy = '{self.strategy}'",
+                    f"target.strategy = '{self.mitigator_name}'",
                     f"target.type = '{self.mitigator_type}'"
                 ])
             )
