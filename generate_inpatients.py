@@ -10,12 +10,9 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 from delta.tables import DeltaTable
+from get_hes_apc import hes_apc
 
 spark = DatabricksSession.builder.getOrCreate()
-
-# COMMAND ----------
-
-# MAGIC %run ./get_hes_apc
 
 # COMMAND ----------
 

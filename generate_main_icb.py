@@ -7,12 +7,21 @@
 
 # COMMAND ----------
 
+import os
+
+from databricks.sdk.runtime import dbutils
 from pyspark.sql import Window
 from pyspark.sql import functions as F
 
+from get_hes_apc import hes_apc
+
 # COMMAND ----------
 
-# MAGIC %run ./get_hes_apc
+save_path = "/Volumes/su_data/nhp/reference_data/provider_main_icb.csv"
+
+if os.path.exists(save_path):
+    dbutils.notebook.exit("data already exists: skipping")
+
 
 # COMMAND ----------
 
@@ -28,6 +37,7 @@ main_icbs = (
     .toPandas()
 )
 
+
 # COMMAND ----------
 
-main_icbs.to_csv("/Volumes/su_data/nhp/reference_data/provider_main_icb.csv")
+main_icbs.to_csv(save_path)
