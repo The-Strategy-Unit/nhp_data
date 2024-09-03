@@ -20,8 +20,13 @@ resources:
             - task_key: NHP_APC
           notebook_task:
             notebook_path: generate_inpatients_mitigators
-            base_parameters:
-              recreate_all: "true"
+            source: GIT
+          job_cluster_key: generate_nhp_apc
+        - task_key: NHP_APC_Mitigators_Check
+          depends_on:
+            - task_key: NHP_APC_Mitigators
+          notebook_task:
+            notebook_path: check_inpatients_mitigators
             source: GIT
           job_cluster_key: generate_nhp_apc
         - task_key: NHP_ECDS
@@ -36,13 +41,6 @@ resources:
             - task_key: Main_ICB
           notebook_task:
             notebook_path: generate_outpatients
-            source: GIT
-          job_cluster_key: generate_nhp_apc
-        - task_key: NHP_APC_Mitigators_Check
-          depends_on:
-            - task_key: NHP_APC_Mitigators
-          notebook_task:
-            notebook_path: check_inpatients_mitigators
             source: GIT
           job_cluster_key: generate_nhp_apc
       job_clusters:
