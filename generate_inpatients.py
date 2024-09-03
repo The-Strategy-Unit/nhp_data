@@ -11,8 +11,8 @@ from delta.tables import DeltaTable
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
-from datasets.apc import hes_apc
-from datasets.icbs import main_icbs
+from nhp_datasets.apc import hes_apc
+from nhp_datasets.icbs import main_icbs
 
 spark = DatabricksSession.builder.getOrCreate()
 

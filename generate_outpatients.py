@@ -13,8 +13,8 @@ from delta.tables import DeltaTable
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
-from datasets.icbs import icb_mapping, main_icbs
-from datasets.providers import provider_successors_mapping, providers
+from nhp_datasets.icbs import icb_mapping, main_icbs
+from nhp_datasets.providers import provider_successors_mapping, providers
 
 spark = DatabricksSession.builder.getOrCreate()
 

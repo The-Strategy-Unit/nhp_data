@@ -2,8 +2,8 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
-from datasets.icbs import icb_mapping
-from datasets.providers import provider_successors_mapping, providers
+from nhp_datasets.icbs import icb_mapping
+from nhp_datasets.providers import provider_successors_mapping, providers
 
 spark = DatabricksSession.builder.getOrCreate()
 
