@@ -9,6 +9,7 @@
 from itertools import chain
 
 from databricks.connect import DatabricksSession
+from delta.tables import DeltaTable
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
@@ -158,15 +159,38 @@ hes_opa_processed = (
         .when(F.col("is_first"), "first")
         .otherwise("followup"),
     )
-    .withColumn("hsagrp", F.concat(F.lit("op_"), F.col("type"), F.lit("_"), F.col("group")))
+    .withColumn(
+        "hsagrp", F.concat(F.lit("op_"), F.col("type"), F.lit("_"), F.col("group"))
+    )
     .repartition("fyear", "provider")
 )
 
 
 # COMMAND ----------
 
+target = (
+    DeltaTable.createIfNotExists(spark)
+    .tableName("su_data.nhp.opa")
+    .addColumns(hes_opa_processed.schema)
+    .execute()
+)
+
 (
-    hes_opa_processed.write.partitionBy("fyear", "provider")
-    .mode("overwrite")
-    .saveAsTable("su_data.nhp.opa")
+    target.alias("t")
+    .merge(
+        hes_opa_processed.alias("s"),
+        " and ".join(
+            f"t.{i} != s.{i}"
+            for i in hes_opa_processed.columns
+            if not i.endswith("attendances")
+        ),
+    )
+    .whenMatchedUpdateAll(
+        condition=" or ".join(
+            f"s.{i} != t.{i}" for i in ["attendances", "tele_attendances"]
+        )
+    )
+    .whenNotMatchedInsertAll()
+    .whenNotMatchedBySourceDelete()
+    .execute()
 )

@@ -10,6 +10,7 @@ import json
 from itertools import chain
 
 from databricks.connect import DatabricksSession
+from delta.tables import DeltaTable
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
@@ -219,8 +220,23 @@ hes_ecds_processed = (
 
 # COMMAND ----------
 
+target = (
+    DeltaTable.createIfNotExists(spark)
+    .tableName("su_data.nhp.ecds")
+    .addColumns(hes_ecds_processed.schema)
+    .execute()
+)
+
 (
-    hes_ecds_processed.write.partitionBy("fyear", "provider")
-    .mode("overwrite")
-    .saveAsTable("su_data.nhp.ecds")
+    target.alias("t")
+    .merge(
+        hes_ecds_processed.alias("s"),
+        " and ".join(
+            f"t.{i} != s.{i}" for i in hes_ecds_processed.columns if i != "arrivals"
+        ),
+    )
+    .whenMatchedUpdateAll(condition="s.arrivals != t.arrivals")
+    .whenNotMatchedInsertAll()
+    .whenNotMatchedBySourceDelete()
+    .execute()
 )

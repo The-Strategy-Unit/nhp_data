@@ -7,9 +7,10 @@
 # COMMAND ----------
 
 from databricks.connect import DatabricksSession
+from delta.tables import DeltaTable
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
-from delta.tables import DeltaTable
+
 from get_hes_apc import hes_apc
 
 spark = DatabricksSession.builder.getOrCreate()
@@ -90,25 +91,23 @@ hes_apc_processed = (
     .filter(F.col("hsagrp").isNotNull())
     # add has_procedure column
     .join(
-        procedures
-        .filter(F.col("procedure_order") == 1)
+        procedures.filter(F.col("procedure_order") == 1)
         .filter(~F.col("procedure_code").rlike("^O(1[1-46]|28|3[01346]|4[2-8]|5[23]|)"))
         .filter(~F.col("procedure_code").rlike("^X[6-9]"))
         .filter(~F.col("procedure_code").rlike("^[UYZ]"))
         .select(F.col("epikey"), F.lit(True).alias("has_procedure")),
         "epikey",
-        "left"
+        "left",
     )
     # add is_main_icb column
     .join(
-        main_icbs
-        .select(
+        main_icbs.select(
             F.col("provider"),
             F.col("main_icb").alias("icb"),
-            F.lit(True).alias("is_main_icb")
+            F.lit(True).alias("is_main_icb"),
         ),
         ["provider", "icb"],
-        "left"
+        "left",
     )
     .na.fill(False, ["has_procedure", "is_main_icb"])
     .select(
@@ -155,11 +154,10 @@ target = (
 
 (
     target.alias("t")
-    .merge(
-        hes_apc_processed.alias("s"),
-        "t.epikey = s.epikey"
+    .merge(hes_apc_processed.alias("s"), "t.epikey = s.epikey")
+    .whenMatchedUpdateAll(
+        condition=" or ".join(f"t.{i} != s.{i}" for i in hes_apc_processed.columns)
     )
-    .whenMatchedUpdateAll(condition=" or ".join([f"t.{i} != s.{i}" for i in hes_apc_processed.columns]))
     .whenNotMatchedInsertAll()
     .whenNotMatchedBySourceDelete()
     .execute()
