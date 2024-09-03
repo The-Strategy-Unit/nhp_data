@@ -11,7 +11,8 @@ from delta.tables import DeltaTable
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
-from get_hes_apc import hes_apc
+from datasets.apc import hes_apc
+from datasets.icbs import main_icbs
 
 spark = DatabricksSession.builder.getOrCreate()
 
@@ -29,17 +30,6 @@ procedures = (
     .filter(F.col("procedure_code").rlike("^[^U-Z-]"))
     .select(F.col("epikey"))
 )
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC ## Get Provider Main ICB
-
-# COMMAND ----------
-
-main_icbs = spark.read.csv(
-    "/Volumes/su_data/nhp/reference_data/provider_main_icb.csv", header=True
-).select("provider", F.col("icb").alias("main_icb"))
 
 # COMMAND ----------
 

@@ -6,13 +6,15 @@
 
 # COMMAND ----------
 
-import json
 from itertools import chain
 
 from databricks.connect import DatabricksSession
 from delta.tables import DeltaTable
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
+
+from datasets.icbs import icb_mapping, main_icbs
+from datasets.providers import provider_successors_mapping, providers
 
 spark = DatabricksSession.builder.getOrCreate()
 
@@ -33,27 +35,11 @@ df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
 
 # COMMAND ----------
 
-with open(
-    f"/Volumes/su_data/nhp/reference_data/providers.json", "r", encoding="UTF-8"
-) as f:
-    providers = json.load(f)
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC
 # MAGIC ## Calculate provider column
 
 # COMMAND ----------
-
-provider_successors = spark.read.table(
-    "su_data.reference.provider_successors"
-).collect()
-
-provider_successors = {row["old_code"]: row["new_code"] for row in provider_successors}
-provider_successors_mapping = F.create_map(
-    [F.lit(x) for x in chain(*provider_successors.items())]
-)
 
 df = df.withColumn(
     "provider",
@@ -70,24 +56,8 @@ df = df.withColumn(
 
 # COMMAND ----------
 
-ccg_to_icb = spark.read.table("su_data.reference.ccg_to_icb").collect()
-
-ccg_to_icb = {row["ccg"]: row["icb22cdh"] for row in ccg_to_icb}
-icb_mapping = F.create_map([F.lit(x) for x in chain(*ccg_to_icb.items())])
-
 df = df.withColumn("icb", icb_mapping[F.col("der_postcode_ccg_code")])
 
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC ## Get Provider Main ICB
-
-# COMMAND ----------
-
-main_icbs = spark.read.csv(
-    "/Volumes/su_data/nhp/reference_data/provider_main_icb.csv", header=True
-).select("provider", F.col("icb").alias("main_icb"))
 
 # COMMAND ----------
 

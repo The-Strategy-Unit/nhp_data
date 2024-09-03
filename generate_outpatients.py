@@ -13,6 +13,9 @@ from delta.tables import DeltaTable
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
+from datasets.icbs import icb_mapping, main_icbs
+from datasets.providers import provider_successors_mapping, providers
+
 spark = DatabricksSession.builder.getOrCreate()
 
 # COMMAND ----------
@@ -33,21 +36,12 @@ df = spark.read.table("hes.silver.opa")
 
 # COMMAND ----------
 
-provider_successors = spark.read.table(
-    "su_data.reference.provider_successors"
-).collect()
-
-provider_successors = {row["old_code"]: row["new_code"] for row in provider_successors}
-provider_successors_mapping = F.create_map(
-    [F.lit(x) for x in chain(*provider_successors.items())]
-)
-
 df = df.withColumn(
     "provider",
     F.when(F.col("sitetret") == "RW602", "R0A")
     .when(F.col("sitetret") == "RM318", "R0A")
     .otherwise(provider_successors_mapping[F.col("procode3")]),
-)
+).filter(F.col("provider").isin(providers))
 
 # COMMAND ----------
 
@@ -57,24 +51,7 @@ df = df.withColumn(
 
 # COMMAND ----------
 
-ccg_to_icb = spark.read.table("su_data.reference.ccg_to_icb").collect()
-
-ccg_to_icb = {row["ccg"]: row["icb22cdh"] for row in ccg_to_icb}
-icb_mapping = F.create_map([F.lit(x) for x in chain(*ccg_to_icb.items())])
-
 df = df.withColumn("icb", icb_mapping[F.col("ccg_residence")])
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC ## Get Provider Main ICB
-
-# COMMAND ----------
-
-main_icbs = spark.read.csv(
-    "/Volumes/su_data/nhp/reference_data/provider_main_icb.csv", header=True
-).select("provider", F.col("icb").alias("main_icb"))
 
 # COMMAND ----------
 

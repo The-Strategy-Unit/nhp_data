@@ -13,13 +13,13 @@ from databricks.sdk.runtime import dbutils
 from pyspark.sql import Window
 from pyspark.sql import functions as F
 
-from get_hes_apc import hes_apc
+from datasets.apc import hes_apc
 
 # COMMAND ----------
 
-save_path = "/Volumes/su_data/nhp/reference_data/provider_main_icb.csv"
+SAVE_PATH = "/Volumes/su_data/nhp/reference_data/provider_main_icb.csv"
 
-if os.path.exists(save_path):
+if os.path.exists(SAVE_PATH):
     dbutils.notebook.exit("data already exists: skipping")
 
 
@@ -40,4 +40,4 @@ main_icbs = (
 
 # COMMAND ----------
 
-main_icbs.to_csv(save_path)
+main_icbs.to_csv(SAVE_PATH)
