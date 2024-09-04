@@ -2,6 +2,16 @@ resources:
   jobs:
     Generate_NHP_Data:
       name: Generate NHP Data
+      email_notifications:
+        no_alert_for_skipped_runs: true
+      webhook_notifications:
+        on_success:
+          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
+        on_failure:
+          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
+      notification_settings:
+        no_alert_for_skipped_runs: true
+        no_alert_for_canceled_runs: true
       tasks:
         - task_key: Main_ICB
           notebook_task:
