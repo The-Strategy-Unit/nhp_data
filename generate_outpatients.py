@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC
-# MAGIC # Generate nhp inpatients
+# MAGIC # Generate nhp outpatients
 # MAGIC
 
 # COMMAND ----------
