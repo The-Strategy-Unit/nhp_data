@@ -10,6 +10,7 @@ from itertools import chain
 
 from databricks.connect import DatabricksSession
 from delta.tables import DeltaTable
+from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
@@ -141,6 +142,21 @@ hes_opa_processed = (
     )
     .repartition("fyear", "provider")
 )
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ### Append prior data
+#
+# MAGIC We currently only have 2021/22 and 2022/23 data, append the 2 prior years
+
+# COMMAND ----------
+prior_opa_data = spark.read.parquet(
+    "/Volumes/su_data/nhp/reference_data/nhp_opa_201920_202021.parquet"
+).withColumnRenamed("procode", "provider")
+
+hes_opa_processed = DataFrame.unionByName(hes_opa_processed, prior_opa_data)
 
 
 # COMMAND ----------
