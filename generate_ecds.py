@@ -188,6 +188,19 @@ hes_ecds_processed = (
     )
     .count()
     .withColumnRenamed("count", "arrivals")
+    .withColumn(
+        "group", F.when(F.col("is_ambulance"), "ambulance").otherwise("walk-in")
+    )
+    .withColumn(
+        "hsagrp",
+        F.concat(
+            F.lit("aae_"),
+            F.when(F.col("age") >= 18, "adult").otherwise("child"),
+            F.lit("_"),
+            F.col("group"),
+        ),
+    )
+    .withColumn("tretspef", F.lit("Other"))
     .repartition("fyear", "provider")
 )
 
