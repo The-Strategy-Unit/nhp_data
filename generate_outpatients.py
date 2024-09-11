@@ -106,7 +106,7 @@ hes_opa_processed = (
         F.col("fyear"),
         F.col("provider"),
         F.col("age"),
-        F.col("sex"),
+        F.col("sex").cast("int"),
         F.col("tretspef"),
         F.col("sitetret"),
         F.col("has_procedures"),
@@ -152,9 +152,14 @@ hes_opa_processed = (
 # MAGIC We currently only have 2021/22 and 2022/23 data, append the 2 prior years
 
 # COMMAND ----------
-prior_opa_data = spark.read.parquet(
-    "/Volumes/su_data/nhp/reference_data/nhp_opa_201920_202021.parquet"
-).withColumnRenamed("procode", "provider")
+prior_opa_data = (
+    spark.read.parquet(
+        "/Volumes/su_data/nhp/reference_data/nhp_opa_201920_202021.parquet"
+    )
+    .withColumnRenamed("procode", "provider")
+    .drop("n", "is_wla", "tretspef")
+    .withColumnRenamed("tretspef_raw", "tretspef")
+)
 
 hes_opa_processed = DataFrame.unionByName(hes_opa_processed, prior_opa_data)
 
