@@ -145,6 +145,7 @@ hes_ecds_processed = (
     df.filter(F.col("provider").isin(providers))
     .join(freq_attenders, "ec_ident")
     .join(main_icbs, "provider", "left")
+    .withColumn("fyear", F.regexp_replace(F.col("fyear"), "/", "").cast("int"))
     .withColumn(
         "is_main_icb", F.when(F.col("icb") == F.col("main_icb"), True).otherwise(False)
     )
