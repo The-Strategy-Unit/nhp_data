@@ -145,7 +145,9 @@ hes_ecds_processed = (
     df.filter(F.col("provider").isin(providers))
     .join(freq_attenders, "ec_ident")
     .join(main_icbs, "provider", "left")
-    .withColumn("fyear", F.regexp_replace(F.col("fyear"), "/", "").cast("int"))
+    .withColumn(
+        "fyear", F.regexp_replace(F.col("der_financial_year"), "/", "").cast("int")
+    )
     .withColumn(
         "is_main_icb", F.when(F.col("icb") == F.col("main_icb"), True).otherwise(False)
     )
@@ -170,7 +172,7 @@ hes_ecds_processed = (
         ),
     )
     .groupBy(
-        F.col("der_financial_year").alias("fyear"),
+        F.col("fyear"),
         F.col("provider"),
         F.col("age_at_arrival").alias("age"),
         F.col("sex"),
