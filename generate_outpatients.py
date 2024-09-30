@@ -145,27 +145,6 @@ hes_opa_processed = (
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC
-# MAGIC ### Append prior data
-#
-# MAGIC We currently only have 2021/22 and 2022/23 data, append the 2 prior years
-
-# COMMAND ----------
-prior_opa_data = (
-    spark.read.parquet(
-        "/Volumes/su_data/nhp/reference_data/nhp_opa_201920_202021.parquet"
-    )
-    .withColumnRenamed("procode", "provider")
-    .drop("n", "is_wla", "tretspef")
-    .withColumnRenamed("tretspef_raw", "tretspef")
-)
-
-hes_opa_processed = DataFrame.unionByName(hes_opa_processed, prior_opa_data)
-
-
-# COMMAND ----------
-
 target = (
     DeltaTable.createIfNotExists(spark)
     .tableName("su_data.nhp.opa")
