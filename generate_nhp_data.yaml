@@ -35,6 +35,8 @@ resources:
         - task_key: NHP_APC_Mitigators
           depends_on:
             - task_key: NHP_APC
+            - task_key: NHP_ECDS
+            - task_key: NHP_OPA
           notebook_task:
             notebook_path: generate_inpatients_mitigators
             source: GIT
