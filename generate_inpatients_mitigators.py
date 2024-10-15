@@ -57,7 +57,7 @@ errors
 # COMMAND ----------
 
 (
-    spark.read.parquet("/Volumes/su_data/nhp/apc_mitigators/")
+    spark.read.table("su_data.nhp.apc_mitigators")
     .groupBy("type", "strategy")
     .count()
     .orderBy("type", "strategy")
