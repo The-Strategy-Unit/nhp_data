@@ -145,29 +145,8 @@ hes_opa_processed = (
 
 # COMMAND ----------
 
-target = (
-    DeltaTable.createIfNotExists(spark)
-    .tableName("su_data.nhp.opa")
-    .addColumns(hes_opa_processed.schema)
-    .execute()
-)
-
 (
-    target.alias("t")
-    .merge(
-        hes_opa_processed.alias("s"),
-        " and ".join(
-            f"t.{i} != s.{i}"
-            for i in hes_opa_processed.columns
-            if not i.endswith("attendances")
-        ),
-    )
-    .whenMatchedUpdateAll(
-        condition=" or ".join(
-            f"s.{i} != t.{i}" for i in ["attendances", "tele_attendances"]
-        )
-    )
-    .whenNotMatchedInsertAll()
-    .whenNotMatchedBySourceDelete()
-    .execute()
+    hes_opa_processed.write.partitionBy("fyear", "provider")
+    .mode("overwrite")
+    .saveAsTable("su_data.nhp.opa")
 )

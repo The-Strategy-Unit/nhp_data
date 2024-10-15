@@ -222,23 +222,8 @@ hes_ecds_processed = DataFrame.unionByName(hes_ecds_processed, prior_ecds_data)
 
 # COMMAND ----------
 
-target = (
-    DeltaTable.createIfNotExists(spark)
-    .tableName("su_data.nhp.ecds")
-    .addColumns(hes_ecds_processed.schema)
-    .execute()
-)
-
 (
-    target.alias("t")
-    .merge(
-        hes_ecds_processed.alias("s"),
-        " and ".join(
-            f"t.{i} != s.{i}" for i in hes_ecds_processed.columns if i != "arrivals"
-        ),
-    )
-    .whenMatchedUpdateAll(condition="s.arrivals != t.arrivals")
-    .whenNotMatchedInsertAll()
-    .whenNotMatchedBySourceDelete()
-    .execute()
+    hes_ecds_processed.write.partitionBy("fyear", "provider")
+    .mode("overwrite")
+    .saveAsTable("su_data.nhp.ecds")
 )
