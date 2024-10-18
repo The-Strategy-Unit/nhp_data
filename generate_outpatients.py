@@ -72,7 +72,7 @@ df = df.withColumn("icb", icb_mapping[F.col("ccg_residence")])
 
 hes_opa_processed = (
     df.filter(F.col("sex").isin(["1", "2"]))
-    .filter(F.col("atentype").isin(["1", "2", "3", "21", "22"]))
+    .filter(F.col("atentype").isin(["1", "2", "21", "22"]))
     .join(main_icbs, "provider", "left")
     .withColumn(
         "age",
