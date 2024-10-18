@@ -80,6 +80,7 @@ hes_opa_processed = (
         .when(F.col("apptage") > 90, 90)
         .otherwise(F.col("apptage")),
     )
+    .filter(F.col("age") <= 120)
     .withColumn(
         "is_main_icb", F.when(F.col("icb") == F.col("main_icb"), True).otherwise(False)
     )
