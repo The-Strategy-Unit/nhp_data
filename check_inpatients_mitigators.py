@@ -4,22 +4,19 @@ import pyspark.sql.types as T
 
 # COMMAND ----------
 
-nhp_apc = spark.read.table("su_data.nhp.apc").filter(F.col("fyear") == 202223)
+nhp_apc = (
+    spark.read.table("su_data.nhp.apc")
+    .filter(F.col("fyear") == 201920)
+    .filter(F.col("person_id").isNotNull())
+)
 diagnoses = spark.read.table("hes.silver.apc_diagnoses")
 procedures = spark.read.table("hes.silver.apc_procedures")
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC
-# MAGIC Load the counts of mitigators that exist in Sql currently
-
-# COMMAND ----------
-
-df_sql = (
-    spark.read
-    .option("header", True)
-    .csv("/Volumes/su_data/nhp/reference_data/sql_mitigators_counts.csv")
+# Using old file
+df_sql = spark.read.option("header", True).csv(
+    "/Volumes/su_data/nhp/reference_data/sql_mitigators_counts.csv"
 )
 
 # COMMAND ----------
@@ -30,9 +27,8 @@ df_sql = (
 # COMMAND ----------
 
 df_db = (
-    spark.read
-    .table("su_data.nhp.apc_mitigators")
-    .join(nhp_apc.filter(F.col("person_id").isNotNull()), "epikey")
+    spark.read.table("su_data.nhp.apc_mitigators")
+    .join(nhp_apc, "epikey")
     .groupBy("provider", "strategy")
     .agg(F.sum("sample_rate").alias("count_db"))
     .orderBy("provider", "strategy")
@@ -45,30 +41,10 @@ df_db = (
 
 # COMMAND ----------
 
-df = (
-    df_sql
-    .join(df_db, ["provider", "strategy"])
-    .withColumn("diff", (F.col("count_db") / F.col("count_sql") - 1))
-    .withColumn("check", F.abs(F.col("diff")) > 0.05)
+df = df_sql.join(df_db, ["provider", "strategy"]).withColumn(
+    "diff", (F.col("count_db") / F.col("count_sql") - 1)
 )
 
-(
-    df
-    .filter(F.col("check"))
-    .filter(~F.col("strategy").rlike("^(evidence_based|medicines_related|ambulatory_emergency)"))
-    .display()
-)
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC The same as above, but summarised to the mitigator level (ignoring different providers).
-# MAGIC
-# MAGIC Note the following we expect differences on:
-# MAGIC
-# MAGIC * ambulatory emergency care: changed the way we extract to use a more stable and workable code list. likely issues in the patterns used before
-# MAGIC * evidence based interventions: updated code lists
-# MAGIC * medicines related admissions: bug in Sql (explicit codes were not excluded from implicit properly)
 
 # COMMAND ----------
 
@@ -80,6 +56,31 @@ df_s = (
     )
     .withColumn("diff", (F.col("count_db") / F.col("count_sql") - 1))
     .withColumn("check", F.abs(F.col("diff")) > 0.05)
+    .filter(F.col("check"))
+    .persist()
 )
 
-df_s.filter(F.col("check")).orderBy("strategy").display()
+df_s.orderBy("strategy").display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ignore any of the mitigators which overall do not match above, check by provider
+
+# COMMAND ----------
+
+(
+    df.join(df_s, ["strategy"], how="anti")
+    .withColumn("check", F.abs(F.col("diff")) > 0.05)
+    .filter(F.col("check"))
+    .filter(~F.col("strategy").rlike("^(evidence_based|ambulatory_emergency)"))
+    .display()
+)
+
+# COMMAND ----------
+
+(spark.read.table("su_data.nhp.opa").display())
+
+# COMMAND ----------
+
+(spark.read.table("su_data.nhp.opa").filter(F.col("has_procedures").isNull()).count())
