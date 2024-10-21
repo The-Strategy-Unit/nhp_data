@@ -215,9 +215,20 @@ hes_ecds_processed = (
 # MAGIC We currently only have 2021/22 and 2022/23 data, append the 2 prior years
 
 # COMMAND ----------
-prior_ecds_data = spark.read.parquet(
-    "/Volumes/su_data/nhp/reference_data/nhp_aae_201920_202021.parquet"
-).withColumnRenamed("procode", "provider")
+prior_ecds_data = (
+    spark.read.parquet(
+        "/Volumes/su_data/nhp/reference_data/nhp_aae_201920_202021.parquet"
+    )
+    # make sure to apply same provider successor mapping
+    .withColumn(
+        "provider",
+        F.when(F.col("sitetret") == "RW602", "R0A")
+        .when(F.col("sitetret") == "RM318", "R0A")
+        .otherwise(provider_successors_mapping[F.col("procode")]),
+    )
+    .groupBy([i for i in hes_ecds_processed.columns if i != "arrivals"])
+    .agg(F.sum("arrivals").alias("arrivals"))
+)
 
 hes_ecds_processed = DataFrame.unionByName(hes_ecds_processed, prior_ecds_data)
 
