@@ -114,7 +114,7 @@ assert (
 
 target = (
     DeltaTable.createIfNotExists(spark)
-    .tableName("su_data.reference.provider_successors_dt")
+    .tableName("su_data.reference.provider_successors")
     .addColumns(provider_successors.schema)
     .execute()
 )
