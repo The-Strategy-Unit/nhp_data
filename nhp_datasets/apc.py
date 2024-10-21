@@ -3,9 +3,10 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
 from nhp_datasets.icbs import icb_mapping
-from nhp_datasets.providers import provider_successors_mapping, providers
+from nhp_datasets.providers import get_provider_successors_mapping, providers
 
 spark = DatabricksSession.builder.getOrCreate()
+provider_successors_mapping = get_provider_successors_mapping()
 
 hes_apc = (
     spark.read.table("hes.silver.apc")
