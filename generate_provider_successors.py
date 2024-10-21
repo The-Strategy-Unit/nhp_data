@@ -44,7 +44,7 @@ def get_predecessors(org_code: str) -> Iterator[str]:
     ).json()["Organisation"]
 
     # only include NHS Trusts
-    if r["Roles"]["Role"][0]["id"] != "RO197":
+    if not any(map(lambda x: x["id"] == "RO197", r["Roles"]["Role"])):
         return
 
     # return the current organisation code
@@ -74,7 +74,7 @@ provider_successors = spark.read.json(
     sc.parallelize(
         [{"old_code": q, "new_code": p} for p in providers for q in get_predecessors(p)]
     )
-)
+).select("old_code", "new_code")
 
 # show the results
 provider_successors.display()
