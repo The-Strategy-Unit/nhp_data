@@ -15,9 +15,10 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
 from nhp_datasets.icbs import icb_mapping, main_icbs
-from nhp_datasets.providers import provider_successors_mapping, providers
+from nhp_datasets.providers import get_provider_successors_mapping, providers
 
 spark = DatabricksSession.builder.getOrCreate()
+provider_successors_mapping = get_provider_successors_mapping()
 
 # COMMAND ----------
 
@@ -214,31 +215,27 @@ hes_ecds_processed = (
 # MAGIC We currently only have 2021/22 and 2022/23 data, append the 2 prior years
 
 # COMMAND ----------
-prior_ecds_data = spark.read.parquet(
-    "/Volumes/su_data/nhp/reference_data/nhp_aae_201920_202021.parquet"
-).withColumnRenamed("procode", "provider")
+prior_ecds_data = (
+    spark.read.parquet(
+        "/Volumes/su_data/nhp/reference_data/nhp_aae_201920_202021.parquet"
+    )
+    # make sure to apply same provider successor mapping
+    .withColumn(
+        "provider",
+        F.when(F.col("sitetret") == "RW602", "R0A")
+        .when(F.col("sitetret") == "RM318", "R0A")
+        .otherwise(provider_successors_mapping[F.col("procode")]),
+    )
+    .groupBy([i for i in hes_ecds_processed.columns if i != "arrivals"])
+    .agg(F.sum("arrivals").alias("arrivals"))
+)
 
 hes_ecds_processed = DataFrame.unionByName(hes_ecds_processed, prior_ecds_data)
 
 # COMMAND ----------
 
-target = (
-    DeltaTable.createIfNotExists(spark)
-    .tableName("su_data.nhp.ecds")
-    .addColumns(hes_ecds_processed.schema)
-    .execute()
-)
-
 (
-    target.alias("t")
-    .merge(
-        hes_ecds_processed.alias("s"),
-        " and ".join(
-            f"t.{i} != s.{i}" for i in hes_ecds_processed.columns if i != "arrivals"
-        ),
-    )
-    .whenMatchedUpdateAll(condition="s.arrivals != t.arrivals")
-    .whenNotMatchedInsertAll()
-    .whenNotMatchedBySourceDelete()
-    .execute()
+    hes_ecds_processed.write.partitionBy("fyear", "provider")
+    .mode("overwrite")
+    .saveAsTable("su_data.nhp.ecds")
 )

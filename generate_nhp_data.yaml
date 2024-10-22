@@ -13,7 +13,14 @@ resources:
         no_alert_for_skipped_runs: true
         no_alert_for_canceled_runs: true
       tasks:
+        - task_key: Generate_Provider_Successors
+          notebook_task:
+            notebook_path: generate_provider_successors
+            source: GIT
+          job_cluster_key: generate_nhp_apc
         - task_key: Main_ICB
+          depends_on:
+            - task_key: Generate_Provider_Successors
           notebook_task:
             notebook_path: generate_main_icb
             source: GIT
@@ -28,6 +35,8 @@ resources:
         - task_key: NHP_APC_Mitigators
           depends_on:
             - task_key: NHP_APC
+            - task_key: NHP_ECDS
+            - task_key: NHP_OPA
           notebook_task:
             notebook_path: generate_inpatients_mitigators
             source: GIT

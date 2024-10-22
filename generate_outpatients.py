@@ -15,9 +15,10 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
 from nhp_datasets.icbs import icb_mapping, main_icbs
-from nhp_datasets.providers import provider_successors_mapping, providers
+from nhp_datasets.providers import get_provider_successors_mapping, providers
 
 spark = DatabricksSession.builder.getOrCreate()
+provider_successors_mapping = get_provider_successors_mapping()
 
 # COMMAND ----------
 
@@ -72,7 +73,7 @@ df = df.withColumn("icb", icb_mapping[F.col("ccg_residence")])
 
 hes_opa_processed = (
     df.filter(F.col("sex").isin(["1", "2"]))
-    .filter(F.col("atentype").isin(["1", "2", "3", "21", "22"]))
+    .filter(F.col("atentype").isin(["1", "2", "21", "22"]))
     .join(main_icbs, "provider", "left")
     .withColumn(
         "age",
@@ -80,6 +81,7 @@ hes_opa_processed = (
         .when(F.col("apptage") > 90, 90)
         .otherwise(F.col("apptage")),
     )
+    .filter(F.col("age") <= 120)
     .withColumn(
         "is_main_icb", F.when(F.col("icb") == F.col("main_icb"), True).otherwise(False)
     )
@@ -145,29 +147,8 @@ hes_opa_processed = (
 
 # COMMAND ----------
 
-target = (
-    DeltaTable.createIfNotExists(spark)
-    .tableName("su_data.nhp.opa")
-    .addColumns(hes_opa_processed.schema)
-    .execute()
-)
-
 (
-    target.alias("t")
-    .merge(
-        hes_opa_processed.alias("s"),
-        " and ".join(
-            f"t.{i} != s.{i}"
-            for i in hes_opa_processed.columns
-            if not i.endswith("attendances")
-        ),
-    )
-    .whenMatchedUpdateAll(
-        condition=" or ".join(
-            f"s.{i} != t.{i}" for i in ["attendances", "tele_attendances"]
-        )
-    )
-    .whenNotMatchedInsertAll()
-    .whenNotMatchedBySourceDelete()
-    .execute()
+    hes_opa_processed.write.partitionBy("fyear", "provider")
+    .mode("overwrite")
+    .saveAsTable("su_data.nhp.opa")
 )
