@@ -170,9 +170,15 @@ hes_ecds_processed = (
     )
     .withColumn(
         "is_discharged_no_treatment",
-        ~(
-            F.col("Der_EC_Investigation_All").isNotNull()
-            | F.col("Der_EC_Treatment_All").isNotNull()
+        (
+            (
+                F.col("Der_EC_Investigation_All").isNull()
+                | (F.col("Der_EC_Investigation_All") == "1088291000000101")
+            )
+            & (
+                F.col("Der_EC_Treatment_All").isNull()
+                | (F.col("Der_EC_Treatment_All") == "183964008")
+            )
         ),
     )
     # for the boolean columns, default to False if null
