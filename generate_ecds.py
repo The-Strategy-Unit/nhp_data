@@ -30,7 +30,7 @@ provider_successors_mapping = get_provider_successors_mapping()
 
 df = spark.read.parquet(
     "abfss://nhse-nhp-data@sudata.dfs.core.windows.net/NHP_EC_Core/"
-)
+).filter(F.col("sex").isin(["1", "2"]))
 
 df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
 
@@ -172,6 +172,18 @@ hes_ecds_processed = (
             F.col("Der_EC_Investigation_All").isNotNull()
             | F.col("Der_EC_Treatment_All").isNotNull()
         ),
+    )
+    # for the boolean columns, default to False if null
+    .fillna(
+        {
+            k: False
+            for k in [
+                "is_ambulance",
+                "is_low_cost_referred_or_discharged",
+                "is_left_before_treatment",
+                "is_discharged_no_treatment",
+            ]
+        }
     )
     .groupBy(
         F.col("fyear"),
