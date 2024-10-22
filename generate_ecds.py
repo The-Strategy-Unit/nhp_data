@@ -28,9 +28,11 @@ provider_successors_mapping = get_provider_successors_mapping()
 
 # COMMAND ----------
 
-df = spark.read.parquet(
-    "abfss://nhse-nhp-data@sudata.dfs.core.windows.net/NHP_EC_Core/"
-).filter(F.col("sex").isin(["1", "2"]))
+df = (
+    spark.read.parquet("abfss://nhse-nhp-data@sudata.dfs.core.windows.net/NHP_EC_Core/")
+    .filter(F.col("sex").isin(["1", "2"]))
+    .filter(F.col("deleted") == 0)
+)
 
 df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
 
