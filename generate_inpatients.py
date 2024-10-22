@@ -27,7 +27,9 @@ spark = DatabricksSession.builder.getOrCreate()
 procedures = (
     spark.read.table("hes.silver.apc_procedures")
     .filter(F.col("procedure_order") == 1)
-    .filter(F.col("procedure_code").rlike("^[^U-Z-]"))
+    .filter(~F.col("procedure_code").rlike("^O(1[1-46]|28|3[01346]|4[2-8]|5[23]|)"))
+    .filter(~F.col("procedure_code").rlike("^X[6-9]"))
+    .filter(~F.col("procedure_code").rlike("^[UYZ]"))
     .select(F.col("epikey"))
 )
 
@@ -81,11 +83,9 @@ hes_apc_processed = (
     .filter(F.col("hsagrp").isNotNull())
     # add has_procedure column
     .join(
-        procedures.filter(F.col("procedure_order") == 1)
-        .filter(~F.col("procedure_code").rlike("^O(1[1-46]|28|3[01346]|4[2-8]|5[23]|)"))
-        .filter(~F.col("procedure_code").rlike("^X[6-9]"))
-        .filter(~F.col("procedure_code").rlike("^[UYZ]"))
-        .select(F.col("epikey"), F.lit(True).alias("has_procedure")),
+        procedures.filter(F.col("procedure_order") == 1).select(
+            F.col("epikey"), F.lit(True).alias("has_procedure")
+        ),
         "epikey",
         "left",
     )
