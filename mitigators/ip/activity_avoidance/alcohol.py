@@ -33,6 +33,8 @@ The AAFs are also sourced from the above referenced document.
 """
 # pylint: enable=line-too-long
 
+import json
+
 import pyspark.sql.types as T
 from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
@@ -41,6 +43,7 @@ from hes_datasets import any_diagnosis, diagnoses, nhp_apc
 from mitigators import activity_avoidance_mitigator
 
 spark = DatabricksSession.builder.getOrCreate()
+sc = spark.sparkContext
 
 
 @activity_avoidance_mitigator()
@@ -72,53 +75,52 @@ def _alcohol_wholly_attributable():
 
 
 def _alcohol_partially_attributable(condition_group):
+    icd = spark.read.table("su_data.reference.icd10_codes")
+
+    with open("alcohol_fractions.json") as f:
+        aaf = json.load(f)
+
+    ages = list(zip(aaf["ages"], aaf["ages"][1:] + [10000]))
+    aaf = [
+        {
+            "regex": v["regex"],
+            "sex": s1,
+            "type": k,
+            "min_age": min_age,
+            "max_age": max_age - 1,
+            "value": age_value,
+        }
+        for i in [
+            j if "mortality" in j else {"mortality": j, "morbidity": j}
+            for i in aaf["data"][condition_group].values()
+            for j in i.values()
+        ]
+        for k, v in i.items()
+        for s1, s2 in [(1, "male"), (2, "female")]
+        if s2 in v
+        for (min_age, max_age), age_value in zip(ages, v[s2])
+        if 0 < age_value <= 1
+    ]
     aaf = (
-        spark.read.option("header", "true")
-        .option("delimiter", ",")
-        .schema(
-            T.StructType(
-                [
-                    T.StructField("condition", T.StringType(), False),
-                    T.StructField("condition_group", T.StringType(), False),
-                    T.StructField("sex", T.StringType(), False),
-                    T.StructField("min_age", T.IntegerType(), False),
-                    T.StructField("max_age", T.IntegerType(), False),
-                    T.StructField("value", T.DoubleType(), False),
-                    T.StructField("diagnoses", T.StringType(), False),
-                    T.StructField("mortality_flag", T.IntegerType(), True),
-                ]
-            )
-        )
-        .csv("/Volumes/su_data/nhp/reference_data/alcohol_attributable_fractions.csv")
-        .filter(F.col("value") > 0)
-        .filter(F.col("condition_group") == condition_group)
-    )
-
-    icd10_codes = spark.read.table("su_data.reference.icd10_codes")
-
-    aaf_mapping = (
-        aaf.alias("aaf")
-        # create a row per diagnosis code, replacing the need to regex join on the full dataset
-        # this gives a significant performance boost in practice
-        .join(
-            icd10_codes,
-            F.expr("icd10 RLIKE concat('^', diagnoses)"),
-        )
+        spark.read.json(sc.parallelize([aaf]))
+        .join(icd.select("icd10"), F.expr("icd10 rlike regex"))
+        .persist()
     )
 
     return (
         nhp_apc.join(diagnoses, ["epikey", "fyear"])
+        .withColumn(
+            "type", F.when(F.col("dismeth") == 4, "mortality").otherwise("morbidity")
+        )
         .alias("nhp_apc")
         .join(
-            aaf_mapping.alias("aaf"),
+            aaf.alias("aaf").hint("range_join", 10),
             [
                 F.col("nhp_apc.diagnosis") == F.col("aaf.icd10"),
                 F.col("age") >= F.col("min_age"),
                 F.col("age") <= F.col("max_age"),
                 F.col("nhp_apc.sex") == F.col("aaf.sex"),
-                F.col("mortality_flag").isNull()
-                | ((F.col("mortality_flag") == 1) & (F.col("dismeth") == "4"))
-                | ((F.col("mortality_flag") != 1) & (F.col("dismeth") != "4")),
+                F.col("nhp_apc.type") == F.col("aaf.type"),
             ],
         )
         .groupBy("epikey")
