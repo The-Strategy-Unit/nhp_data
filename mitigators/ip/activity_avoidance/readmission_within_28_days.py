@@ -48,10 +48,9 @@ def _readmission_within_28_days():
     join_condition = [
         F.col("readm.person_id") == F.col("prior.person_id"),
         F.col("readm.epikey") != F.col("prior.epikey"),
-        F.col("readm.admidate") > F.col("prior.admidate"),
-        F.col("readm.disdate") > F.col("prior.disdate"),
-        F.col("readm.admidate") >= F.col("prior.disdate"),
-        F.datediff(F.col("readm.admidate"), F.col("prior.disdate")) <= 28,
+        (F.col("readm.admidate") > F.col("prior.admidate"))
+        | (F.col("readm.disdate") > F.col("prior.disdate")),
+        F.datediff(F.col("readm.admidate"), F.col("prior.disdate")).between(0, 28),
     ]
 
     return (
