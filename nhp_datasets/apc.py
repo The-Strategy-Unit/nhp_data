@@ -13,7 +13,7 @@ hes_apc = (
     .filter(F.col("last_episode_in_spell") == True)
     # remove well babies
     .filter(F.col("well_baby_ind") == "N")
-    .filter(F.col("sushrg") != "PB03Z")
+    .filter((F.col("sushrg") != "PB03Z") | F.col("sushrg").isNull())
     .filter(~((F.col("tretspef") == "424") & (F.col("epitype") == "3")))
     # ---
     .filter(F.col("sex").isin(["1", "2"]))
