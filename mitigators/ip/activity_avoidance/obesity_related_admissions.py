@@ -42,8 +42,9 @@ def _obesity_related_admissions():
     return (
         nhp_apc.join(diagnoses, ["epikey", "fyear"])
         .filter(F.col("diag_order") == 1)
-        # I12 and I22 are massively over-represented prior to 2012/13, skewing the results
-        .filter(~F.col("diagnosis").rlike("^I[12]2"))
+        # If running prior to 2012/13, I12 and I22 should be filtered out as they are massively
+        # over-represented (coding change?)
+        # .filter(~F.col("diagnosis").rlike("^I[12]2"))
         .join(oaf, ["diagnosis"])
         .select(F.col("epikey"), F.col("fraction").alias("sample_rate"))
     )
