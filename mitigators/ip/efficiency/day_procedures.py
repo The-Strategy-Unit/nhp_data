@@ -104,9 +104,7 @@ from mitigators import efficiency_mitigator
 
 
 def _day_procedures(day_procedure_type):
-    with open(
-        "/Volumes/su_data/nhp/reference_data/day_procedures.json", "r", encoding="UTF-8"
-    ) as f:
+    with open("reference_data/day_procedures.json", "r", encoding="UTF-8") as f:
         codes = json.load(f)[day_procedure_type]
 
     classpats = ["1"] if day_procedure_type.endswith("dc") else ["1", "2"]

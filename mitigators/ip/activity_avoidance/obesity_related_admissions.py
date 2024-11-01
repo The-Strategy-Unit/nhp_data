@@ -36,7 +36,7 @@ def _obesity_related_admissions():
                 ]
             )
         )
-        .csv("/Volumes/su_data/nhp/reference_data/obesity_attributable_fractions.csv")
+        .csv("reference_data/obesity_attributable_fractions.csv")
     )
 
     return (

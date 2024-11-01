@@ -77,7 +77,7 @@ def _alcohol_wholly_attributable():
 def _alcohol_partially_attributable(condition_group):
     icd = spark.read.table("su_data.reference.icd10_codes")
 
-    with open("alcohol_fractions.json") as f:
+    with open("reference_data/alcohol_fractions.json", "r", encoding="UTF-8") as f:
         aaf = json.load(f)
 
     ages = list(zip(aaf["ages"], aaf["ages"][1:] + [10000]))
