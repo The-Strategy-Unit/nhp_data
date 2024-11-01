@@ -25,19 +25,24 @@ spark = DatabricksSession.builder.getOrCreate()
 
 @activity_avoidance_mitigator()
 def _obesity_related_admissions():
-    oaf = (
-        spark.read.option("header", "true")
-        .option("delimiter", ",")
-        .schema(
-            T.StructType(
-                [
-                    T.StructField("diagnosis", T.StringType(), False),
-                    T.StructField("fraction", T.DoubleType(), False),
-                ]
+    sc = spark.sparkContext
+    # spark cannot read the files as relative paths.
+    # load into memory then convert to a spark dataframe
+    filename = "reference_data/obesity_attributable_fractions.csv"
+    with open(filename, "r", encoding="UTF-8") as f:
+        oaf = (
+            spark.read.option("header", "true")
+            .option("delimiter", ",")
+            .schema(
+                T.StructType(
+                    [
+                        T.StructField("diagnosis", T.StringType(), False),
+                        T.StructField("fraction", T.DoubleType(), False),
+                    ]
+                )
             )
+            .csv(sc.parallelize([f.read()]))
         )
-        .csv("reference_data/obesity_attributable_fractions.csv")
-    )
 
     return (
         nhp_apc.join(diagnoses, ["epikey", "fyear"])

@@ -33,20 +33,25 @@ spark = DatabricksSession.builder.getOrCreate()
 
 @activity_avoidance_mitigator()
 def _smoking():
-    saf = (
-        spark.read.option("header", "true")
-        .option("delimiter", ",")
-        .schema(
-            T.StructType(
-                [
-                    T.StructField("diagnoses", T.StringType(), False),
-                    T.StructField("sex", T.IntegerType(), False),
-                    T.StructField("value", T.DoubleType(), False),
-                ]
+    sc = spark.sparkContext
+    # spark cannot read the files as relative paths.
+    # load into memory then convert to a spark dataframe
+    filename = "reference_data/smoking_attributable_fractions.csv"
+    with open(filename, "r", encoding="UTF-8") as f:
+        saf = (
+            spark.read.option("header", "true")
+            .option("delimiter", ",")
+            .schema(
+                T.StructType(
+                    [
+                        T.StructField("diagnoses", T.StringType(), False),
+                        T.StructField("sex", T.IntegerType(), False),
+                        T.StructField("value", T.DoubleType(), False),
+                    ]
+                )
             )
+            .csv(sc.parallelize([f.read()]))
         )
-        .csv("reference_data/smoking_attributable_fractions.csv")
-    )
 
     icd10_codes = spark.read.table("su_data.reference.icd10_codes")
 
