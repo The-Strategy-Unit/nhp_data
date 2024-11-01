@@ -68,10 +68,6 @@ def _frail_elderly():
     hes_apc = (
         spark.read.table("hes.silver.apc")
         .filter(F.col("last_episode_in_spell"))
-        .filter(F.col("sex").isin(["1", "2"]))
-        .filter(F.col("well_baby_ind") != "Y")
-        .filter(F.col("sushrg") != "PB03Z")
-        .filter(~((F.col("tretspef") == "424") & (F.col("epitype") == "3")))
         .withColumnRenamed("person_id_deid", "person_id")
     )
 
