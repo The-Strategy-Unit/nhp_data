@@ -1,6 +1,9 @@
 # Databricks notebook source
 import pyspark.sql.functions as F
-import pyspark.sql.types as T
+from databricks.connect import DatabricksSession
+
+spark = DatabricksSession.builder.getOrCreate()
+
 
 # COMMAND ----------
 
@@ -50,11 +53,15 @@ df = df_sql.join(df_db, ["provider", "strategy"]).withColumn(
 # MAGIC %md
 # MAGIC We ignore the following:
 # MAGIC
-# MAGIC - evidence_based_interventions: changed some definitions
-# MAGIC - ambulatory_emergency: fixed bugs in old code
-# MAGIC - pre-op_los: added more procedures to the exclude list (to match has_procedure definition)
-# MAGIC - alcohol_partially_attributable: fixed bugs in reference table
-# MAGIC - excess_beddays: fixed bug in logic when loading reference table (handling NULL value '-')
+# MAGIC - `evidence_based_interventions`: changed some definitions
+# MAGIC - `ambulatory_emergency`: fixed bugs in old code
+# MAGIC - `pre-op_los`: added more procedures to the exclude list (to match has_procedure
+# MAGIC    definition)
+# MAGIC - `alcohol_partially_attributable`: fixed bugs in reference table
+# MAGIC - `excess_beddays`: fixed bug in logic when loading reference table (handling NULL value
+# MAGIC    '-')
+# MAGIC - `readmissions_within_28_days`: old logic was excluding well-baby admissions from the prior
+# MAGIC   admissions, undercounting readmissions
 
 # COMMAND ----------
 
@@ -64,6 +71,7 @@ mitigators_to_remove = [
     "pre-op_los",
     "alcohol_partially_attributable",
     "excess_beddays",
+    "readmissions_within_28_days",
 ]
 
 # COMMAND ----------
