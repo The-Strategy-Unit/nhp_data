@@ -1,6 +1,9 @@
 # Databricks notebook source
 import pyspark.sql.functions as F
-import pyspark.sql.types as T
+from databricks.connect import DatabricksSession
+
+spark = DatabricksSession.builder.getOrCreate()
+
 
 # COMMAND ----------
 
@@ -45,6 +48,31 @@ df = df_sql.join(df_db, ["provider", "strategy"]).withColumn(
     "diff", (F.col("count_db") / F.col("count_sql") - 1)
 )
 
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC We ignore the following:
+# MAGIC
+# MAGIC - `evidence_based_interventions`: changed some definitions
+# MAGIC - `ambulatory_emergency`: fixed bugs in old code
+# MAGIC - `pre-op_los`: added more procedures to the exclude list (to match has_procedure
+# MAGIC    definition)
+# MAGIC - `alcohol_partially_attributable`: fixed bugs in reference table
+# MAGIC - `excess_beddays`: fixed bug in logic when loading reference table (handling NULL value
+# MAGIC    '-')
+# MAGIC - `readmissions_within_28_days`: old logic was excluding well-baby admissions from the prior
+# MAGIC   admissions, undercounting readmissions
+
+# COMMAND ----------
+
+mitigators_to_remove = [
+    "evidence_based_interventions",
+    "ambulatory_emergency_care",
+    "pre-op_los",
+    "alcohol_partially_attributable",
+    "excess_beddays",
+    "readmissions_within_28_days",
+]
 
 # COMMAND ----------
 
@@ -56,31 +84,26 @@ df_s = (
     )
     .withColumn("diff", (F.col("count_db") / F.col("count_sql") - 1))
     .withColumn("check", F.abs(F.col("diff")) > 0.05)
-    .filter(F.col("check"))
     .persist()
 )
 
-df_s.orderBy("strategy").display()
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ignore any of the mitigators which overall do not match above, check by provider
-
-# COMMAND ----------
-
 (
-    df.join(df_s, ["strategy"], how="anti")
-    .withColumn("check", F.abs(F.col("diff")) > 0.05)
-    .filter(F.col("check"))
-    .filter(~F.col("strategy").rlike("^(evidence_based|ambulatory_emergency)"))
+    df_s.filter(~F.col("strategy").rlike(f"^({'|'.join(mitigators_to_remove)})_"))
+    .orderBy(F.desc(F.abs("diff")))
     .display()
 )
 
 # COMMAND ----------
 
-(spark.read.table("su_data.nhp.opa").display())
+# MAGIC %md
+# MAGIC by provider, only those with significant differences to check
 
 # COMMAND ----------
 
-(spark.read.table("su_data.nhp.opa").filter(F.col("has_procedures").isNull()).count())
+(
+    df.withColumn("check", F.abs(F.col("diff")) > 0.025)
+    .filter(F.col("check"))
+    .filter(~F.col("strategy").rlike(f"^({'|'.join(mitigators_to_remove)})_"))
+    .orderBy("strategy")
+    .display()
+)

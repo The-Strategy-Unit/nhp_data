@@ -21,7 +21,6 @@ def _preop_los(days):
     return (
         nhp_apc.filter(F.col("admimeth").startswith("1"))
         .join(procedures.filter(F.col("procedure_order") == 1), ["epikey", "fyear"])
-        .filter(~F.col("procedure_code").rlike("^([UYZ]|X62)"))
         .filter(~F.col("procedure_code").rlike("^O(1[1-46]|28|3[01346]|4[2-8]|5[23]|)"))
         .filter(~F.col("procedure_code").rlike("^X[6-9]"))
         .filter(~F.col("procedure_code").rlike("^[UYZ]"))

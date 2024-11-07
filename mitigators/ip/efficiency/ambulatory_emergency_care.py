@@ -24,27 +24,30 @@ The model groups these individual conditions into four categories:
 - Ambulatory emergency care (very high potential) (IP-EF-004)
 """
 
+import json
+import re
+
+import pandas as pd
+from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 
 from hes_datasets import diagnoses, nhp_apc
 from mitigators import efficiency_mitigator
-import json
-import pandas as pd
-import re
-from databricks.connect import DatabricksSession
 
 spark = DatabricksSession.builder.getOrCreate()
 
+
 def _generate_aec_directory(group):
-    ref_path = "/Volumes/su_data/reference/raw"
-    with open("aec_directory.json", "r", encoding="UTF-8") as f:
+    with open("reference_data/aec_directory.json", "r", encoding="UTF-8") as f:
         aec_directory = json.load(f)
+
+    ref_path = "/Volumes/su_data/reference/raw"
 
     with open(f"{ref_path}/hrgs.json", "r", encoding="UTF-8") as f:
         hrgs = json.load(f)
 
     hrgs = [
-        v3   
+        v3
         for v1 in hrgs.values()
         for v2 in v1["subchapters"].values()
         for v3 in v2["hrgs"].keys()
@@ -52,18 +55,22 @@ def _generate_aec_directory(group):
 
     icd10 = pd.read_csv(f"{ref_path}/icd10_codes.csv")["icd10"].to_list()
 
-    df = pd.DataFrame([
-        {
-            "diagnosis": icd,
-            "sushrg": hrg
-        }
-        for v1 in aec_directory.values()
-        for v2 in v1.values()
-        if v2["group"] == group
-        for hrg in [h for h in hrgs if re.match(f"^({'|'.join(v2['hrg_codes'])})$", h)] 
-        for icd in [i for i in icd10 if re.match(f"^({'|'.join(v2['icd10_codes'])})$", i)]
-    ])
+    df = pd.DataFrame(
+        [
+            {"diagnosis": icd, "sushrg": hrg}
+            for v1 in aec_directory.values()
+            for v2 in v1.values()
+            if v2["group"] == group
+            for hrg in [
+                h for h in hrgs if re.match(f"^({'|'.join(v2['hrg_codes'])})$", h)
+            ]
+            for icd in [
+                i for i in icd10 if re.match(f"^({'|'.join(v2['icd10_codes'])})$", i)
+            ]
+        ]
+    )
     return spark.createDataFrame(df)
+
 
 def _ambulatory_emergency_care(group):
     aec_df = _generate_aec_directory(group)
@@ -89,6 +96,7 @@ def _ambulatory_emergency_care_low():
 @efficiency_mitigator()
 def _ambulatory_emergency_care_moderate():
     return _ambulatory_emergency_care("moderate")
+
 
 @efficiency_mitigator()
 def _ambulatory_emergency_care_high():

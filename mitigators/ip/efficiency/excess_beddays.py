@@ -45,13 +45,14 @@ def _excess_beddays(group):
             T.StructType(
                 [
                     T.StructField("sushrg", T.StringType(), False),
-                    T.StructField("elective", T.StringType(), False),
-                    T.StructField("emergency", T.StringType(), False),
+                    T.StructField("elective", T.IntegerType(), True),
+                    T.StructField("emergency", T.IntegerType(), True),
                 ]
             )
         )
-        .csv("/Volumes/su_data/nhp/reference_data/hrg_trimpoints.csv")
+        .csv("/Volumes/su_data/nhp/reference_data/hrg_trimpoints.csv", nanValue="-")
         .select("sushrg", F.col(group).alias("trimpoint"))
+        .dropna()
     )
 
     return (

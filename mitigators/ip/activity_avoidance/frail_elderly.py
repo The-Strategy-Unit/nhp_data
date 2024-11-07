@@ -63,6 +63,14 @@ def _frail_elderly():
 
     icd10_codes = spark.read.table("su_data.reference.icd10_codes")
 
+    # make sure to use full hes table - our nhp views filter on certain columns
+    # (e.g. not all providers included)
+    hes_apc = (
+        spark.read.table("hes.silver.apc")
+        .filter(F.col("last_episode_in_spell"))
+        .withColumnRenamed("person_id_deid", "person_id")
+    )
+
     frs_ref_mapping = (
         frs_ref.alias("frs")
         # create a row per diagnosis code, replacing the need to regex join on the full dataset
@@ -74,16 +82,15 @@ def _frail_elderly():
                 .withColumn("icd10", F.col("diagnosis").substr(1, 3))
                 .select("diagnosis", "icd10")
             ),
-            "icd10"
+            "icd10",
         )
         .filter(F.length(F.col("diagnosis")) > 3)
         .select("diagnosis", "score")
     )
 
     frs_scores = (
-        diagnoses
-        .join(frs_ref_mapping, "diagnosis")
-        .join(nhp_apc, "epikey")
+        diagnoses.join(frs_ref_mapping, "diagnosis")
+        .join(hes_apc, "epikey")
         .withColumn("start", F.col("disdate"))
         .withColumn("end", F.date_add(F.col("disdate"), 2 * 365))
         .select("person_id", "epikey", "diagnosis", "score", "start", "end")
@@ -97,10 +104,10 @@ def _frail_elderly():
                 F.col("i.person_id") == F.col("frs_scores.person_id"),
                 # current admission is within 2 years of prior discharge
                 (
-                    (F.col("admidate") > F.col("start")) & (F.col("admidate") <= F.col("end"))
-                    |
-                    (F.col("i.epikey") == F.col("frs_scores.epikey"))
-                )
+                    (F.col("admidate") > F.col("start"))
+                    & (F.col("admidate") <= F.col("end"))
+                    | (F.col("i.epikey") == F.col("frs_scores.epikey"))
+                ),
             ],
         )
         .filter(F.col("admimeth").startswith("2"))

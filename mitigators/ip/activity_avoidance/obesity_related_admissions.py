@@ -25,25 +25,31 @@ spark = DatabricksSession.builder.getOrCreate()
 
 @activity_avoidance_mitigator()
 def _obesity_related_admissions():
-    oaf = (
-        spark.read.option("header", "true")
-        .option("delimiter", ",")
-        .schema(
-            T.StructType(
-                [
-                    T.StructField("diagnosis", T.StringType(), False),
-                    T.StructField("fraction", T.DoubleType(), False),
-                ]
+    sc = spark.sparkContext
+    # spark cannot read the files as relative paths.
+    # load into memory then convert to a spark dataframe
+    filename = "reference_data/obesity_attributable_fractions.csv"
+    with open(filename, "r", encoding="UTF-8") as f:
+        oaf = (
+            spark.read.option("header", "true")
+            .option("delimiter", ",")
+            .schema(
+                T.StructType(
+                    [
+                        T.StructField("diagnosis", T.StringType(), False),
+                        T.StructField("fraction", T.DoubleType(), False),
+                    ]
+                )
             )
+            .csv(sc.parallelize([f.read()]))
         )
-        .csv("/Volumes/su_data/nhp/reference_data/obesity_attributable_fractions.csv")
-    )
 
     return (
         nhp_apc.join(diagnoses, ["epikey", "fyear"])
         .filter(F.col("diag_order") == 1)
-        # I12 and I22 are massively over-represented prior to 2012/13, skewing the results
-        .filter(~F.col("diagnosis").rlike("^I[12]2"))
+        # If running prior to 2012/13, I12 and I22 should be filtered out as they are massively
+        # over-represented (coding change?)
+        # .filter(~F.col("diagnosis").rlike("^I[12]2"))
         .join(oaf, ["diagnosis"])
         .select(F.col("epikey"), F.col("fraction").alias("sample_rate"))
     )

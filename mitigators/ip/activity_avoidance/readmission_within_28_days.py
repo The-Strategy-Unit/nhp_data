@@ -10,6 +10,7 @@ Some of these patients may have been discharged from a different hospital than t
 readmitted to.
 """
 
+from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 
 from hes_datasets import nhp_apc
@@ -33,15 +34,23 @@ def _readmission_within_28_days():
     # it's possible that condition 2. could be relaxed to > from !=, but this may cause the logic to
     # fail across years if the epikeys are not unique across years
     readm = nhp_apc.alias("readm")
-    prior = nhp_apc.alias("prior")
+
+    # make sure to use full hes table - our nhp views filter on certain columns
+    # (e.g. not all providers included)
+    spark = DatabricksSession.builder.getOrCreate()
+    prior = (
+        spark.read.table("hes.silver.apc")
+        .filter(F.col("last_episode_in_spell"))
+        .withColumnRenamed("person_id_deid", "person_id")
+        .alias("prior")
+    )
 
     join_condition = [
         F.col("readm.person_id") == F.col("prior.person_id"),
         F.col("readm.epikey") != F.col("prior.epikey"),
-        F.col("readm.admidate") > F.col("prior.admidate"),
-        F.col("readm.disdate") > F.col("prior.disdate"),
-        F.col("readm.admidate") >= F.col("prior.disdate"),
-        F.datediff(F.col("readm.admidate"), F.col("prior.disdate")) <= 28,
+        (F.col("readm.admidate") > F.col("prior.admidate"))
+        | (F.col("readm.disdate") > F.col("prior.disdate")),
+        F.datediff(F.col("readm.admidate"), F.col("prior.disdate")).between(0, 28),
     ]
 
     return (
