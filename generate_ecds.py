@@ -24,7 +24,7 @@ provider_successors_mapping = get_provider_successors_mapping()
 
 # MAGIC %md
 # MAGIC
-# MAGIC ## Has Procedure
+# MAGIC ## ECDS source data
 
 # COMMAND ----------
 
@@ -69,6 +69,22 @@ df = df.withColumn("icb", icb_mapping[F.col("der_postcode_ccg_code")])
 # MAGIC
 # MAGIC ## Create ECDS Data
 
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ### Acuity mapping
+
+# COMMAND ----------
+acuity_mapping = {
+    "1077251000000100": "non-urgent",
+    "1077241000000103": "standard",
+    "1064901000000108": "urgent",
+    "1064911000000105": "very-urgent",
+    "1064891000000107": "immediate-resuscitation",
+}
+
+acuity_mapping = F.create_map([F.lit(x) for x in chain(*acuity_mapping.items())])
 
 # COMMAND ----------
 
@@ -152,6 +168,7 @@ hes_ecds_processed = (
     .withColumn(
         "fyear", F.regexp_replace(F.col("der_financial_year"), "/", "").cast("int")
     )
+    .withColumn("acuity", acuity_mapping[F.col("ec_acuity_snomed_ct")])
     .withColumn(
         "is_main_icb", F.when(F.col("icb") == F.col("main_icb"), True).otherwise(False)
     )
@@ -201,6 +218,7 @@ hes_ecds_processed = (
         F.col("der_provider_site_code").alias("sitetret"),
         F.col("ec_department_type").alias("aedepttype"),
         F.col("ec_attendancecategory").alias("attendance_category"),
+        F.col("acuity"),
         F.col("is_main_icb"),
         F.col("is_ambulance"),
         F.col("is_frequent_attender").cast("boolean"),
