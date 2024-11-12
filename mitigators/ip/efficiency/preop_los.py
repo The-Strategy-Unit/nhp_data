@@ -13,17 +13,15 @@ in these cases there is a valid clinical reason for the extended pre-op LOS.
 
 from pyspark.sql import functions as F
 
-from hes_datasets import nhp_apc, procedures
+from hes_datasets import nhp_apc
 from mitigators import efficiency_mitigator
+from nhp_datasets.apc import apc_primary_procedures
 
 
 def _preop_los(days):
     return (
         nhp_apc.filter(F.col("admimeth").startswith("1"))
-        .join(procedures.filter(F.col("procedure_order") == 1), ["epikey", "fyear"])
-        .filter(~F.col("procedure_code").rlike("^O(1[1-46]|28|3[01346]|4[2-8]|5[23]|)"))
-        .filter(~F.col("procedure_code").rlike("^X[6-9]"))
-        .filter(~F.col("procedure_code").rlike("^[UYZ]"))
+        .join(apc_primary_procedures, ["epikey"])
         .filter(F.col("admidate") <= F.col("date"))
         .filter(F.col("date") <= F.col("disdate"))
         .filter(F.date_diff(F.col("date"), F.col("admidate")) == days)
