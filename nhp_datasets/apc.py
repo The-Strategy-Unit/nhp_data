@@ -26,3 +26,11 @@ hes_apc = (
     .withColumn("icb", icb_mapping[F.col("ccg_residence")])
     .filter(F.col("provider").isin(providers))
 )
+
+apc_primary_procedures = (
+    spark.read.table("hes.silver.apc_procedures")
+    .filter(F.col("procedure_order") == 1)
+    .filter(~F.col("procedure_code").rlike("^O(1[1-46]|28|3[01346]|4[2-8]|5[23])"))
+    .filter(~F.col("procedure_code").rlike("^X[6-9]"))
+    .filter(~F.col("procedure_code").rlike("^[UYZ]"))
+)

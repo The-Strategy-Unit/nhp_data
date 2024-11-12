@@ -11,27 +11,10 @@ from delta.tables import DeltaTable
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
-from nhp_datasets.apc import hes_apc
+from nhp_datasets.apc import apc_primary_procedures, hes_apc
 from nhp_datasets.icbs import main_icbs
 
 spark = DatabricksSession.builder.getOrCreate()
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC ## Has Procedure
-
-# COMMAND ----------
-
-procedures = (
-    spark.read.table("hes.silver.apc_procedures")
-    .filter(F.col("procedure_order") == 1)
-    .filter(~F.col("procedure_code").rlike("^O(1[1-46]|28|3[01346]|4[2-8]|5[23]|)"))
-    .filter(~F.col("procedure_code").rlike("^X[6-9]"))
-    .filter(~F.col("procedure_code").rlike("^[UYZ]"))
-    .select(F.col("epikey"))
-)
 
 # COMMAND ----------
 
@@ -100,7 +83,7 @@ hes_apc_processed = (
     .filter(F.col("hsagrp").isNotNull())
     # add has_procedure column
     .join(
-        procedures.filter(F.col("procedure_order") == 1).select(
+        apc_primary_procedures.select(
             F.col("epikey"), F.lit(True).alias("has_procedure")
         ),
         "epikey",
