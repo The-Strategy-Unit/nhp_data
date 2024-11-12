@@ -37,6 +37,23 @@ procedures = (
 
 # MAGIC %md
 # MAGIC
+# MAGIC ## Spell has maternity delivery episode
+
+# COMMAND ----------
+
+mat_delivery_spells = (
+    spark.read.table("hes.silver.apc")
+    .filter(F.col("fce") == 1)
+    .filter(F.col("maternity_episode_type") == 1)
+    .select("susspellid")
+    .distinct()
+    .withColumn("maternity_delivery_in_spell", F.lit(True))
+)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
 # MAGIC ## Create Inpatients Data
 
 # COMMAND ----------
@@ -99,7 +116,9 @@ hes_apc_processed = (
         ["provider", "icb"],
         "left",
     )
-    .na.fill(False, ["has_procedure", "is_main_icb"])
+    # add in maternity_delivery_in_spell column
+    .join(mat_delivery_spells, on="susspellid", how="left")
+    .na.fill(False, ["has_procedure", "is_main_icb", "maternity_delivery_in_spell"])
     .select(
         F.col("epikey"),
         F.col("fyear"),
@@ -129,6 +148,7 @@ hes_apc_processed = (
         F.col("is_wla"),
         F.col("is_main_icb"),
         F.col("has_procedure"),
+        F.col("maternity_delivery_in_spell"),
     )
     .repartition("fyear", "provider")
 )
