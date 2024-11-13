@@ -60,14 +60,14 @@ df = df.withColumn("icb", icb_mapping[F.col("ccg_residence")])
 # MAGIC %md
 # MAGIC
 # MAGIC ## Create OPA Data
-
+# MAGIC
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC
 # MAGIC ### Extract data
-
+# MAGIC
 
 # COMMAND ----------
 
@@ -127,7 +127,7 @@ hes_opa_processed = (
         "type",
         F.concat(
             F.when(F.col("is_adult"), "adult").otherwise("child"),
-            F.lit("-"),
+            F.lit("_"),
             F.when(F.col("is_surgical_specialty"), "surgical").otherwise(
                 "non-surgical"
             ),
