@@ -75,6 +75,10 @@ def _generate_aec_directory(group):
 def _ambulatory_emergency_care(group):
     aec_df = _generate_aec_directory(group)
 
+    # We could fiilter nhp_apc to only include speldur > 0,
+    # as these are the only rows which could be affected by the model
+    # but it makes it easier to keep these in for the inputs pipeline
+    
     return (
         nhp_apc.join(diagnoses, ["epikey", "fyear"])
         .filter(F.col("age") >= 18)
@@ -82,8 +86,6 @@ def _ambulatory_emergency_care(group):
         .filter(F.col("diag_order") == 1)
         .join(aec_df, ["diagnosis", "sushrg"], "semi")
         .select("epikey")
-        # TODO: should we enable this?
-        # .filter(F.col("speldur") > 0)
         .withColumn("sample_rate", F.lit(1.0))
     )
 
