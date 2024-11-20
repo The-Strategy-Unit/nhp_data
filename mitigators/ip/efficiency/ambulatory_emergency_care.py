@@ -75,7 +75,7 @@ def _generate_aec_directory(group):
 def _ambulatory_emergency_care(group):
     aec_df = _generate_aec_directory(group)
 
-    # We could fiilter nhp_apc to only include speldur > 0,
+    # We could filter nhp_apc to only include speldur > 0,
     # as these are the only rows which could be affected by the model
     # but it makes it easier to keep these in for the inputs pipeline
     
