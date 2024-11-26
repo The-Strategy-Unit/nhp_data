@@ -9,7 +9,6 @@
 from itertools import chain
 
 from databricks.connect import DatabricksSession
-from delta.tables import DeltaTable
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
@@ -273,7 +272,8 @@ hes_ecds_processed = DataFrame.unionByName(hes_ecds_processed, prior_ecds_data)
 # COMMAND ----------
 
 (
-    hes_ecds_processed.write.partitionBy("fyear", "provider")
+    hes_ecds_processed.withColumn("index", F.expr("uuid()"))
+    .write.partitionBy("fyear", "provider")
     .mode("overwrite")
     .saveAsTable("su_data.nhp.ecds")
 )
