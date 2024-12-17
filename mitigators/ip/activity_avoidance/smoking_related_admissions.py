@@ -21,6 +21,8 @@ sourced from the above referenced document.
 [1]: https://www.rcplondon.ac.uk/projects/outputs/hiding-plain-sight-treating-tobacco-dependency-nhs
 """
 
+import pathlib
+
 import pyspark.sql.types as T
 from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
@@ -33,25 +35,23 @@ spark = DatabricksSession.builder.getOrCreate()
 
 @activity_avoidance_mitigator()
 def _smoking():
-    sc = spark.sparkContext
-    # spark cannot read the files as relative paths.
-    # load into memory then convert to a spark dataframe
-    filename = "reference_data/smoking_attributable_fractions.csv"
-    with open(filename, "r", encoding="UTF-8") as f:
-        saf = (
-            spark.read.option("header", "true")
-            .option("delimiter", ",")
-            .schema(
-                T.StructType(
-                    [
-                        T.StructField("diagnoses", T.StringType(), False),
-                        T.StructField("sex", T.IntegerType(), False),
-                        T.StructField("value", T.DoubleType(), False),
-                    ]
-                )
+    filename = "smoking_attributable_fractions.csv"
+    path = pathlib.Path(f"reference_data/{filename}").parent.resolve()
+
+    saf = (
+        spark.read.option("header", "true")
+        .option("delimiter", ",")
+        .schema(
+            T.StructType(
+                [
+                    T.StructField("diagnoses", T.StringType(), False),
+                    T.StructField("sex", T.IntegerType(), False),
+                    T.StructField("value", T.DoubleType(), False),
+                ]
             )
-            .csv(sc.parallelize([f.read()]))
         )
+        .csv(f"file:///{path}/{filename}")
+    )
 
     icd10_codes = spark.read.table("su_data.reference.icd10_codes")
 
