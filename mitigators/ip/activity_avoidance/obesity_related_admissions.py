@@ -22,27 +22,27 @@ from mitigators import activity_avoidance_mitigator
 
 spark = DatabricksSession.builder.getOrCreate()
 
+import pathlib
+
 
 @activity_avoidance_mitigator()
 def _obesity_related_admissions():
-    sc = spark.sparkContext
-    # spark cannot read the files as relative paths.
-    # load into memory then convert to a spark dataframe
-    filename = "reference_data/obesity_attributable_fractions.csv"
-    with open(filename, "r", encoding="UTF-8") as f:
-        oaf = (
-            spark.read.option("header", "true")
-            .option("delimiter", ",")
-            .schema(
-                T.StructType(
-                    [
-                        T.StructField("diagnosis", T.StringType(), False),
-                        T.StructField("fraction", T.DoubleType(), False),
-                    ]
-                )
+    filename = "obesity_attributable_fractions.csv"
+    path = pathlib.Path(f"reference_data/{filename}").parent.resolve()
+
+    oaf = (
+        spark.read.option("header", "true")
+        .option("delimiter", ",")
+        .schema(
+            T.StructType(
+                [
+                    T.StructField("diagnosis", T.StringType(), False),
+                    T.StructField("fraction", T.DoubleType(), False),
+                ]
             )
-            .csv(sc.parallelize([f.read()]))
         )
+        .csv(f"file:///{path}/{filename}")
+    )
 
     return (
         nhp_apc.join(diagnoses, ["epikey", "fyear"])
