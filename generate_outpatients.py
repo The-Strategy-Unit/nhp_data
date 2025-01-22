@@ -69,7 +69,7 @@ df = df.withColumn("icb", icb_mapping[F.col("ccg_residence")])
 
 # COMMAND ----------
 
-hes_opa_processed = (
+hes_opa_ungrouped = (
     df.filter(F.col("sex").isin(["1", "2"]))
     .filter(F.col("atentype").isin(["1", "2", "21", "22"]))
     .join(main_icbs, "provider", "left")
@@ -97,13 +97,16 @@ hes_opa_processed = (
     )
     .withColumn("is_first", F.col("atentype").isin(["1", "21"]))
     .withColumn("is_tele_appointment", F.col("atentype").isin(["21", "22"]).cast("int"))
-    .withColumn("is_face_to_face_appointment", 1 - F.col("is_tele_appointment"))
     .withColumn(
         "has_procedures",
-        ~F.col("sushrg").rlike("^(WF|U)") & (F.col("is_face_to_face_appointment") == 1),
+        ~F.col("sushrg").rlike("^(WF|U)") & (F.col("is_tele_appointment") != 1),
     )
-    .groupBy(
+    .withColumn("attendance", 1 - F.col("is_tele_appointment"))
+    .withColumn("tele_attendance", F.col("is_tele_appointment"))
+    .select(
+        F.col("attendkey"),
         F.col("fyear"),
+        F.col("procode3"),
         F.col("provider"),
         F.col("age"),
         F.col("sex").cast("int"),
@@ -116,10 +119,8 @@ hes_opa_processed = (
         F.col("is_gp_ref"),
         F.col("is_cons_cons_ref"),
         F.col("is_first"),
-    )
-    .agg(
-        F.sum("is_face_to_face_appointment").alias("attendances"),
-        F.sum("is_tele_appointment").alias("tele_attendances"),
+        F.col("attendance"),
+        F.col("tele_attendance"),
     )
     .withColumn(
         "type",
@@ -140,14 +141,50 @@ hes_opa_processed = (
     .withColumn(
         "hsagrp", F.concat(F.lit("op_"), F.col("type"), F.lit("_"), F.col("group"))
     )
+)
+
+# COMMAND ----------
+
+(
+    hes_opa_ungrouped.write.partitionBy("fyear", "provider")
+    .mode("overwrite")
+    .saveAsTable("su_data.nhp.opa_ungrouped")
+)
+
+# COMMAND ----------
+
+hes_opa_processed = (
+    spark.read.table("su_data.nhp.opa_ungrouped")
+    .groupBy(
+        F.col("fyear"),
+        F.col("provider"),
+        F.col("age"),
+        F.col("sex"),
+        F.col("tretspef"),
+        F.col("sitetret"),
+        F.col("type"),
+        F.col("group"),
+        F.col("hsagrp"),
+        F.col("has_procedures"),
+        F.col("is_main_icb"),
+        F.col("is_surgical_specialty"),
+        F.col("is_adult"),
+        F.col("is_gp_ref"),
+        F.col("is_cons_cons_ref"),
+        F.col("is_first"),
+    )
+    .agg(
+        F.sum("attendance").alias("attendances"),
+        F.sum("tele_attendance").alias("tele_attendances"),
+    )
+    .withColumn("index", F.expr("uuid()"))
     .repartition("fyear", "provider")
 )
 
 # COMMAND ----------
 
 (
-    hes_opa_processed.withColumn("index", F.expr("uuid()"))
-    .write.partitionBy("fyear", "provider")
+    hes_opa_processed.write.partitionBy("fyear", "provider")
     .mode("overwrite")
     .saveAsTable("su_data.nhp.opa")
 )
