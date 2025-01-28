@@ -164,6 +164,12 @@ hes_ecds_ungrouped = (
     df.filter(F.col("provider").isin(providers))
     .join(freq_attenders, "ec_ident")
     .join(main_icbs, "provider", "left")
+    .withColumn(
+        "age",
+        F.when(F.col("age_at_arrival") > 90, 90)
+        .otherwise(F.col("age_at_arrival"))
+        .cast("int"),
+    )
     .withColumn("is_adult", F.col("age") >= 18)
     .withColumn(
         "fyear", F.regexp_replace(F.col("der_financial_year"), "/", "").cast("int")
@@ -219,7 +225,7 @@ hes_ecds_ungrouped = (
         F.col("fyear"),
         F.col("der_provider_code").alias("procode3"),
         F.col("provider"),
-        F.col("age_at_arrival").alias("age").cast("int"),
+        F.col("age"),
         F.col("sex").cast("int"),
         F.col("der_provider_site_code").alias("sitetret"),
         F.col("ec_department_type").alias("aedepttype"),
