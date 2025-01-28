@@ -209,6 +209,10 @@ hes_ecds_ungrouped = (
             ]
         }
     )
+    .withColumn(
+        "primary_treatment",
+        F.regexp_extract(F.col("Der_EC_Treatment_All"), "^(\\d+),", 1),
+    )
     .select(
         F.col("ec_ident"),
         F.col("fyear"),
@@ -227,7 +231,7 @@ hes_ecds_ungrouped = (
         F.col("is_low_cost_referred_or_discharged"),
         F.col("is_left_before_treatment"),
         F.col("is_discharged_no_treatment"),
-        F.col("primary_diagnosis"),
+        F.col("EC_Chief_Complaint_SNOMED_CT").alias("primary_diagnosis"),
         F.col("primary_treatment"),
         F.lit(1).alias("arrival"),
     )
