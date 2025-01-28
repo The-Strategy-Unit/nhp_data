@@ -11,8 +11,6 @@ from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
-from nhp_datasets.providers import get_provider_successors_mapping
-
 spark = DatabricksSession.builder.getOrCreate()
 
 # COMMAND ----------
@@ -23,10 +21,17 @@ spark = DatabricksSession.builder.getOrCreate()
 
 # COMMAND ----------
 
-df_aae = spark.read.table("su_data.nhp.aae_ungrouped").filter(F.col("fyear") < 201920)
+df_aae = (
+    spark.read.table("su_data.nhp.aae_ungrouped")
+    .filter(F.col("fyear") < 201920)
+    .drop("aekey")
+    .withColumn("acuity", F.lit(None).cast("string"))
+)
 
-df_ecds = spark.read.table("su_data.nhp.ecds_ungrouped").filter(
-    F.col("fyear") >= 201920
+df_ecds = (
+    spark.read.table("su_data.nhp.ecds_ungrouped")
+    .filter(F.col("fyear") >= 201920)
+    .drop("ec_ident")
 )
 
 # COMMAND ----------
@@ -48,6 +53,7 @@ hes_ecds_processed = (
         F.col("sitetret"),
         F.col("aedepttype"),
         F.col("attendance_category"),
+        F.col("acuity"),
         F.col("tretspef"),
         F.col("group"),
         F.col("type"),
@@ -63,35 +69,6 @@ hes_ecds_processed = (
     .agg(F.sum("arrival").alias("arrivals"))
     .repartition("fyear", "provider")
 )
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC ### Append prior data
-#
-# MAGIC We currently only have 2021/22 and 2022/23 data, append the 2 prior years
-
-# COMMAND ----------
-
-provider_successors_mapping = get_provider_successors_mapping()
-
-prior_ecds_data = (
-    spark.read.parquet(
-        "/Volumes/su_data/nhp/reference_data/nhp_aae_201920_202021.parquet"
-    )
-    # make sure to apply same provider successor mapping
-    .withColumn(
-        "provider",
-        F.when(F.col("sitetret") == "RW602", "R0A")
-        .when(F.col("sitetret") == "RM318", "R0A")
-        .otherwise(provider_successors_mapping[F.col("procode")]),
-    )
-    .groupBy([i for i in hes_ecds_processed.columns if i != "arrivals"])
-    .agg(F.sum("arrivals").alias("arrivals"))
-)
-
-hes_ecds_processed = DataFrame.unionByName(hes_ecds_processed, prior_ecds_data)
 
 # COMMAND ----------
 
