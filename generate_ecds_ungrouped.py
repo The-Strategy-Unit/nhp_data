@@ -212,7 +212,7 @@ hes_ecds_ungrouped = (
     .select(
         F.col("ec_ident"),
         F.col("fyear"),
-        F.col("procode3"),
+        F.col("der_provider_code").alias("procode3"),
         F.col("provider"),
         F.col("age_at_arrival").alias("age").cast("int"),
         F.col("sex").cast("int"),
