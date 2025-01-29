@@ -5,6 +5,7 @@ from functools import reduce
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
 
+from inputs_data.ae import get_ae_age_sex_data
 from inputs_data.ip import get_ip_age_sex_data
 from inputs_data.op import get_op_age_sex_data
 
@@ -18,6 +19,7 @@ def get_age_sex(spark: SparkContext) -> DataFrame:
     :rtype: DataFrame
     """
     fns = [
+        get_ae_age_sex_data,
         lambda spark: get_ip_age_sex_data(spark).drop("speldur"),
         get_op_age_sex_data,
     ]

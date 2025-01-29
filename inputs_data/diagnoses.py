@@ -5,6 +5,7 @@ from functools import reduce
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
 
+from inputs_data.ae.diagnoses import get_ae_diagnoses
 from inputs_data.ip.diagnoses import get_ip_diagnoses
 from inputs_data.op.diagnoses import get_op_diagnoses
 
@@ -17,7 +18,7 @@ def get_diagnoses(spark: SparkContext) -> DataFrame:
     :return: The diagnoses data
     :rtype: DataFrame
     """
-    fns = [get_ip_diagnoses, get_op_diagnoses]
+    fns = [get_ae_diagnoses, get_ip_diagnoses, get_op_diagnoses]
 
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 

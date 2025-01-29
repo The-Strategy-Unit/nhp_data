@@ -1,28 +1,28 @@
-"""Get Outpatients Rates Data"""
+"""Get A&E Rates Data"""
 
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
-from inputs_data.op import get_op_df, get_op_mitigators
+from inputs_data.ae import get_ae_df, get_ae_mitigators
 
 
-def get_op_rates(spark: SparkContext) -> DataFrame:
-    """Get outpatients activity avoidance rates
+def get_ae_rates(spark: SparkContext) -> DataFrame:
+    """Get A&E activity avoidance rates
 
     :param spark: The spark context to use
     :type spark: SparkContext
-    :return: The outpatients activity avoidances rates
+    :return: The A&E activity avoidances rates
     :rtype: DataFrame
     """
 
-    df = get_op_df(spark)
-    mitigators = get_op_mitigators(spark)
+    df = get_ae_df(spark)
+    mitigators = get_ae_mitigators(spark)
 
     return (
         df.join(
             mitigators,
-            "attendkey",
+            ["fyear", "key"],
             "inner",
         )
         .groupBy("fyear", "strategy", "provider")
