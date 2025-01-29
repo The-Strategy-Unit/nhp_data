@@ -5,6 +5,7 @@ from functools import reduce
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
 
+from inputs_data.ae.rates import get_ae_rates
 from inputs_data.ip.rates import (
     get_ip_activity_avoidance_rates,
     get_ip_aec_rates,
@@ -24,6 +25,7 @@ def get_rates(spark: SparkContext) -> DataFrame:
     :rtype: DataFrame
     """
     fns = [
+        get_ae_rates,
         get_ip_activity_avoidance_rates,
         get_ip_mean_los,
         get_ip_aec_rates,

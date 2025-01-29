@@ -1,4 +1,4 @@
-"""Outpatients Expat/Repat data"""
+"""A&E Expat/Repat data"""
 
 from functools import cache
 
@@ -6,42 +6,42 @@ from pyspark import SparkContext
 from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
-from inputs_data.op import get_op_df
+from inputs_data.ae import get_ae_df
 
 
-def get_op_expat_data(spark: SparkContext) -> DataFrame:
-    """Get outpatients expat data
+def get_ae_expat_data(spark: SparkContext) -> DataFrame:
+    """Get A&E expat data
 
     :param spark: The spark context to use
     :type spark: SparkContext
-    :return: The outpatients expat data
+    :return: The A&E expat data
     :rtype: DataFrame
     """
     return (
-        get_op_df(spark)
+        get_ae_df(spark)
         .groupBy("fyear", "provider", "group", "tretspef")
-        .agg(F.sum("attendance").alias("count"))
-        .withColumn("activity_type", F.lit("op"))
+        .agg(F.sum("arrival").alias("count"))
+        .withColumn("activity_type", F.lit("aae"))
     )
 
 
 @cache
 def _get_icb_df(spark: SparkContext) -> DataFrame:
     return (
-        get_op_df(spark)
+        get_ae_df(spark)
         .filter(F.col("icb").isNotNull())
         .groupBy("fyear", "icb", "is_main_icb", "provider", "group", "tretspef")
-        .agg(F.sum("attendance").alias("count"))
+        .agg(F.sum("arrival").alias("count"))
         .persist()
     )
 
 
-def get_op_repat_local_data(spark: SparkContext) -> DataFrame:
-    """Get outpatients repat (local) data
+def get_ae_repat_local_data(spark: SparkContext) -> DataFrame:
+    """Get A&E repat (local) data
 
     :param spark: The spark context to use
     :type spark: SparkContext
-    :return: The outpatients repat (local) data
+    :return: The A&E  repat (local) data
     :rtype: DataFrame
     """
     return (
@@ -59,16 +59,16 @@ def get_op_repat_local_data(spark: SparkContext) -> DataFrame:
                 Window.partitionBy("icb", "fyear", "group", "tretspef")
             ),
         )
-        .withColumn("activity_type", F.lit("op"))
+        .withColumn("activity_type", F.lit("aae"))
     )
 
 
-def get_op_repat_nonlocal_data(spark: SparkContext) -> DataFrame:
-    """Get outpatients repat (non-local) data
+def get_ae_repat_nonlocal_data(spark: SparkContext) -> DataFrame:
+    """Get A&E repat (non-local) data
 
     :param spark: The spark context to use
     :type spark: SparkContext
-    :return: The outpatients repat (non-local) data
+    :return: The A&E repat (non-local) data
     :rtype: DataFrame
     """
     return (
@@ -81,5 +81,5 @@ def get_op_repat_nonlocal_data(spark: SparkContext) -> DataFrame:
             ),
         )
         .orderBy(F.desc("pcnt"))
-        .withColumn("activity_type", F.lit("op"))
+        .withColumn("activity_type", F.lit("aae"))
     )

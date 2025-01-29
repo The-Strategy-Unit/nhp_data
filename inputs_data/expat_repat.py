@@ -5,6 +5,11 @@ from functools import reduce
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
 
+from inputs_data.ae.expat_repat import (
+    get_ae_expat_data,
+    get_ae_repat_local_data,
+    get_ae_repat_nonlocal_data,
+)
 from inputs_data.ip.expat_repat import (
     get_ip_expat_data,
     get_ip_repat_local_data,
@@ -25,7 +30,7 @@ def get_expat_data(spark: SparkContext) -> DataFrame:
     :return: The expat data
     :rtype: DataFrame
     """
-    fns = [get_ip_expat_data, get_op_expat_data]
+    fns = [get_ae_expat_data, get_ip_expat_data, get_op_expat_data]
 
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
@@ -49,7 +54,7 @@ def get_repat_local_data(spark: SparkContext) -> DataFrame:
     :return: The repat (local) data
     :rtype: DataFrame
     """
-    fns = [get_ip_repat_local_data, get_op_repat_local_data]
+    fns = [get_ae_repat_local_data, get_ip_repat_local_data, get_op_repat_local_data]
 
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
@@ -73,7 +78,11 @@ def get_repat_nonlocal_data(spark: SparkContext) -> DataFrame:
     :return: The repat (non-local) data
     :rtype: DataFrame
     """
-    fns = [get_ip_repat_nonlocal_data, get_op_repat_nonlocal_data]
+    fns = [
+        get_ae_repat_nonlocal_data,
+        get_ip_repat_nonlocal_data,
+        get_op_repat_nonlocal_data,
+    ]
 
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 

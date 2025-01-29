@@ -5,6 +5,7 @@ from functools import reduce
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
 
+from inputs_data.ae.procedures import get_ae_procedures
 from inputs_data.ip.procedures import get_ip_procedures
 from inputs_data.op.procedures import get_op_procedures
 
@@ -17,7 +18,7 @@ def get_procedures(spark: SparkContext) -> DataFrame:
     :return: The procedures data
     :rtype: DataFrame
     """
-    fns = [get_ip_procedures, get_op_procedures]
+    fns = [get_ae_procedures, get_ip_procedures, get_op_procedures]
 
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
