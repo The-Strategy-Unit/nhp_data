@@ -101,6 +101,7 @@ hes_opa_ungrouped = (
         "has_procedures",
         ~F.col("sushrg").rlike("^(WF|U)") & (F.col("is_tele_appointment") != 1),
     )
+    .withColumn("hrg_without_split", F.col("sushrg").substr(0, 4))
     .withColumn("attendance", 1 - F.col("is_tele_appointment"))
     .withColumn("tele_attendance", F.col("is_tele_appointment"))
     .select(
@@ -113,6 +114,7 @@ hes_opa_ungrouped = (
         F.col("tretspef"),
         F.col("sitetret"),
         F.col("has_procedures"),
+        F.col("hrg_without_split"),
         F.col("is_main_icb"),
         F.col("is_surgical_specialty"),
         F.col("is_adult"),
@@ -166,6 +168,7 @@ hes_opa_processed = (
         F.col("group"),
         F.col("hsagrp"),
         F.col("has_procedures"),
+        F.col("hrg_without_split"),
         F.col("is_main_icb"),
         F.col("is_surgical_specialty"),
         F.col("is_adult"),
