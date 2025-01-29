@@ -10,12 +10,15 @@
 
 # COMMAND ----------
 
+import json
+from functools import cache, reduce
 from typing import Iterator
 
 import pyspark.sql.functions as F
 import requests
 from databricks.connect import DatabricksSession
 from delta.tables import DeltaTable
+from pyspark.sql import DataFrame, Window
 
 from nhp_datasets.providers import providers
 
@@ -25,6 +28,7 @@ sc = spark.sparkContext
 # COMMAND ----------
 
 
+@cache
 def get_predecessors(org_code: str) -> Iterator[str]:
     """_summary_
 
@@ -96,19 +100,108 @@ provider_successors = provider_successors.distinct()
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC ### find cases where there are multiple records for old_code -> new_code
+# MAGIC
+# MAGIC there can be two cases where this occurs:
+# MAGIC
+# MAGIC 1. an organisation is listed in our `providers.json` file, but it has now been succeeded.
+# MAGIC    this needs to be removed from `providers.json`
+# MAGIC 2. an organisation has been succeeded by two organisations. this case needs to be manually
+# MAGIC    handled (e.g. Penine Acute Trust -> Manchester Univesity NHS FT and Northern Care
+# MAGIC    Alliance NHS FT)
+# MAGIC
+# MAGIC we handle the first case, but the second case will raise an assertion error
+
+# COMMAND ----------
+
+to_remove = {
+    r["old_code"]
+    for r in (
+        provider_successors.filter(F.col("old_code").isin(providers))
+        .filter(F.col("new_code") != F.col("old_code"))
+        .collect()
+    )
+}
+
+# COMMAND ----------
+
+with open(
+    "/Volumes/su_data/nhp/reference_data/providers.json", "w", encoding="UTF-8"
+) as f:
+    json.dump(list(set(providers) - to_remove), f)
+
+# COMMAND ----------
+
+provider_successors = provider_successors.filter(~F.col("new_code").isin(to_remove))
+
+# COMMAND ----------
+
+w = Window.partitionBy("old_code")
+
+multiple_successors = provider_successors.withColumn(
+    "n", F.count("new_code").over(w)
+).filter(F.col("n") > 1)
+
+multiple_successors.display()
+
+# COMMAND ----------
+
 # Check there are no cases remaining of one organisation being succeeded twice
-assert (
-    provider_successors.groupBy("old_code").count().filter(F.col("count") > 1).count()
-    == 0
-)
+assert multiple_successors.count() == 0
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC ## save table
 # MAGIC
-# MAGIC use an upsert to update the table
+# MAGIC use an upsert to update the table, first show the updates/inserts/deletions that will occur
+# MAGIC
 
+# COMMAND ----------
+
+source = spark.read.table("su_data.reference.provider_successors").alias("target")
+
+tbls = [
+    # updates
+    (
+        provider_successors.alias("new")
+        .join(source, F.col("new.old_code") == F.col("target.old_code"))
+        .filter(F.col("new.new_code") != F.col("target.new_code"))
+        .select(
+            F.lit("update").alias("type"),
+            F.col("new.old_code"),
+            F.col("target.new_code").alias("before"),
+            F.col("new.new_code").alias("after"),
+        )
+    ),
+    # inserts
+    (
+        provider_successors.alias("new")
+        .join(source, F.col("new.old_code") == F.col("target.old_code"), "anti")
+        .select(
+            F.lit("insert").alias("type"),
+            F.col("new.old_code"),
+            F.lit(None).cast("string").alias("before"),
+            F.col("new.new_code").alias("after"),
+        )
+    ),
+    # deletes
+    (
+        source.join(
+            provider_successors.alias("new"),
+            F.col("target.old_code") == F.col("new.old_code"),
+            "anti",
+        ).select(
+            F.lit("delete").alias("type"),
+            F.col("target.old_code"),
+            F.col("target.new_code").alias("before"),
+            F.lit(None).cast("string").alias("after"),
+        )
+    ),
+]
+
+reduce(DataFrame.unionByName, tbls).display()
 
 # COMMAND ----------
 
