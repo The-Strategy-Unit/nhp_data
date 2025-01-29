@@ -1,8 +1,21 @@
 """Helper methods/tables"""
 
 import pyspark.sql.functions as F
+from databricks.connect import DatabricksSession
 from pyspark import SparkContext
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame
+
+
+def get_spark() -> SparkContext:
+    """_summary_
+
+    :return: get the spark context to use
+    :rtype: SparkContext
+    """
+    spark: SparkContext = DatabricksSession.builder.getOrCreate()
+    spark.catalog.setCurrentCatalog("su_data")
+    spark.catalog.setCurrentDatabase("nhp")
+    return spark
 
 
 def age_group(spark: SparkContext) -> DataFrame:
