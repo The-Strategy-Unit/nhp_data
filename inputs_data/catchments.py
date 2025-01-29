@@ -1,13 +1,16 @@
 """Catchments"""
 
+import sys
+
 from pyspark import SparkContext
 from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
+from inputs_data.helpers import get_spark
 from inputs_data.ip import get_ip_df
 
 
-def get_pop(spark: SparkContext) -> DataFrame:
+def get_pop(spark: SparkContext = get_spark()) -> DataFrame:
     """Get the population by year table
 
     :param spark: The spark context to use
@@ -31,7 +34,7 @@ def get_pop(spark: SparkContext) -> DataFrame:
     )
 
 
-def create_catchments(spark: SparkContext) -> None:
+def create_catchments(spark: SparkContext = get_spark()) -> None:
     """Create the catchments table
 
     :param spark: The spark context to use
@@ -57,7 +60,7 @@ def create_catchments(spark: SparkContext) -> None:
     catchments.write.mode("overwrite").saveAsTable("inputs_catchments")
 
 
-def get_catchments(spark: SparkContext) -> DataFrame:
+def get_catchments(spark: SparkContext = get_spark()) -> DataFrame:
     """Get the catchments table
 
     :param spark: The spark context to use
@@ -68,7 +71,7 @@ def get_catchments(spark: SparkContext) -> DataFrame:
     return spark.read.table("inputs_catchments").persist()
 
 
-def get_total_pop(spark: SparkContext) -> DataFrame:
+def get_total_pop(spark: SparkContext = get_spark()) -> DataFrame:
     """_summary_
 
     :param spark: _description_
@@ -82,3 +85,9 @@ def get_total_pop(spark: SparkContext) -> DataFrame:
         .agg(F.sum("pop").alias("total_pop"))
         .persist()
     )
+
+
+if __name__ == "__main__":
+    path = sys.argv[1]
+
+    create_catchments()

@@ -1,11 +1,13 @@
 """Generate Rates Dataframe"""
 
+import sys
 from functools import reduce
 
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
 
 from inputs_data.ae.rates import get_ae_rates
+from inputs_data.helpers import get_spark
 from inputs_data.ip.rates import (
     get_ip_activity_avoidance_rates,
     get_ip_aec_rates,
@@ -16,7 +18,7 @@ from inputs_data.ip.rates import (
 from inputs_data.op.rates import get_op_rates
 
 
-def get_rates(spark: SparkContext) -> DataFrame:
+def get_rates(spark: SparkContext = get_spark()) -> DataFrame:
     """Get rates (combined)
 
     :param spark: The spark context to use
@@ -37,12 +39,7 @@ def get_rates(spark: SparkContext) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def generate_rates(spark: SparkContext, path: str) -> None:
-    """Generate rates parquet file
+if __name__ == "__main__":
+    path = sys.argv[1]
 
-    :param spark: The spark context to use
-    :type spark: SparkContext
-    :param path: Where to save the paruqet file
-    :type path: str
-    """
-    get_rates(spark).toPandas().to_parquet(f"{path}/rates.parquet")
+    get_rates().toPandas().to_parquet(f"{path}/rates.parquet")

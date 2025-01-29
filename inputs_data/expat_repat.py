@@ -1,5 +1,6 @@
 """Generate Rates Dataframe"""
 
+import sys
 from functools import reduce
 
 from pyspark import SparkContext
@@ -10,6 +11,7 @@ from inputs_data.ae.expat_repat import (
     get_ae_repat_local_data,
     get_ae_repat_nonlocal_data,
 )
+from inputs_data.helpers import get_spark
 from inputs_data.ip.expat_repat import (
     get_ip_expat_data,
     get_ip_repat_local_data,
@@ -22,7 +24,7 @@ from inputs_data.op.expat_repat import (
 )
 
 
-def get_expat_data(spark: SparkContext) -> DataFrame:
+def get_expat_data(spark: SparkContext = get_spark()) -> DataFrame:
     """Get expat data (combined)
 
     :param spark: The spark context to use
@@ -35,18 +37,7 @@ def get_expat_data(spark: SparkContext) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def generate_expat(spark: SparkContext, path: str) -> None:
-    """Generate expat parquet file
-
-    :param spark: The spark context to use
-    :type spark: SparkContext
-    :param path: Where to save the paruqet file
-    :type path: str
-    """
-    get_expat_data(spark).toPandas().to_parquet(f"{path}/expat.parquet")
-
-
-def get_repat_local_data(spark: SparkContext) -> DataFrame:
+def get_repat_local_data(spark: SparkContext = get_spark()) -> DataFrame:
     """Get repat (local) data (combined)
 
     :param spark: The spark context to use
@@ -59,18 +50,7 @@ def get_repat_local_data(spark: SparkContext) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def generate_repat_local(spark: SparkContext, path: str) -> None:
-    """Generate repat (local) parquet file
-
-    :param spark: The spark context to use
-    :type spark: SparkContext
-    :param path: Where to save the paruqet file
-    :type path: str
-    """
-    get_repat_local_data(spark).toPandas().to_parquet(f"{path}/repat_local.parquet")
-
-
-def get_repat_nonlocal_data(spark: SparkContext) -> DataFrame:
+def get_repat_nonlocal_data(spark: SparkContext = get_spark()) -> DataFrame:
     """Get repat (non-local) data (combined)
 
     :param spark: The spark context to use
@@ -87,14 +67,9 @@ def get_repat_nonlocal_data(spark: SparkContext) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def generate_repat_nonlocal(spark: SparkContext, path: str) -> None:
-    """Generate repat (non-local) parquet file
+if __name__ == "__main__":
+    path = sys.argv[1]
 
-    :param spark: The spark context to use
-    :type spark: SparkContext
-    :param path: Where to save the paruqet file
-    :type path: str
-    """
-    get_repat_nonlocal_data(spark).toPandas().to_parquet(
-        f"{path}/repat_nonlocal.parquet"
-    )
+    get_expat_data().toPandas().to_parquet(f"{path}/expat.parquet")
+    get_repat_local_data().toPandas().to_parquet(f"{path}/repat_local.parquet")
+    get_repat_nonlocal_data().toPandas().to_parquet(f"{path}/repat_nonlocal.parquet")

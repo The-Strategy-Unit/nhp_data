@@ -1,16 +1,18 @@
 """Generate Age/Sex Dataframe"""
 
+import sys
 from functools import reduce
 
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
 
 from inputs_data.ae import get_ae_age_sex_data
+from inputs_data.helpers import get_spark
 from inputs_data.ip import get_ip_age_sex_data
 from inputs_data.op import get_op_age_sex_data
 
 
-def get_age_sex(spark: SparkContext) -> DataFrame:
+def get_age_sex(spark: SparkContext = get_spark()) -> DataFrame:
     """Get age/sex (combined)
 
     :param spark: The spark context to use
@@ -27,12 +29,7 @@ def get_age_sex(spark: SparkContext) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def generate_age_sex(spark: SparkContext, path: str) -> None:
-    """Generate age/sex parquet file
+if __name__ == "__main__":
+    path = sys.argv[1]
 
-    :param spark: The spark context to use
-    :type spark: SparkContext
-    :param path: Where to save the paruqet file
-    :type path: str
-    """
-    get_age_sex(spark).toPandas().to_parquet(f"{path}/age_sex.parquet")
+    get_age_sex().toPandas().to_parquet(f"{path}/age_sex.parquet")
