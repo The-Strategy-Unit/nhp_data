@@ -8,8 +8,7 @@ from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
 from inputs_data.catchments import get_catchments, get_total_pop
-from inputs_data.helpers import age_group
-from inputs_data.ip import get_ip_age_sex_data, get_ip_mitigators
+from inputs_data.ip import get_ip_age_sex_data, get_ip_df, get_ip_mitigators
 
 
 def get_ip_activity_avoidance_rates(spark: SparkContext) -> DataFrame:
@@ -60,7 +59,8 @@ def get_ip_mean_los(spark: SparkContext) -> DataFrame:
     :rtype: DataFrame
     """
 
-    df = get_ip_age_sex_data(spark)
+    df = get_ip_df(spark)
+    df_mitigators = get_ip_mitigators(spark)
 
     mean_los_reduction_mitigators = [
         "emergency_elderly",
@@ -83,10 +83,12 @@ def get_ip_mean_los(spark: SparkContext) -> DataFrame:
     ]
 
     return (
-        df.filter(F.col("strategy").isin(mean_los_reduction_mitigators))
-        .filter(F.col("n") > 0)
+        df.join(df_mitigators, "epikey", "inner")
+        .filter(F.col("strategy").isin(mean_los_reduction_mitigators))
         .groupBy("fyear", "strategy", "provider")
-        .agg(F.sum("speldur").alias("numerator"), F.sum("n").alias("denominator"))
+        .agg(
+            F.sum("speldur").alias("numerator"), F.count("speldur").alias("denominator")
+        )
         .withColumn("rate", F.col("numerator") / F.col("denominator"))
     )
 
@@ -100,10 +102,12 @@ def get_ip_aec_rates(spark: SparkContext) -> DataFrame:
     :rtype: DataFrame
     """
 
-    df = get_ip_age_sex_data(spark)
+    df = get_ip_df(spark)
+    df_mitigators = get_ip_mitigators(spark)
 
     return (
-        df.filter(F.col("strategy").startswith("ambulatory_emergency_care_"))
+        df.join(df_mitigators, "epikey", "inner")
+        .filter(F.col("strategy").startswith("ambulatory_emergency_care_"))
         .withColumn("n", (F.col("speldur") == 0).cast("int"))
         .groupBy("fyear", "strategy", "provider")
         .agg(F.sum("n").alias("numerator"), F.count("n").alias("denominator"))
@@ -120,21 +124,22 @@ def get_ip_preop_rates(spark: SparkContext) -> DataFrame:
     :rtype: DataFrame
     """
 
-    df = get_ip_age_sex_data(spark)
+    df = get_ip_df(spark)
+    df_mitigators = get_ip_mitigators(spark)
 
     opertn_counts = (
         spark.read.table("su_data.nhp.apc")
-        .join(age_group(spark), "age")
         .filter(F.col("admimeth").startswith("1"))
-        .groupBy("fyear", "provider", "age_group", "sex")
-        .agg(F.count("has_procedure").alias("d"))
+        .groupBy("fyear", "provider")
+        .agg(F.count("has_procedure").alias("denominator"))
     )
 
     return (
-        df.filter(F.col("strategy").startswith("pre-op_los_"))
-        .join(opertn_counts, ["fyear", "provider", "age_group", "sex"], "inner")
+        df.join(df_mitigators, "epikey", "inner")
+        .filter(F.col("strategy").startswith("pre-op_los_"))
         .groupBy("fyear", "strategy", "provider")
-        .agg(F.sum("n").alias("numerator"), F.sum("d").alias("denominator"))
+        .agg(F.count("strategy").alias("numerator"))
+        .join(opertn_counts, ["fyear", "provider"], "inner")
         .withColumn("rate", F.col("numerator") / F.col("denominator"))
     )
 
@@ -172,19 +177,10 @@ def _get_ip_day_procedures_op_denominator(spark: SparkContext) -> DataFrame:
     )
 
     return (
-        spark.read.table("hes.silver.opa")
-        .filter(F.col("apptage").isNotNull())
-        .join(op_procedures, ["attendkey", "fyear", "procode3"], "inner")
-        .join(
-            spark.read.table("su_data.reference.provider_successors"),
-            [F.col("procode3") == F.col("old_code")],
-            "inner",
-        )
-        .join(age_group(spark), F.col("apptage") == F.col("age"))
-        .groupBy(
-            "fyear", F.col("new_code").alias("provider"), "strategy", "age_group", "sex"
-        )
-        .agg(F.count("strategy").alias("d"))
+        spark.read.table("opa_ungrouped")
+        .join(op_procedures, ["fyear", "attendkey"], "inner")
+        .groupBy("fyear", "provider", "strategy")
+        .agg(F.count("strategy").alias("denominator"))
     )
 
 
@@ -208,27 +204,10 @@ def _get_ip_day_procedures_dc_denominator(spark: SparkContext) -> DataFrame:
     )
 
     return (
-        spark.read.table("hes.silver.apc")
-        .withColumn(
-            "age",
-            F.when(
-                (F.col("admiage") == 999) | F.col("admiage").isNull(),
-                F.when(F.col("startage") > 7000, 0).otherwise(F.col("startage")),
-            ).otherwise(F.col("admiage")),
-        )
-        .withColumn("age", F.when(F.col("age") > 90, 90).otherwise(F.col("age")))
-        .filter(F.col("age").isNotNull())
-        .join(dc_procedures, ["epikey", "fyear", "procode3"], "inner")
-        .join(
-            spark.read.table("su_data.reference.provider_successors"),
-            [F.col("procode3") == F.col("old_code")],
-            "inner",
-        )
-        .join(age_group(spark), "age")
-        .groupBy(
-            "fyear", F.col("new_code").alias("provider"), "strategy", "age_group", "sex"
-        )
-        .agg(F.count("strategy").alias("d"))
+        spark.read.table("apc")
+        .join(dc_procedures, ["fyear", "epikey"], "inner")
+        .groupBy("fyear", "provider", "strategy")
+        .agg(F.count("strategy").alias("denominator"))
     )
 
 
@@ -241,16 +220,19 @@ def get_ip_day_procedures(spark: SparkContext) -> DataFrame:
     :rtype: DataFrame
     """
 
-    df = get_ip_age_sex_data(spark)
+    df = get_ip_df(spark)
+    df_mitigators = get_ip_mitigators(spark)
+
     denominator = DataFrame.union(
         _get_ip_day_procedures_dc_denominator(spark),
         _get_ip_day_procedures_op_denominator(spark),
     )
 
     return (
-        df.filter(F.col("strategy").startswith("day_procedures_"))
-        .join(denominator, ["fyear", "strategy", "provider", "age_group", "sex"])
+        df.join(df_mitigators, "epikey", "inner")
         .groupBy("fyear", "strategy", "provider")
-        .agg(F.sum("n").alias("numerator"), F.sum("d").alias("denominator"))
+        .agg(F.count("strategy").alias("numerator"))
+        .join(denominator, ["fyear", "strategy", "provider"])
+        .withColumn("denominator", F.col("numerator") + F.col("denominator"))
         .withColumn("rate", F.col("numerator") / F.col("denominator"))
     )
