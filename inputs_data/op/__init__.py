@@ -54,8 +54,7 @@ def get_op_mitigators(spark: SparkContext) -> DataFrame:
         .withColumn("d", F.col("attendance"))
         .select("attendkey", "strategy", "n", "d"),
         # GP Referred First Attendance reduction
-        df.filter(F.col("is_gp_ref"))
-        .withColumn(
+        df.withColumn(
             "strategy",
             F.concat(F.lit("gp_referred_first_attendance_reduction_"), F.col("type")),
         )
@@ -70,7 +69,7 @@ def get_op_mitigators(spark: SparkContext) -> DataFrame:
         .select("attendkey", "strategy", "n", "d"),
     ]
 
-    return reduce(DataFrame.unionByName, op_strategies).filter(F.col("d") > 0)
+    return reduce(DataFrame.unionByName, op_strategies)
 
 
 def get_op_age_sex_data(spark: SparkContext) -> DataFrame:
