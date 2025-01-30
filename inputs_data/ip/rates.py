@@ -78,8 +78,8 @@ def get_ip_mean_los(spark: SparkContext) -> DataFrame:
         "general_los_reduction_emergency",
         "raid_ip",
         "stroke_early_supported_discharge",
-        "virtual_wards_activity_avoidance_ari",
-        "virtual_wards_activity_avoidance_heart_failure",
+        "virtual_wards_efficiencies_ari",
+        "virtual_wards_efficiencies_heart_failure",
     ]
 
     return (
