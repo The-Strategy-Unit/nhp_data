@@ -49,7 +49,6 @@ def get_ip_age_sex_data(spark: SparkContext) -> DataFrame:
         .join(get_ip_mitigators(spark), "epikey", "inner")
         .groupBy("fyear", "age_group", "sex", "provider", "strategy")
         .agg(
-            F.sum(F.col("speldur") * F.col("sample_rate")).alias("speldur"),
             F.sum("sample_rate").alias("n"),
         )
     )
