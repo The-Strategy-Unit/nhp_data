@@ -54,7 +54,7 @@ def get_ae_mitigators(spark: SparkContext) -> DataFrame:
             F.col("fyear"),
             F.col("key"),
             F.concat(F.lit(f"{name}_"), F.col("type")).alias("strategy"),
-            F.col(col).cast("int").alias("n"),
+            (F.col(col).cast("int") * F.col("arrival")).alias("n"),
             F.col("arrival").alias("d"),
         )
 
