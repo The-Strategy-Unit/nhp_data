@@ -1,10 +1,10 @@
 """Get Inpatients Rates Data"""
 
 import json
-from functools import cache, reduce
+from functools import cache
 
 from pyspark import SparkContext
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
 from inputs_data.catchments import get_catchments, get_total_pop
