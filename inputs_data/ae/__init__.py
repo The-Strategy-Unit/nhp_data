@@ -81,23 +81,9 @@ def get_ae_age_sex_data(spark: SparkContext) -> DataFrame:
     """
     mitigators = get_ae_mitigators(spark).filter(F.col("n") > 0)
 
-    ae_age_sex_data = (
+    return (
         get_ae_df(spark)
         .join(mitigators, ["fyear", "key"], "inner")
         .groupBy("fyear", "age_group", "sex", "provider", "strategy")
         .agg(F.sum("n").alias("n"))
-    )
-
-    a = ae_age_sex_data.select("fyear", "age_group", "sex", "strategy").distinct()
-
-    b = ae_age_sex_data.select("strategy", "provider").distinct()
-
-    return (
-        a.join(b, "strategy", "inner")
-        .join(
-            ae_age_sex_data,
-            ["fyear", "age_group", "sex", "strategy", "provider"],
-            "left",
-        )
-        .fillna(0, ["n"])
     )

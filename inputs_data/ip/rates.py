@@ -8,6 +8,7 @@ from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
 from inputs_data.catchments import get_catchments, get_total_pop
+from inputs_data.helpers import complete_age_sex_data
 from inputs_data.ip import get_ip_age_sex_data, get_ip_df, get_ip_mitigators
 
 
@@ -21,6 +22,8 @@ def get_ip_activity_avoidance_rates(spark: SparkContext) -> DataFrame:
     """
 
     df = get_ip_age_sex_data(spark)
+    df = complete_age_sex_data(spark, df, "full")
+
     mitigators = (
         get_ip_mitigators(spark)
         .filter(F.col("type") == "activity_avoidance")
