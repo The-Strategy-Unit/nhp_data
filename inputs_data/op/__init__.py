@@ -82,23 +82,9 @@ def get_op_age_sex_data(spark: SparkContext) -> DataFrame:
     """
     mitigators = get_op_mitigators(spark).filter(F.col("n") > 0)
 
-    op_age_sex_data = (
+    return (
         get_op_df(spark)
         .join(mitigators, "attendkey", "inner")
         .groupBy("fyear", "age_group", "sex", "provider", "strategy")
         .agg(F.sum("n").alias("n"))
-    )
-
-    a = op_age_sex_data.select("fyear", "age_group", "sex", "strategy").distinct()
-
-    b = op_age_sex_data.select("strategy", "provider").distinct()
-
-    return (
-        a.join(b, "strategy", "inner")
-        .join(
-            op_age_sex_data,
-            ["fyear", "age_group", "sex", "strategy", "provider"],
-            "left",
-        )
-        .fillna(0, ["n"])
     )

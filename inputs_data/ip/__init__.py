@@ -44,25 +44,11 @@ def get_ip_age_sex_data(spark: SparkContext) -> DataFrame:
     :return: The inpatients age/sex data
     :rtype: DataFrame
     """
-    ip_age_sex_data = (
+    return (
         get_ip_df(spark)
         .join(get_ip_mitigators(spark), "epikey", "inner")
         .groupBy("fyear", "age_group", "sex", "provider", "strategy")
         .agg(
             F.sum("sample_rate").alias("n"),
         )
-    )
-
-    a = ip_age_sex_data.select("fyear", "age_group", "sex", "strategy").distinct()
-
-    b = ip_age_sex_data.select("strategy", "provider").distinct()
-
-    return (
-        a.join(b, "strategy", "inner")
-        .join(
-            ip_age_sex_data,
-            ["fyear", "age_group", "sex", "strategy", "provider"],
-            "left",
-        )
-        .fillna(0, ["n"])
     )
