@@ -125,12 +125,15 @@ hes_opa_ungrouped = (
     )
     .withColumn(
         "type",
-        F.concat(
-            F.when(F.col("is_adult"), "adult").otherwise("child"),
-            F.lit("_"),
-            F.when(F.col("is_surgical_specialty"), "surgical").otherwise(
-                "non-surgical"
-            ),
+        F.when(F.col("tretspef").isin(["424", "501", "505", "560"]), "maternity")
+        .otherwise(
+            F.concat(
+                F.when(F.col("is_adult"), "adult").otherwise("child"),
+                F.lit("_"),
+                F.when(F.col("is_surgical_specialty"), "surgical").otherwise(
+                    "non-surgical"
+                ),
+            )
         ),
     )
     .withColumn(
