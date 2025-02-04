@@ -259,50 +259,6 @@ hes_ecds_ungrouped = (
     .repartition("fyear", "provider")
 )
 
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC ### Append prior data
-#
-# MAGIC We currently only have 2021/22 and 2022/23 data, append the 2 prior years
-
-# COMMAND ----------
-provider_successors_mapping = get_provider_successors_mapping()
-
-prior_ecds_data = (
-    spark.read.parquet(
-        "/Volumes/su_data/nhp/reference_data/nhp_aae_201920_202021.parquet"
-    )
-    .withColumn("ec_ident", F.lit(None).cast("bigint"))
-    .withColumn("primary_diagnosis", F.lit(None).cast("string"))
-    .withColumn("primary_treatment", F.lit(None).cast("string"))
-    .withColumn("icb", F.lit(None).cast("string"))
-    .withColumnRenamed("procode", "procode3")
-    .withColumn("is_adult", F.col("age") >= 18)
-    .withColumn(
-        "type",
-        F.concat(
-            F.when(F.col("is_adult"), "adult").otherwise("child"),
-            F.lit("_"),
-            F.col("group"),
-        ),
-    )
-    .withColumn("tretspef", F.lit("Other"))
-    # make sure to apply same provider successor mapping
-    .withColumn(
-        "provider",
-        F.when(F.col("sitetret") == "RW602", "R0A")
-        .when(F.col("sitetret") == "RM318", "R0A")
-        .otherwise(provider_successors_mapping[F.col("procode3")]),
-    )
-    .groupBy([i for i in hes_ecds_ungrouped.columns if i != "arrival"])
-    .agg(F.sum("arrivals").alias("arrival").cast("int"))
-)
-
-hes_ecds_ungrouped = DataFrame.unionByName(hes_ecds_ungrouped, prior_ecds_data)
-
 # COMMAND ----------
 
 (
