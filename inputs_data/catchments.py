@@ -22,6 +22,11 @@ def get_pop(spark: SparkContext = get_spark()) -> DataFrame:
         "/Volumes/su_data/nhp/reference_data/population_by_year.parquet"
     )
 
+    # TODO: replace when 2023/24 is published, use 2022/23 for now
+    pop = DataFrame.unionByName(
+        pop, pop.filter(F.col("fyear") == 202223).withColumn("fyear", F.lit(202324))
+    )
+
     a = pop.select("fyear", "lsoa11").distinct()
     b = pop.select("age_group", "sex").distinct()
 
