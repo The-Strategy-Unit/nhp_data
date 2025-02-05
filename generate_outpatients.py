@@ -170,7 +170,6 @@ hes_opa_processed = (
         F.col("group"),
         F.col("hsagrp"),
         F.col("has_procedures"),
-        F.col("hrg_without_split"),
         F.col("sushrg"),
         F.col("is_main_icb"),
         F.col("is_surgical_specialty"),
