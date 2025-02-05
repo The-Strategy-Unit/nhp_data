@@ -114,6 +114,7 @@ hes_opa_ungrouped = (
         F.col("sitetret"),
         F.col("has_procedures"),
         F.col("sushrg"),
+        F.col("icb"),
         F.col("is_main_icb"),
         F.col("is_surgical_specialty"),
         F.col("is_adult"),
