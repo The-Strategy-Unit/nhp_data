@@ -49,6 +49,7 @@ def get_ip_activity_avoidance_rates(spark: SparkContext) -> DataFrame:
         (
             F.sum(F.col("n") / F.col("pop_catch") * F.col("total_pop"))
             / F.sum("total_pop")
+            * 1000
         ).alias("rate"),
     )
 
@@ -56,6 +57,7 @@ def get_ip_activity_avoidance_rates(spark: SparkContext) -> DataFrame:
         (
             F.sum(F.col("n") / F.col("pop_catch") * F.col("total_pop"))
             / F.sum("total_pop")
+            * 1000
         ).alias("national_rate"),
     )
 
