@@ -4,7 +4,7 @@ import json
 from functools import cache
 
 from pyspark import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
 from inputs_data.catchments import get_catchments, get_total_pop
@@ -33,7 +33,7 @@ def get_ip_activity_avoidance_rates(spark: SparkContext) -> DataFrame:
     catchments = get_catchments(spark)
     total_pop = get_total_pop(spark)
 
-    return (
+    df = (
         df.join(
             mitigators,
             "strategy",
@@ -41,16 +41,25 @@ def get_ip_activity_avoidance_rates(spark: SparkContext) -> DataFrame:
         )
         .join(catchments, ["fyear", "age_group", "sex", "provider"], "inner")
         .join(total_pop, ["fyear", "age_group", "sex"], "inner")
-        .groupBy("fyear", "strategy", "provider")
-        .agg(
-            F.sum("n").alias("numerator"),
-            F.sum("pop_catch").alias("denominator"),
-            (
-                F.sum(F.col("n") / F.col("pop_catch") * F.col("total_pop"))
-                / F.sum("total_pop")
-            ).alias("rate"),
-        )
     )
+
+    df_provider = df.groupBy("fyear", "strategy", "provider").agg(
+        F.sum("n").alias("numerator"),
+        F.sum("pop_catch").alias("denominator"),
+        (
+            F.sum(F.col("n") / F.col("pop_catch") * F.col("total_pop"))
+            / F.sum("total_pop")
+        ).alias("rate"),
+    )
+
+    df_national = df.groupBy("fyear", "strategy").agg(
+        (
+            F.sum(F.col("n") / F.col("pop_catch") * F.col("total_pop"))
+            / F.sum("total_pop")
+        ).alias("national_rate"),
+    )
+
+    return df_provider.join(df_national, ["fyear", "strategy"])
 
 
 def get_ip_mean_los(spark: SparkContext) -> DataFrame:
@@ -85,6 +94,8 @@ def get_ip_mean_los(spark: SparkContext) -> DataFrame:
         "virtual_wards_efficiencies_heart_failure",
     ]
 
+    w = Window.partitionBy("fyear", "strategy")
+
     return (
         df.join(df_mitigators, "epikey", "inner")
         .filter(F.col("strategy").isin(mean_los_reduction_mitigators))
@@ -93,6 +104,9 @@ def get_ip_mean_los(spark: SparkContext) -> DataFrame:
             F.sum("speldur").alias("numerator"), F.count("speldur").alias("denominator")
         )
         .withColumn("rate", F.col("numerator") / F.col("denominator"))
+        .withColumn(
+            "national_rate", F.sum("numerator").over(w) / F.sum("denominator").over(w)
+        )
     )
 
 
@@ -108,6 +122,8 @@ def get_ip_aec_rates(spark: SparkContext) -> DataFrame:
     df = get_ip_df(spark)
     df_mitigators = get_ip_mitigators(spark)
 
+    w = Window.partitionBy("fyear", "strategy")
+
     return (
         df.join(df_mitigators, "epikey", "inner")
         .filter(F.col("strategy").startswith("ambulatory_emergency_care_"))
@@ -115,6 +131,9 @@ def get_ip_aec_rates(spark: SparkContext) -> DataFrame:
         .groupBy("fyear", "strategy", "provider")
         .agg(F.sum("n").alias("numerator"), F.count("n").alias("denominator"))
         .withColumn("rate", F.col("numerator") / F.col("denominator"))
+        .withColumn(
+            "national_rate", F.sum("numerator").over(w) / F.sum("denominator").over(w)
+        )
     )
 
 
@@ -137,6 +156,8 @@ def get_ip_preop_rates(spark: SparkContext) -> DataFrame:
         .agg(F.count("has_procedure").alias("denominator"))
     )
 
+    w = Window.partitionBy("fyear", "strategy")
+
     return (
         df.join(df_mitigators, "epikey", "inner")
         .filter(F.col("strategy").startswith("pre-op_los_"))
@@ -144,6 +165,9 @@ def get_ip_preop_rates(spark: SparkContext) -> DataFrame:
         .agg(F.count("strategy").alias("numerator"))
         .join(opertn_counts, ["fyear", "provider"], "inner")
         .withColumn("rate", F.col("numerator") / F.col("denominator"))
+        .withColumn(
+            "national_rate", F.sum("numerator").over(w) / F.sum("denominator").over(w)
+        )
     )
 
 
@@ -231,6 +255,8 @@ def get_ip_day_procedures(spark: SparkContext) -> DataFrame:
         _get_ip_day_procedures_op_denominator(spark),
     )
 
+    w = Window.partitionBy("fyear", "strategy")
+
     return (
         df.join(df_mitigators, "epikey", "inner")
         .groupBy("fyear", "strategy", "provider")
@@ -238,4 +264,7 @@ def get_ip_day_procedures(spark: SparkContext) -> DataFrame:
         .join(denominator, ["fyear", "strategy", "provider"])
         .withColumn("denominator", F.col("numerator") + F.col("denominator"))
         .withColumn("rate", F.col("numerator") / F.col("denominator"))
+        .withColumn(
+            "national_rate", F.sum("numerator").over(w) / F.sum("denominator").over(w)
+        )
     )
