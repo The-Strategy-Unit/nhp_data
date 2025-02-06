@@ -58,7 +58,10 @@ def get_op_mitigators(spark: SparkContext) -> DataFrame:
             "strategy",
             F.concat(F.lit("gp_referred_first_attendance_reduction_"), F.col("type")),
         )
-        .withColumn("n", F.col("is_first").cast("int") * F.col("attendance"))
+        .withColumn(
+            "n",
+            (F.col("is_gp_ref") & F.col("is_first")).cast("int") * F.col("attendance"),
+        )
         .withColumn("d", F.col("attendance"))
         .select("attendkey", "strategy", "n", "d"),
         # Convert to tele
