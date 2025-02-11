@@ -129,7 +129,7 @@ def get_ip_aec_rates(spark: SparkContext) -> DataFrame:
     return (
         df.join(df_mitigators, "epikey", "inner")
         .filter(F.col("strategy").startswith("ambulatory_emergency_care_"))
-        .withColumn("n", (F.col("speldur") == 0).cast("int"))
+        .withColumn("n", (F.col("speldur") > 0).cast("int"))
         .groupBy("fyear", "strategy", "provider")
         .agg(F.sum("n").alias("numerator"), F.count("n").alias("denominator"))
         .withColumn("rate", F.col("numerator") / F.col("denominator"))
