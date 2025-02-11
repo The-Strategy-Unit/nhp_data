@@ -29,7 +29,14 @@ def get_op_rates(spark: SparkContext) -> DataFrame:
         )
         .groupBy("fyear", "strategy", "provider")
         .agg(F.sum("n").alias("numerator"), F.sum("d").alias("denominator"))
-        .withColumn("rate", F.col("numerator") / F.col("denominator"))
+        .withColumn(
+            "rate",
+            F.col("numerator")
+            / F.when(
+                F.col("strategy").startswith("followup_reduction_"),
+                F.col("denominator") - F.col("numerator"),
+            ).otherwise(F.col("denominator")),
+        )
         .withColumn(
             "national_rate", F.sum("numerator").over(w) / F.sum("denominator").over(w)
         )

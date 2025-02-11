@@ -43,7 +43,7 @@ def get_op_mitigators(spark: SparkContext) -> DataFrame:
         df.filter(~F.col("has_procedures"))
         .withColumn("strategy", F.concat(F.lit("followup_reduction_"), F.col("type")))
         .withColumn("n", (1 - F.col("is_first").cast("int")) * F.col("attendance"))
-        .withColumn("d", F.col("is_first").cast("int") * F.col("attendance"))
+        .withColumn("d", F.col("attendance"))
         .select("attendkey", "strategy", "n", "d"),
         # Consultant to Consultant reduction
         df.withColumn(
