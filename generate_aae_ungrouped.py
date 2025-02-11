@@ -21,38 +21,6 @@ from nhp_datasets.providers import get_provider_successors_mapping, providers
 spark = DatabricksSession.builder.getOrCreate()
 provider_successors_mapping = get_provider_successors_mapping()
 
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC ## Frequent Attendners
-
-# COMMAND ----------
-
-
-def frequentAttenders(df: DataFrame) -> DataFrame:
-    """"""
-    w = (
-        Window.partitionBy("person_id_deid")
-        .orderBy("arrivaldatetimestamp")
-        .rangeBetween(-365 * 24 * 60 * 60, 0)
-    )
-    return (
-        df.withColumn(
-            "arrivaldatetimestamp",
-            F.col("arrivaldate").cast("timestamp").cast("long")
-            + F.expr("(arrivaltime % 100) * 60")
-            + F.expr("((arrivaltime - arrivaltime % 100) / 100) * 60 * 60"),
-        )
-        .withColumn(
-            "is_frequent_attender",
-            F.sum(F.when(F.col("aeattendcat") == "1", 1).otherwise(0)).over(w) >= 3,
-        )
-        .drop("arrivaldatetimestamp")
-    )
-
-
-DataFrame.frequentAttenders = frequentAttenders
 
 # COMMAND ----------
 
@@ -62,6 +30,45 @@ DataFrame.frequentAttenders = frequentAttenders
 # COMMAND ----------
 
 df = spark.read.table("hes.silver.aae")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ## Frequent Attendners
+
+# COMMAND ----------
+
+freq_attenders = (
+    df.filter(F.col("aeattendcat") == "1")
+    .filter(F.col("person_id_deid").isNotNull())
+    .select("aekey", "person_id_deid", "arrivaldate")
+)
+
+prior_attendances = freq_attenders.select(
+    "person_id_deid", F.col("arrivaldate").alias("prior_arrival_date")
+).withColumn("arrival_date_add_year", F.date_add(F.col("prior_arrival_date"), 365))
+
+freq_attenders = (
+    freq_attenders
+    # .hint("range_join", 10)
+    .join(
+        prior_attendances,
+        [
+            freq_attenders.person_id_deid == prior_attendances.person_id_deid,
+            freq_attenders.arrivaldate > prior_attendances.prior_arrival_date,
+            freq_attenders.arrivaldate <= prior_attendances.arrival_date_add_year,
+        ],
+    )
+    .orderBy("aekey", "prior_arrival_date")
+    .groupBy("aekey")
+    .count()
+    .filter(F.col("count") >= 3)
+    .withColumn("is_frequent_attender", F.lit(1))
+    .drop("count")
+    .join(df.select("aekey"), "aekey", "right")
+    .fillna(0, "is_frequent_attender")
+)
 
 # COMMAND ----------
 
@@ -161,7 +168,7 @@ hes_aae_ungrouped = (
         & F.col("aeattenddisp").rlike("^0[23]$"),
     )
     .withColumn("is_left_before_treatment", F.col("aeattenddisp") == "12")
-    .frequentAttenders()
+    .join(freq_attenders, "aekey")
     .join(df_treatments_or_investigations, ["procode3", "fyear", "aekey"], how="left")
     .fillna(True, ["is_discharged_no_treatment"])
     .withColumn(
