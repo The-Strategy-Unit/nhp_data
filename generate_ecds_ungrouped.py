@@ -94,12 +94,29 @@ acuity_mapping = F.create_map([F.lit(x) for x in chain(*acuity_mapping.items())]
 
 # COMMAND ----------
 
-freq_attenders = df.filter(F.col("ec_attendancecategory") == "1").select(
-    "ec_ident", "token_person_id", "arrival_date"
+# for 2019/20, we need to look back one year, so use A&E data
+aae_df = (
+    spark.read.table("hes.silver.aae")
+    .filter(F.col("fyear") == 201819)
+    .filter(F.col("aeattendcat") == "1")
+    .filter(F.col("person_id_deid").isNotNull())
+    .select(
+        F.col("person_id_deid").alias("token_person_id"),
+        F.col("arrivaldate").alias("prior_arrival_date"),
+    )
 )
 
-prior_attendances = freq_attenders.select(
-    "token_person_id", F.col("arrival_date").alias("prior_arrival_date")
+freq_attenders = (
+    df.filter(F.col("ec_attendancecategory") == "1")
+    .filter(F.col("token_person_id").isNotNull())
+    .select("ec_ident", "token_person_id", "arrival_date")
+)
+
+prior_attendances = DataFrame.unionByName(
+    freq_attenders.select(
+        "token_person_id", F.col("arrival_date").alias("prior_arrival_date")
+    ),
+    aae_df,
 ).withColumn("arrival_date_add_year", F.date_add(F.col("prior_arrival_date"), 365))
 
 freq_attenders = (
