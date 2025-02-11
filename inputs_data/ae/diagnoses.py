@@ -22,6 +22,8 @@ def get_ae_diagnoses(spark: SparkContext) -> DataFrame:
     return (
         get_ae_df(spark)
         .join(mitigators, ["fyear", "key"])
+        .filter(F.col("primary_diagnosis").isNotNull())
+        .filter(F.col("primary_diagnosis") != "")
         .withColumnRenamed("primary_diagnosis", "diagnosis")
         .groupBy("fyear", "provider", "strategy", "diagnosis")
         .agg(F.sum("n").alias("n"))
