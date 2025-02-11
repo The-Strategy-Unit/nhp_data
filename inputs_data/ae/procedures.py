@@ -23,6 +23,8 @@ def get_ae_procedures(spark: SparkContext) -> DataFrame:
     return (
         get_ae_df(spark)
         .join(mitigators, ["fyear", "key"])
+        .filter(F.col("primary_treatment").isNotNull())
+        .filter(F.col("primary_treatment") != "")
         .withColumnRenamed("primary_treatment", "procedure_code")
         .groupBy("fyear", "provider", "strategy", "procedure_code")
         .agg(F.count("n").alias("n"))
