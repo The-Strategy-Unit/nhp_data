@@ -193,7 +193,7 @@ hes_aae_ungrouped = (
         F.col("is_main_icb"),
         F.col("is_adult"),
         F.col("is_ambulance"),
-        F.col("is_frequent_attender"),
+        F.col("is_frequent_attender").cast("boolean"),
         F.col("is_low_cost_referred_or_discharged"),
         F.col("is_left_before_treatment"),
         F.col("is_discharged_no_treatment"),
