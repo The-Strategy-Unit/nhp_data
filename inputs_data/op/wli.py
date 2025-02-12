@@ -17,6 +17,7 @@ def get_op_wli(spark: SparkContext) -> DataFrame:
     """
     return (
         get_op_df(spark)
+        .filter(F.col("fyear") >= 201819)
         .groupBy("fyear", "provider", "tretspef")
         .agg(F.sum("attendance").alias("op"))
     )
