@@ -54,7 +54,7 @@ def get_covid_adjustment(spark: SparkContext = get_spark()) -> DataFrame:
         .join(df_avg, ["provider", "activity_type", "group"])
         .withColumn(
             "covid_adjustment",
-            1 + (F.col("2") * F.col("a") - F.col("3") * 31) / F.col("year_total"),
+            1 + ((F.col("2") * F.col("a") - F.col("3")) * 31) / F.col("year_total"),
         )
         .select(
             "fyear",
