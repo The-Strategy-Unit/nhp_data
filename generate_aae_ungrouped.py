@@ -223,5 +223,6 @@ hes_aae_ungrouped = (
 (
     hes_aae_ungrouped.write.partitionBy("fyear", "provider")
     .mode("overwrite")
+    .option("mergeSchema", "true")
     .saveAsTable("su_data.nhp.aae_ungrouped")
 )
