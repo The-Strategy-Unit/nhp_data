@@ -18,6 +18,7 @@ def get_ip_wli(spark: SparkContext) -> DataFrame:
     return (
         get_ip_df(spark)
         .filter(F.col("admimeth") == "11")
+        .filter(F.col("fyear") >= 201819)
         .groupBy("fyear", "provider", "tretspef")
         .agg(F.count("tretspef").alias("ip"))
     )
