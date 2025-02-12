@@ -37,7 +37,7 @@ def get_wli(spark: SparkContext = get_spark()) -> DataFrame:
         .agg(F.sum("n").alias("n"))
         .withColumn("diff", F.col("n") - F.lag("n", 1).over(w))
         .withColumn(
-            "cummean",
+            "avg_change",
             F.avg("diff").over(
                 w.rowsBetween(Window.unboundedPreceding, Window.currentRow)
             ),
@@ -48,8 +48,9 @@ def get_wli(spark: SparkContext = get_spark()) -> DataFrame:
     )
 
     return (
-        wl_ac.join(ip, ["fyear", "provider", "tretspef"], "outer")
-        .join(op, ["fyear", "provider", "tretspef"], "outer")
+        wl_ac.filter(F.col("avg_change") != 0)
+        .join(ip, ["fyear", "provider", "tretspef"], "left")
+        .join(op, ["fyear", "provider", "tretspef"], "left")
         .fillna(0)
     )
 
