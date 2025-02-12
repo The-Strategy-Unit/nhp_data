@@ -15,14 +15,10 @@ def get_ae_covid_adjustment(spark: SparkContext) -> DataFrame:
     :return: The A&E covid adjustment data
     :rtype: DataFrame
     """
-    aae_arrival_month = spark.read.table("hes.silver.aae").select(
-        F.col("aekey").alias("key"), F.month("arrivaldate").alias("month")
-    )
-
     return (
         get_ae_df(spark)
         .filter(F.col("fyear").between(201617, 201920))
-        .join(aae_arrival_month, "key")
+        .withColumn("month", F.month("arrival_date"))
         .groupBy("fyear", "provider", "group", "month")
         .agg(F.count("fyear").alias("count"))
         .withColumn("activity_type", F.lit("aae"))
