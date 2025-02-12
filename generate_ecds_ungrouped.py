@@ -282,5 +282,6 @@ hes_ecds_ungrouped = (
 (
     hes_ecds_ungrouped.write.partitionBy("fyear", "provider")
     .mode("overwrite")
+    .option("mergeSchema", "true")
     .saveAsTable("su_data.nhp.ecds_ungrouped")
 )
