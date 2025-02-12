@@ -28,4 +28,4 @@ def get_baseline(spark: SparkContext = get_spark()) -> DataFrame:
 if __name__ == "__main__":
     path = sys.argv[1]
 
-    get_baseline().toPandas().to_parquet(f"{path}/covid_adjustment.parquet")
+    get_baseline().toPandas().to_parquet(f"{path}/baseline.parquet")
