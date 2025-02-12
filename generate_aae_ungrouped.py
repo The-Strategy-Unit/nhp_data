@@ -189,6 +189,7 @@ hes_aae_ungrouped = (
         F.col("provider").alias("sitetret"),
         F.col("aedepttype"),
         F.col("aeattendcat").alias("attendance_category"),
+        F.col("arrivaldate").alias("arrival_date"),
         F.col("icb"),
         F.col("is_main_icb"),
         F.col("is_adult"),
