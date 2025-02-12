@@ -247,6 +247,7 @@ hes_ecds_ungrouped = (
         F.col("der_provider_site_code").alias("sitetret"),
         F.col("ec_department_type").alias("aedepttype"),
         F.col("ec_attendancecategory").alias("attendance_category"),
+        F.col("arrival_date"),
         F.col("acuity"),
         F.col("icb"),
         F.col("is_main_icb"),
