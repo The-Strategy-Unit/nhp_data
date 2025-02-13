@@ -19,6 +19,7 @@ def get_op_expat_data(spark: SparkContext) -> DataFrame:
     """
     return (
         get_op_df(spark)
+        .withColumn("group", F.lit(""))
         .groupBy("fyear", "provider", "group", "tretspef")
         .agg(F.sum("attendance").alias("count"))
         .withColumn("activity_type", F.lit("op"))
@@ -30,6 +31,7 @@ def _get_icb_df(spark: SparkContext) -> DataFrame:
     return (
         get_op_df(spark)
         .filter(F.col("icb").isNotNull())
+        .withColumn("group", F.lit(""))
         .groupBy("fyear", "icb", "is_main_icb", "provider", "group", "tretspef")
         .agg(F.sum("attendance").alias("count"))
         .persist()
