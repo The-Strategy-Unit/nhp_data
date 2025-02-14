@@ -4,6 +4,7 @@ from pyspark.sql import Window
 from pyspark.sql import functions as F
 
 spark = DatabricksSession.builder.getOrCreate()
+spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
 
 # COMMAND ----------
 
@@ -24,13 +25,22 @@ path = "/Volumes/su_data/nhp/population-projections"
 # COMMAND ----------
 
 
-def create_demographic_parquet(old_projection_name, new_projection_name):
+def create_demographic_parquet(projection_name: str) -> None:
+    """Create Demographic Parquet Files
+
+    Convert the csv files into partitioned parquet files
+
+    :param projection_name: The name of the projection
+    :type projection_name: str
+    """
+    prefix = "" if projection_name == "principal_proj" else "var_proj_"
+    file_name = f"{prefix}{projection_name}"
     years = [str(y) for y in range(2018, 2044)]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
     for sex_int, sex_string in [(1, "males"), (2, "females")]:
         (
             spark.read.csv(
-                f"{path}/{old_projection_name}/2018 SNPP Population {sex_string}.csv",
+                f"{path}/{file_name}/2018 SNPP Population {sex_string}.csv",
                 header=True,
             )
             .filter(F.col("AGE_GROUP") != "All ages")
@@ -51,14 +61,10 @@ def create_demographic_parquet(old_projection_name, new_projection_name):
             .write.mode("overwrite")
             .partitionBy("area_code")
             .parquet(
-                f"{path}/demographic_data/projection={new_projection_name}/sex={sex_int}"
+                f"{path}/demographic_data/projection={projection_name}/sex={sex_int}"
             )
         )
 
-
-# COMMAND ----------
-
-create_demographic_parquet("snpp_2018b_principal_proj", "principal_proj")
 
 # COMMAND ----------
 
@@ -69,12 +75,21 @@ create_demographic_parquet("snpp_2018b_principal_proj", "principal_proj")
 # COMMAND ----------
 
 
-def create_birth_parquet():
+def create_birth_parquet(projection_name: str) -> None:
+    """Create Birth Parquet Files
+
+    Convert the csv files into partitioned parquet files
+
+    :param projection_name: The name of the projection
+    :type projection_name: str
+    """
+    prefix = "" if projection_name == "principal_proj" else "var_proj_"
+    file_name = f"{prefix}{projection_name}"
     years = [str(y) for y in range(2019, 2044)]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
     (
         spark.read.csv(
-            f"{path}/snpp_2018b_principal_proj_births/2018 SNPP Births persons.csv",
+            f"{path}/snpp_2018b_{file_name}_births/2018 SNPP Births persons.csv",
             header=True,
         )
         .filter(F.col("AGE_GROUP") != "All ages")
@@ -94,13 +109,24 @@ def create_birth_parquet():
         .repartition(1)
         .write.mode("overwrite")
         .partitionBy("area_code")
-        .parquet(f"{path}/birth_data/projection=principal_proj")
+        .parquet(f"{path}/birth_data/projection={projection_name}")
     )
 
 
 # COMMAND ----------
 
-create_birth_parquet()
+projections = [
+    "principal_proj",
+    "10_year_migration",
+    "alt_internal_migration",
+    "high_intl_migration",
+    "low_intl_migration",
+]
+
+for i in projections:
+    create_demographic_parquet(i)
+    create_birth_parquet(i)
+
 
 # COMMAND ----------
 
