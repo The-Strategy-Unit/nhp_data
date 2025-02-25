@@ -33,7 +33,29 @@ def get_ip_mitigators(spark: SparkContext) -> DataFrame:
     :return: The inpatients mitigators data
     :rtype: DataFrame
     """
-    return spark.read.table("apc_mitigators")
+
+    # general los needs to be union'd into the mitigators as we do not create the row in the
+    # mitigators table - they are generated at model runtime. but for inputs, we need to create
+    # them here
+    general_los_df = (
+        get_ip_df(spark)
+        # only include electives and emergencies (not all non-elective)
+        .filter(F.col("admimeth").rlike("^[12]"))
+        # only include ordinary admissions, ignore daycases etc.
+        .filter(F.col("classpat") == "1").select(
+            F.col("epikey"),
+            F.lit("efficiency").alias("type"),
+            F.concat(
+                F.lit("general_los_reduction_"),
+                F.when(F.col("group") == "elective", "elective").otherwise("emergency"),
+            ).alias("strategy"),
+            F.lit(1.0).alias("sample_rate"),
+        )
+    )
+
+    mitigators_df = spark.read.table("su_data.nhp.apc_mitigators")
+
+    return DataFrame.unionByName(mitigators_df, general_los_df)
 
 
 def get_ip_age_sex_data(spark: SparkContext) -> DataFrame:
