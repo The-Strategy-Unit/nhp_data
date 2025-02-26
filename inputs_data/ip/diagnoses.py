@@ -30,7 +30,7 @@ def get_ip_diagnoses(spark: SparkContext) -> DataFrame:
         .join(diags, ["epikey", "fyear"])
         .join(mitigators, ["epikey"])
         .groupBy("fyear", "provider", "strategy", "diagnosis")
-        .agg(F.count("epikey").alias("n"))
+        .agg(F.sum("sample_rate").alias("n"))
         .withColumn("total", F.sum("n").over(diags_w))
         .withColumn("pcnt", F.col("n") / F.col("total"))
         .withColumn("rn", F.row_number().over(diags_w.orderBy(F.desc("n"))))
