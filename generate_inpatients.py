@@ -36,6 +36,15 @@ mat_delivery_spells = (
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC ## IMD19
+
+# COMMAND ----------
+
+lsoa_to_imd = spark.read.csv("/Volumes/su_data/reference/raw/lsoa11-to-imd19_decile.csv", header=True)
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC
 # MAGIC ## Create Inpatients Data
 
@@ -102,6 +111,8 @@ hes_apc_processed = (
     # add in maternity_delivery_in_spell column
     .join(mat_delivery_spells, on="susspellid", how="left")
     .na.fill(False, ["has_procedure", "is_main_icb", "maternity_delivery_in_spell"])
+    # add in IMD19 column
+    .join(lsoa_to_imd, on="lsoa11", how="left")
     .select(
         F.col("epikey"),
         F.col("fyear"),
@@ -132,6 +143,7 @@ hes_apc_processed = (
         F.col("is_main_icb"),
         F.col("has_procedure"),
         F.col("maternity_delivery_in_spell"),
+        F.col('imd19_decile')
     )
     .repartition("fyear", "provider")
 )
