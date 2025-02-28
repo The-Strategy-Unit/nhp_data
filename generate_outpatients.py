@@ -110,6 +110,8 @@ hes_opa_ungrouped = (
         F.col("provider"),
         F.col("age"),
         F.col("sex").cast("int"),
+        F.col("imd_decile"),
+        F.col("imd_quintile"),
         F.col("tretspef"),
         F.col("sitetret"),
         F.col("has_procedures"),
@@ -126,8 +128,9 @@ hes_opa_ungrouped = (
     )
     .withColumn(
         "type",
-        F.when(F.col("tretspef").isin(["424", "501", "505", "560"]), "maternity")
-        .otherwise(
+        F.when(
+            F.col("tretspef").isin(["424", "501", "505", "560"]), "maternity"
+        ).otherwise(
             F.concat(
                 F.when(F.col("is_adult"), "adult").otherwise("child"),
                 F.lit("_"),
@@ -165,6 +168,8 @@ hes_opa_processed = (
         F.col("provider"),
         F.col("age"),
         F.col("sex"),
+        F.col("imd_decile"),
+        F.col("imd_quintile"),
         F.col("tretspef"),
         F.col("sitetret"),
         F.col("type"),
