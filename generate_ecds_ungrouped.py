@@ -40,6 +40,24 @@ df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
 
 # MAGIC %md
 # MAGIC
+# MAGIC ## Add IMD fields
+
+# COMMAND ----------
+
+imd_lookup = (
+    spark.read.table("su_data.reference.lsoa11_to_imd19")
+    .withColumnRenamed("lsoa11", "der_postcode_lsoa_2011_code")
+    .withColumnRenamed("imd19_decile", "imd_decile")
+    .withColumn("imd_quintile", F.floor((F.col("imd_decile") - 1) / 2) + 1)
+)
+
+df = df.join(imd_lookup, "der_postcode_lsoa_2011_code", "left")
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
 # MAGIC ## Calculate provider column
 
 # COMMAND ----------
@@ -244,6 +262,8 @@ hes_ecds_ungrouped = (
         F.col("provider"),
         F.col("age"),
         F.col("sex").cast("int"),
+        F.col("imd_decile"),
+        F.col("imd_quintile"),
         F.col("der_provider_site_code").alias("sitetret"),
         F.col("ec_department_type").alias("aedepttype"),
         F.col("ec_attendancecategory").alias("attendance_category"),

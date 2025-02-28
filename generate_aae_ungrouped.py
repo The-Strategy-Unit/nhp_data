@@ -186,6 +186,8 @@ hes_aae_ungrouped = (
         F.col("provider"),
         F.col("age"),
         F.col("sex").cast("int"),
+        F.col("imd_decile"),
+        F.col("imd_quintile"),
         F.col("provider").alias("sitetret"),
         F.col("aedepttype"),
         F.col("aeattendcat").alias("attendance_category"),
