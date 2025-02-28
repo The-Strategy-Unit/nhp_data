@@ -46,6 +46,29 @@ df = df.withColumn(
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC ## IMD19 mapping
+
+# COMMAND ----------
+
+lsoa_to_imd = spark.read.csv("/Volumes/su_data/reference/raw/lsoa11-to-imd19_decile.csv", header=True)
+
+imd_mapping = {
+    1: 1,
+    2: 1,
+    3: 2,
+    4: 2,
+    5: 3,
+    6: 3,
+    7: 4,
+    8: 4,
+    9: 5,
+    10: 5,
+}
+imd_mapping = F.create_map(*[F.lit(x) for x in chain(*imd_mapping.items())])
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC
 # MAGIC ## Calculate icb column
 
@@ -73,6 +96,7 @@ hes_opa_ungrouped = (
     df.filter(F.col("sex").isin(["1", "2"]))
     .filter(F.col("atentype").isin(["1", "2", "21", "22"]))
     .join(main_icbs, "provider", "left")
+    .join(lsoa_to_imd, on="lsoa11", how="left")
     .withColumn(
         "age",
         F.when(F.col("apptage") >= 7000, 0)
@@ -103,6 +127,10 @@ hes_opa_ungrouped = (
     )
     .withColumn("attendance", 1 - F.col("is_tele_appointment"))
     .withColumn("tele_attendance", F.col("is_tele_appointment"))
+    # Trim HRG
+    .withColumn("sushrg_trimmed", F.expr("substring(sushrg, 1, 4)"))
+    # Turn IMD19 deciles into quintiles
+    .withColumn("imd19_quintile", imd_mapping[F.col("imd19_decile")])
     .select(
         F.col("attendkey"),
         F.col("fyear"),
@@ -113,7 +141,8 @@ hes_opa_ungrouped = (
         F.col("tretspef"),
         F.col("sitetret"),
         F.col("has_procedures"),
-        F.col("sushrg"),
+        F.col("sushrg_trimmed"),
+        F.col("imd19_quintile"),
         F.col("icb"),
         F.col("is_main_icb"),
         F.col("is_surgical_specialty"),
@@ -171,7 +200,8 @@ hes_opa_processed = (
         F.col("group"),
         F.col("hsagrp"),
         F.col("has_procedures"),
-        F.col("sushrg"),
+        F.col("sushrg_trimmed"),
+        F.col("imd19_quintile"),
         F.col("is_main_icb"),
         F.col("is_surgical_specialty"),
         F.col("is_adult"),
