@@ -176,7 +176,7 @@ hes_opa_processed = (
         F.col("group"),
         F.col("hsagrp"),
         F.col("has_procedures"),
-        F.col("sushrg"),
+        F.col("sushrg").substr(1, 4).alias("sushrg_trimmed"),
         F.col("is_main_icb"),
         F.col("is_surgical_specialty"),
         F.col("is_adult"),
