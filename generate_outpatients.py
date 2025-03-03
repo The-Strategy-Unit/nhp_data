@@ -168,7 +168,6 @@ hes_opa_processed = (
         F.col("provider"),
         F.col("age"),
         F.col("sex"),
-        F.col("imd_decile"),
         F.col("imd_quintile"),
         F.col("tretspef"),
         F.col("sitetret"),
