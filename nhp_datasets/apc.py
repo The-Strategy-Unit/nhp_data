@@ -2,14 +2,13 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
-import nhp_datasets.providers  # pylint: disable=unused-import
 from nhp_datasets.icbs import icb_mapping
+from nhp_datasets.providers import read_data_with_provider
 
 spark = DatabricksSession.builder.getOrCreate()
 
 hes_apc = (
-    spark.read.table("hes.silver.apc")
-    .add_provider_column(spark)
+    read_data_with_provider(spark, "hes.silver.apc")
     .filter(F.col("last_episode_in_spell") == True)
     # remove well babies
     .filter(F.col("well_baby_ind") == "N")

@@ -22,7 +22,7 @@ from pyspark.sql.types import *  # pylint: disable-all
 from nhp_datasets.icbs import icb_mapping, main_icbs
 
 spark = DatabricksSession.builder.getOrCreate()
-import nhp_datasets.providers  # pylint: disable=unused-import
+from nhp_datasets.providers import add_provider
 
 # COMMAND ----------
 
@@ -32,11 +32,14 @@ import nhp_datasets.providers  # pylint: disable=unused-import
 
 # COMMAND ----------
 
+df = spark.read.parquet(
+    "abfss://nhse-nhp-data@sudata.dfs.core.windows.net/NHP_EC_Core/"
+)
+
 df = (
-    spark.read.parquet("abfss://nhse-nhp-data@sudata.dfs.core.windows.net/NHP_EC_Core/")
+    add_provider(spark, df, "der_provider_code", "der_provider_site_code")
     .filter(F.col("sex").isin(["1", "2"]))
     .filter(F.col("deleted") == 0)
-    .add_provider_column(spark, "der_provider_code", "der_provider_site_code")
 )
 
 df = df.select([F.col(c).alias(c.lower()) for c in df.columns])

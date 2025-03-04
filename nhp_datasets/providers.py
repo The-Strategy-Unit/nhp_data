@@ -20,18 +20,18 @@ def get_provider_successors_mapping(spark: SparkContext):
     return provider_successors_mapping
 
 
-def _add_provider_column(
-    df: DataFrame,
+def add_provider(
     spark: SparkContext,
+    df: DataFrame,
     procode3_col: str = "procode3",
     sitetret_col: str = "sitetret",
 ) -> DataFrame:
-    """Add provider column
+    """Add the provider column
 
-    :param df: the data frame to add the provider column to
-    :type df: DataFrame
     :param spark: The spark context to use
     :type spark: SparkContext
+    :param df: The data frame
+    :type df: DataFrame
     :param procode3_col: the column which contains the procode3 field, defaults to "procode3"
     :type procode3_col: str, optional
     :param sitetret_col: the column which contains the sitetret field, defaults to "sitetret"
@@ -49,4 +49,25 @@ def _add_provider_column(
     )
 
 
-DataFrame.add_provider_column = _add_provider_column
+def read_data_with_provider(
+    spark: SparkContext,
+    table: str,
+    procode3_col: str = "procode3",
+    sitetret_col: str = "sitetret",
+) -> DataFrame:
+    """Read a table and add the provider column
+
+    :param spark: The spark context to use
+    :type spark: SparkContext
+    :param table: The table to load
+    :type table: str
+    :param procode3_col: the column which contains the procode3 field, defaults to "procode3"
+    :type procode3_col: str, optional
+    :param sitetret_col: the column which contains the sitetret field, defaults to "sitetret"
+    :type sitetret_col: str, optional
+    :return: the data frame with provider column added
+    :rtype: DataFrame
+    """
+
+    df = spark.read.table(table)
+    return add_provider(spark, df, procode3_col, sitetret_col)

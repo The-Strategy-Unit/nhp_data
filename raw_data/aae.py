@@ -21,8 +21,8 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, Window
 from pyspark.sql.types import *  # pylint: disable-all
 
-import nhp_datasets.providers  # pylint: disable=unused-import
 from nhp_datasets.icbs import icb_mapping, main_icbs
+from nhp_datasets.providers import read_data_with_provider
 
 spark = DatabricksSession.builder.getOrCreate()
 
@@ -34,9 +34,7 @@ spark = DatabricksSession.builder.getOrCreate()
 # COMMAND ----------
 
 # aae data doesn't contain sitetret - use procode3 (will have 0 effect)
-df = spark.read.table("hes.silver.aae").add_provider_column(
-    spark, sitetret_col="procode3"
-)
+df = read_data_with_provider(spark, "hes.silver.aae", sitetret_col="procode3")
 
 # COMMAND ----------
 

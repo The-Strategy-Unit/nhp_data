@@ -18,8 +18,8 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
-import nhp_datasets.providers  # pylint: disable=unused-import
 from nhp_datasets.icbs import icb_mapping, main_icbs
+from nhp_datasets.providers import read_data_with_provider
 
 spark = DatabricksSession.builder.getOrCreate()
 
@@ -31,7 +31,7 @@ spark = DatabricksSession.builder.getOrCreate()
 
 # COMMAND ----------
 
-df = spark.read.table("hes.silver.opa").add_provider_column(spark)
+df = read_data_with_provider(spark, "hes.silver.opa")
 
 
 # COMMAND ----------
