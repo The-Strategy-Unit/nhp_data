@@ -17,6 +17,7 @@ def get_ip_df(spark: SparkContext) -> DataFrame:
     """
     return (
         spark.read.table("apc")
+        .filter_acute_providers(spark)
         .filter(F.col("age").isNotNull())
         .join(age_group(spark), "age")
         .join(treatment_function_grouping(spark), "tretspef")

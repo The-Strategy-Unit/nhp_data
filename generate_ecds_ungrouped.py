@@ -14,10 +14,9 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
 from nhp_datasets.icbs import icb_mapping, main_icbs
-from nhp_datasets.providers import get_provider_successors_mapping, providers
 
 spark = DatabricksSession.builder.getOrCreate()
-provider_successors_mapping = get_provider_successors_mapping()
+import nhp_datasets.providers  # pylint: disable=unused-import
 
 # COMMAND ----------
 
@@ -31,6 +30,7 @@ df = (
     spark.read.parquet("abfss://nhse-nhp-data@sudata.dfs.core.windows.net/NHP_EC_Core/")
     .filter(F.col("sex").isin(["1", "2"]))
     .filter(F.col("deleted") == 0)
+    .add_provider_column(spark, "der_provider_code", "der_provider_site_code")
 )
 
 df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
@@ -53,21 +53,6 @@ imd_lookup = (
 
 df = df.join(imd_lookup, "der_postcode_lsoa_2011_code", "left")
 
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC ## Calculate provider column
-
-# COMMAND ----------
-
-df = df.withColumn(
-    "provider",
-    F.when(F.col("der_provider_site_code") == "RW602", "R0A")
-    .when(F.col("der_provider_site_code") == "RM318", "R0A")
-    .otherwise(provider_successors_mapping[F.col("der_provider_code")]),
-)
 
 # COMMAND ----------
 
@@ -196,8 +181,7 @@ left_before_treated = [
 # COMMAND ----------
 
 hes_ecds_ungrouped = (
-    df.filter(F.col("provider").isin(providers))
-    .join(freq_attenders, "ec_ident")
+    df.join(freq_attenders, "ec_ident")
     .join(main_icbs, "provider", "left")
     .withColumn(
         "age",

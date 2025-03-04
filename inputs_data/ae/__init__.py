@@ -19,6 +19,7 @@ def get_ae_df(spark: SparkContext) -> DataFrame:
     """
     df_aae = (
         spark.read.table("su_data.nhp.aae_ungrouped")
+        .filter_acute_providers(spark)
         .filter(F.col("fyear") < 201920)
         .withColumnRenamed("aekey", "key")
         .withColumn("acuity", F.lit(None).cast("string"))
@@ -26,6 +27,7 @@ def get_ae_df(spark: SparkContext) -> DataFrame:
 
     df_ecds = (
         spark.read.table("su_data.nhp.ecds_ungrouped")
+        .filter_acute_providers(spark)
         .filter(F.col("fyear") >= 201920)
         .withColumnRenamed("ec_ident", "key")
     )

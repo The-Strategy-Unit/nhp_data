@@ -12,11 +12,10 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
+import nhp_datasets.providers  # pylint: disable=unused-import
 from nhp_datasets.icbs import icb_mapping, main_icbs
-from nhp_datasets.providers import get_provider_successors_mapping, providers
 
 spark = DatabricksSession.builder.getOrCreate()
-provider_successors_mapping = get_provider_successors_mapping()
 
 # COMMAND ----------
 
@@ -26,22 +25,8 @@ provider_successors_mapping = get_provider_successors_mapping()
 
 # COMMAND ----------
 
-df = spark.read.table("hes.silver.opa")
+df = spark.read.table("hes.silver.opa").add_provider_column(spark)
 
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC ## Calculate provider column
-
-# COMMAND ----------
-
-df = df.withColumn(
-    "provider",
-    F.when(F.col("sitetret") == "RW602", "R0A")
-    .when(F.col("sitetret") == "RM318", "R0A")
-    .otherwise(provider_successors_mapping[F.col("procode3")]),
-).filter(F.col("provider").isin(providers))
 
 # COMMAND ----------
 

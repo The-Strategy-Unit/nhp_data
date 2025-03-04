@@ -15,12 +15,10 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, Window
 from pyspark.sql.types import *  # pylint: disable-all
 
+import nhp_datasets.providers  # pylint: disable=unused-import
 from nhp_datasets.icbs import icb_mapping, main_icbs
-from nhp_datasets.providers import get_provider_successors_mapping, providers
 
 spark = DatabricksSession.builder.getOrCreate()
-provider_successors_mapping = get_provider_successors_mapping()
-
 
 # COMMAND ----------
 
@@ -29,7 +27,10 @@ provider_successors_mapping = get_provider_successors_mapping()
 
 # COMMAND ----------
 
-df = spark.read.table("hes.silver.aae")
+# aae data doesn't contain sitetret - use procode3 (will have 0 effect)
+df = spark.read.table("hes.silver.aae").add_provider_column(
+    spark, sitetret_col="procode3"
+)
 
 # COMMAND ----------
 
@@ -69,19 +70,6 @@ freq_attenders = (
     .join(df.select("aekey"), "aekey", "right")
     .fillna(0, "is_frequent_attender")
 )
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC ## Calculate provider column
-
-# COMMAND ----------
-
-df = df.withColumn(
-    "provider",
-    provider_successors_mapping[F.col("procode3")],
-).filter(F.col("provider").isin(providers))
 
 # COMMAND ----------
 

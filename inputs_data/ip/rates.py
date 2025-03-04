@@ -207,6 +207,7 @@ def _get_ip_day_procedures_op_denominator(spark: SparkContext) -> DataFrame:
 
     return (
         spark.read.table("opa_ungrouped")
+        .filter_acute_providers(spark)
         .join(op_procedures, ["fyear", "attendkey"], "inner")
         .groupBy("fyear", "provider", "strategy")
         .agg(F.count("strategy").alias("denominator"))
@@ -234,6 +235,7 @@ def _get_ip_day_procedures_dc_denominator(spark: SparkContext) -> DataFrame:
 
     return (
         spark.read.table("apc")
+        .filter_acute_providers(spark)
         .join(dc_procedures, ["fyear", "epikey"], "inner")
         .groupBy("fyear", "provider", "strategy")
         .agg(F.count("strategy").alias("denominator"))
