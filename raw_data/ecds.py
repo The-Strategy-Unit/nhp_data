@@ -57,7 +57,7 @@ imd_lookup = (
     spark.read.table("su_data.reference.lsoa11_to_imd19")
     .withColumnRenamed("lsoa11", "der_postcode_lsoa_2011_code")
     .withColumnRenamed("imd19_decile", "imd_decile")
-    .withColumn("imd_quintile", F.floor((F.col("imd_decile") - 1) / 2) + 1)
+    .withColumn("imd_quintile", F.floor((F.col("imd_decile") - 1) / 2).cast("int") + 1)
 )
 
 df = df.join(imd_lookup, "der_postcode_lsoa_2011_code", "left")
@@ -249,7 +249,7 @@ hes_ecds_ungrouped = (
         F.regexp_extract(F.col("Der_EC_Treatment_All"), "^(\\d+),", 1),
     )
     .select(
-        F.col("ec_ident").alias("key"),
+        F.col("ec_ident").cast("string").alias("key"),
         F.lit("ecds").alias("data_source"),
         F.col("fyear"),
         F.col("der_provider_code").alias("procode3"),
@@ -261,7 +261,7 @@ hes_ecds_ungrouped = (
         F.col("der_provider_site_code").alias("sitetret"),
         F.col("ec_department_type").alias("aedepttype"),
         F.col("ec_attendancecategory").alias("attendance_category"),
-        F.col("arrival_date"),
+        F.col("arrival_date").cast("date").alias("arrival_date"),
         F.col("acuity"),
         F.col("icb"),
         F.col("is_main_icb"),
