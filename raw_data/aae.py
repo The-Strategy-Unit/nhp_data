@@ -8,6 +8,12 @@
 
 # COMMAND ----------
 
+import sys
+
+sys.path.append("../")
+
+# COMMAND ----------
+
 from itertools import chain
 
 import pyspark.sql.functions as F
@@ -168,7 +174,8 @@ hes_aae_ungrouped = (
     .join(df_pri_diag, ["procode3", "fyear", "aekey"], how="left")
     .join(df_pri_treat, ["procode3", "fyear", "aekey"], how="left")
     .select(
-        F.col("aekey"),
+        F.col("aekey").alias("key"),
+        F.lit("aae").alias("data_source"),
         F.col("fyear"),
         F.col("procode3"),
         F.col("provider"),
@@ -210,9 +217,11 @@ hes_aae_ungrouped = (
 
 # COMMAND ----------
 
+spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
+
 (
     hes_aae_ungrouped.write.partitionBy("fyear", "provider")
     .mode("overwrite")
     .option("mergeSchema", "true")
-    .saveAsTable("su_data.nhp.aae_ungrouped")
+    .saveAsTable("nhp.raw_data.ecds")
 )

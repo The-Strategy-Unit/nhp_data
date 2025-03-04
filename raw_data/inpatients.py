@@ -6,6 +6,12 @@
 
 # COMMAND ----------
 
+import sys
+
+sys.path.append("../")
+
+# COMMAND ----------
+
 from databricks.connect import DatabricksSession
 from delta.tables import DeltaTable
 from pyspark.sql import functions as F
@@ -141,7 +147,7 @@ hes_apc_processed = (
 
 target = (
     DeltaTable.createIfNotExists(spark)
-    .tableName("su_data.nhp.apc")
+    .tableName("nhp.raw_data.apc")
     .addColumns(hes_apc_processed.schema)
     .execute()
 )

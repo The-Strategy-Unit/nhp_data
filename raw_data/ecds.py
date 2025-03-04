@@ -6,6 +6,12 @@
 
 # COMMAND ----------
 
+import sys
+
+sys.path.append("../")
+
+# COMMAND ----------
+
 from itertools import chain
 
 from databricks.connect import DatabricksSession
@@ -240,7 +246,8 @@ hes_ecds_ungrouped = (
         F.regexp_extract(F.col("Der_EC_Treatment_All"), "^(\\d+),", 1),
     )
     .select(
-        F.col("ec_ident"),
+        F.col("ec_ident").alias("key"),
+        F.lit("ecds").alias("data_source"),
         F.col("fyear"),
         F.col("der_provider_code").alias("procode3"),
         F.col("provider"),
@@ -283,9 +290,11 @@ hes_ecds_ungrouped = (
 
 # COMMAND ----------
 
+spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
+
 (
     hes_ecds_ungrouped.write.partitionBy("fyear", "provider")
     .mode("overwrite")
     .option("mergeSchema", "true")
-    .saveAsTable("su_data.nhp.ecds_ungrouped")
+    .saveAsTable("nhp.raw_data.ecds")
 )
