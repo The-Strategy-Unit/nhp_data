@@ -14,7 +14,7 @@ def get_spark() -> SparkContext:
     """
     spark: SparkContext = DatabricksSession.builder.getOrCreate()
     spark.catalog.setCurrentCatalog("nhp")
-    spark.catalog.setCurrentDatabase("aggregated_data")
+    spark.catalog.setCurrentDatabase("raw_data")
     return spark
 
 
