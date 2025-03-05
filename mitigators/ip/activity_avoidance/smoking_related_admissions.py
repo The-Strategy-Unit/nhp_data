@@ -53,7 +53,7 @@ def _smoking():
         .csv(f"file:///{path}/{filename}")
     )
 
-    icd10_codes = spark.read.table("su_data.reference.icd10_codes")
+    icd10_codes = spark.read.table("strategyunit.reference.icd10_codes")
 
     saf_mapping = saf.join(
         icd10_codes, F.expr("icd10 RLIKE concat('^', diagnoses)")

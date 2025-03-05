@@ -3,14 +3,14 @@
 import os
 from collections import defaultdict
 
+from databricks.connect import DatabricksSession
+from delta.tables import DeltaTable
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
 from mitigators.ip.activity_avoidance import *
 from mitigators.ip.efficiency import *
 
-from databricks.connect import DatabricksSession
-from delta.tables import DeltaTable
 spark = DatabricksSession.builder.getOrCreate()
 
 __registered_mitigators = defaultdict(lambda: {})
@@ -44,19 +44,18 @@ class Mitigator:
         return f"Mitigator: {self.mitigator_name} ({self.mitigator_type})"
 
     def save(self) -> None:
-        """Save the mitigator
-        """
+        """Save the mitigator"""
         # get the mitigators we want to insert
         source = (
             self.get()
             .withColumn("type", F.lit(self.mitigator_type))
             .withColumn("strategy", F.lit(self.mitigator_name))
         )
-        
+
         # get the table to load the mitigators to
         target = (
             DeltaTable.createIfNotExists(spark)
-            .tableName("su_data.nhp.apc_mitigators")
+            .tableName("nhp.raw_data.apc_mitigators")
             .addColumns(source.schema)
             .execute()
         )
@@ -65,11 +64,13 @@ class Mitigator:
             target.alias("target")
             .merge(
                 source.alias("source"),
-                " and ".join([
-                    "source.epikey = target.epikey",
-                    "source.type = target.type",
-                    "source.strategy = target.strategy"
-                ])
+                " and ".join(
+                    [
+                        "source.epikey = target.epikey",
+                        "source.type = target.type",
+                        "source.strategy = target.strategy",
+                    ]
+                ),
             )
             # update the rows that have changed
             .whenMatchedUpdateAll(condition="target.sample_rate != source.sample_rate")
@@ -77,10 +78,12 @@ class Mitigator:
             .whenNotMatchedInsertAll()
             # delete rows for this strategy that no longer exist
             .whenNotMatchedBySourceDelete(
-                condition=" and ".join([
-                    f"target.strategy = '{self.mitigator_name}'",
-                    f"target.type = '{self.mitigator_type}'"
-                ])
+                condition=" and ".join(
+                    [
+                        f"target.strategy = '{self.mitigator_name}'",
+                        f"target.type = '{self.mitigator_type}'",
+                    ]
+                )
             )
             .execute()
         )

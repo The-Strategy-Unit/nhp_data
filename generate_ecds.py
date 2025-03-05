@@ -15,36 +15,8 @@ spark = DatabricksSession.builder.getOrCreate()
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC
-# MAGIC ## ECDS source data
-
-# COMMAND ----------
-
-df_aae = (
-    spark.read.table("su_data.nhp.aae_ungrouped")
-    .filter(F.col("fyear") < 201920)
-    .drop("aekey")
-    .withColumn("acuity", F.lit(None).cast("string"))
-)
-
-df_ecds = (
-    spark.read.table("su_data.nhp.ecds_ungrouped")
-    .filter(F.col("fyear") >= 201920)
-    .drop("ec_ident")
-)
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC
-# MAGIC ### Extract data
-
-
-# COMMAND ----------
-
 hes_ecds_processed = (
-    DataFrame.unionByName(df_aae, df_ecds)
+    spark.read.table("nhp.raw_data.ecds")
     .groupBy(
         F.col("fyear"),
         F.col("provider"),
@@ -76,5 +48,5 @@ hes_ecds_processed = (
     hes_ecds_processed.withColumn("index", F.expr("uuid()"))
     .write.partitionBy("fyear", "provider")
     .mode("overwrite")
-    .saveAsTable("su_data.nhp.ecds")
+    .saveAsTable("nhp.aggregated_data.ecds")
 )

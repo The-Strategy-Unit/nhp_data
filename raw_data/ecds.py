@@ -54,7 +54,7 @@ df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
 # COMMAND ----------
 
 imd_lookup = (
-    spark.read.table("su_data.reference.lsoa11_to_imd19")
+    spark.read.table("strategyunit.reference.lsoa11_to_imd19")
     .withColumnRenamed("lsoa11", "der_postcode_lsoa_2011_code")
     .withColumnRenamed("imd19_decile", "imd_decile")
     .withColumn("imd_quintile", F.floor((F.col("imd_decile") - 1) / 2).cast("int") + 1)

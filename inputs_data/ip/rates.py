@@ -152,7 +152,7 @@ def get_ip_preop_rates(spark: SparkContext) -> DataFrame:
     df_mitigators = get_ip_mitigators(spark)
 
     opertn_counts = (
-        spark.read.table("su_data.nhp.apc")
+        spark.read.table("nhp.raw_data.apc")
         .filter(F.col("admimeth").startswith("1"))
         .groupBy("fyear", "provider")
         .agg(F.count("has_procedure").alias("denominator"))
@@ -176,7 +176,7 @@ def get_ip_preop_rates(spark: SparkContext) -> DataFrame:
 @cache
 def _get_ip_day_procedures_code_list(spark: SparkContext) -> DataFrame:
     with open(
-        "/Volumes/su_data/nhp/reference_data/day_procedures.json", "r", encoding="UTF-8"
+        "/Volumes/nhp/reference/files/day_procedures.json", "r", encoding="UTF-8"
     ) as f:
         data = [
             {"strategy": f"day_procedures_{k}", "procedure_code": v}

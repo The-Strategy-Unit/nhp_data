@@ -58,10 +58,10 @@ def _frail_elderly():
                 ]
             )
         )
-        .csv("/Volumes/su_data/nhp/reference_data/frailty_risk_scores.csv")
+        .csv("/Volumes/nhp/reference/files/frailty_risk_scores.csv")
     )
 
-    icd10_codes = spark.read.table("su_data.reference.icd10_codes")
+    icd10_codes = spark.read.table("strategyunit.reference.icd10_codes")
 
     # make sure to use full hes table - our nhp views filter on certain columns
     # (e.g. not all providers included)

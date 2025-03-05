@@ -18,9 +18,7 @@ def get_pop(spark: SparkContext = get_spark()) -> DataFrame:
     :return: The population by year/lsoa11/age/sex
     :rtype: DataFrame
     """
-    pop = spark.read.parquet(
-        "/Volumes/su_data/nhp/reference_data/population_by_year.parquet"
-    )
+    pop = spark.read.parquet("/Volumes/nhp/reference/files/population_by_year.parquet")
 
     # TODO: replace when 2023/24 is published, use 2022/23 for now
     pop = DataFrame.unionByName(

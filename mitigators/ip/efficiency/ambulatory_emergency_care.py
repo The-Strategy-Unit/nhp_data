@@ -41,7 +41,7 @@ def _generate_aec_directory(group):
     with open("reference_data/aec_directory.json", "r", encoding="UTF-8") as f:
         aec_directory = json.load(f)
 
-    ref_path = "/Volumes/su_data/reference/raw"
+    ref_path = "/Volumes/nhp/reference/files"
 
     with open(f"{ref_path}/hrgs.json", "r", encoding="UTF-8") as f:
         hrgs = json.load(f)
@@ -78,7 +78,7 @@ def _ambulatory_emergency_care(group):
     # We could filter nhp_apc to only include speldur > 0,
     # as these are the only rows which could be affected by the model
     # but it makes it easier to keep these in for the inputs pipeline
-    
+
     return (
         nhp_apc.join(diagnoses, ["epikey", "fyear"])
         .filter(F.col("age") >= 18)

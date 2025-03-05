@@ -8,7 +8,9 @@ from pyspark.sql.types import *  # pylint: disable-all
 
 
 def get_provider_successors_mapping(spark: SparkContext):
-    provider_successors = spark.read.table("su_data.reference.ods_trusts").collect()
+    provider_successors = spark.read.table(
+        "strategyunit.reference.ods_trusts"
+    ).collect()
 
     provider_successors = {
         row["org_from"]: row["org_to"] for row in provider_successors

@@ -7,7 +7,7 @@ spark = DatabricksSession.builder.getOrCreate()
 
 # COMMAND ----------
 
-path = "/Volumes/su_data/nhp/population-projections"
+path = "/Volumes/nhp/population_projections/files"
 
 # COMMAND ----------
 
@@ -141,7 +141,7 @@ BASE_YEAR = 201920
 MIN_PCNT = 0.05
 
 df = (
-    spark.read.table("su_data.nhp.apc")
+    spark.read.table("nhp.raw_data.apc")
     .filter(F.col("fyear") == BASE_YEAR)
     .filter(F.col("resladst_ons").rlike("^E0[6-9]"))
     .groupBy("provider", "resladst_ons")

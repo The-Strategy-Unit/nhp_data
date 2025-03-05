@@ -54,7 +54,7 @@ def get_ip_mitigators(spark: SparkContext) -> DataFrame:
         )
     )
 
-    mitigators_df = spark.read.table("su_data.nhp.apc_mitigators")
+    mitigators_df = spark.read.table("nhp.raw_data.apc_mitigators")
 
     return DataFrame.unionByName(mitigators_df, general_los_df)
 

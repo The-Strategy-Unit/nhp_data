@@ -9,11 +9,14 @@ from pyspark.sql import functions as F
 from inputs_data.helpers import get_spark
 from inputs_data.ip.wli import get_ip_wli
 from inputs_data.op.wli import get_op_wli
+from nhp_datasets.providers import get_provider_successors_mapping
 
 
-def get_wli(spark: SparkContext = get_spark()) -> DataFrame:
+def get_wli(path: str, spark: SparkContext = get_spark()) -> DataFrame:
     """Get WLI (combined)
 
+    :param path: Where to read the waiting list avg change file from
+    :type path: str
     :param spark: The spark context to use
     :type spark: SparkContext
     :return: The WLI data
@@ -24,16 +27,14 @@ def get_wli(spark: SparkContext = get_spark()) -> DataFrame:
 
     w = Window.partitionBy("provider", "tretspef").orderBy("date")
 
-    successors = spark.read.table("su_data.reference.provider_successors")
+    provider_successors_mapping = get_provider_successors_mapping(spark)
 
     # TODO: this table is generated using a query on our Data Warehouse, but using publically available RTT files
     # ideally this should be made more reproducible
     wl_ac = (
-        spark.read.parquet(
-            "/Volumes/su_data/nhp/old_nhp_inputs/dev/waiting_list_avg_change.parquet"
-        )
-        .join(successors, F.col("procode3") == F.col("old_code"))
-        .groupBy(F.col("new_code").alias("provider"), F.col("tretspef"), F.col("date"))
+        spark.read.parquet(f"{path}/waiting_list_avg_change.parquet")
+        .withColumn("provider", provider_successors_mapping[F.col("procode3")])
+        .groupBy("provider", "tretspef", "date")
         .agg(F.sum("n").alias("n"))
         .withColumn("diff", F.col("n") - F.lag("n", 1).over(w))
         .withColumn(

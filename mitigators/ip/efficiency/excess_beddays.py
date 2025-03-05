@@ -50,7 +50,7 @@ def _excess_beddays(group):
                 ]
             )
         )
-        .csv("/Volumes/su_data/nhp/reference_data/hrg_trimpoints.csv", nanValue="-")
+        .csv("/Volumes/nhp/reference/files/hrg_trimpoints.csv", nanValue="-")
         .select("sushrg", F.col(group).alias("trimpoint"))
         .dropna()
     )

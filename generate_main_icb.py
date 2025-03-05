@@ -17,7 +17,7 @@ from nhp_datasets.apc import hes_apc
 
 # COMMAND ----------
 
-SAVE_PATH = "/Volumes/su_data/nhp/reference_data/provider_main_icb.csv"
+SAVE_PATH = "/Volumes/nhp/reference/files/provider_main_icb.csv"
 
 if os.path.exists(SAVE_PATH):
     dbutils.notebook.exit("data already exists: skipping")

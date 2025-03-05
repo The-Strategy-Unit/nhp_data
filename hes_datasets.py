@@ -21,7 +21,7 @@ hes_apc = spark.read.table("hes.silver.apc")
 diagnoses = spark.read.table("hes.silver.apc_diagnoses")
 procedures = spark.read.table("hes.silver.apc_procedures")
 
-nhp_apc = spark.read.table("su_data.nhp.apc")
+nhp_apc = spark.read.table("nhp.raw_data.apc")
 
 
 def combine_into_regex(*args) -> str:

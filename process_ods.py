@@ -242,9 +242,9 @@ if __name__ == "__main__":
     ods_df = get_ods_trusts_and_current_successors(API_KEY)
 
     trust_types = spark.read.parquet(
-        "/Volumes/su_data/reference/raw/trust_types.parquet"
+        "/Volumes/nhp/reference/files/trust_types.parquet"
     ).withColumnRenamed("org_code", "org_to")
 
     df = spark.createDataFrame(ods_df).join(trust_types, "org_to", "left")
 
-    df.write.mode("overwrite").saveAsTable("su_data.reference.ods_trusts")
+    df.write.mode("overwrite").saveAsTable("strategyunit.reference.ods_trusts")

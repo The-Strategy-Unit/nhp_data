@@ -57,7 +57,7 @@ errors
 # COMMAND ----------
 
 (
-    spark.read.table("su_data.nhp.apc_mitigators")
+    spark.read.table("nhp.raw_data.apc_mitigators")
     .groupBy("type", "strategy")
     .count()
     .orderBy("type", "strategy")
