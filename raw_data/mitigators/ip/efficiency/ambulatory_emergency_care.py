@@ -43,7 +43,7 @@ def _generate_aec_directory(group):
     ) as f:
         aec_directory = json.load(f)
 
-    ref_path = "/Volumes/nhp/reference/files"
+    ref_path = "/Volumes/strategyunit/reference/files"
 
     with open(f"{ref_path}/hrgs.json", "r", encoding="UTF-8") as f:
         hrgs = json.load(f)
