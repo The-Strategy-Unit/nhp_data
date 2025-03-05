@@ -34,7 +34,9 @@ spark = DatabricksSession.builder.getOrCreate()
 # COMMAND ----------
 
 # aae data doesn't contain sitetret - use procode3 (will have 0 effect)
-df = read_data_with_provider(spark, "hes.silver.aae", sitetret_col="procode3")
+df = read_data_with_provider(spark, "hes.silver.aae", sitetret_col="procode3").filter(
+    F.col("fyear") < 201920
+)
 
 # COMMAND ----------
 
