@@ -7,6 +7,7 @@ from pyspark import SparkContext
 from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
+from inputs_data.acute_providers import filter_acute_providers
 from inputs_data.catchments import get_catchments, get_total_pop
 from inputs_data.helpers import complete_age_sex_data
 from inputs_data.ip import get_ip_age_sex_data, get_ip_df, get_ip_mitigators
@@ -206,8 +207,7 @@ def _get_ip_day_procedures_op_denominator(spark: SparkContext) -> DataFrame:
     )
 
     return (
-        spark.read.table("opa_ungrouped")
-        .filter_acute_providers(spark)
+        filter_acute_providers(spark, "opa")
         .join(op_procedures, ["fyear", "attendkey"], "inner")
         .groupBy("fyear", "provider", "strategy")
         .agg(F.count("strategy").alias("denominator"))
@@ -234,8 +234,7 @@ def _get_ip_day_procedures_dc_denominator(spark: SparkContext) -> DataFrame:
     )
 
     return (
-        spark.read.table("apc")
-        .filter_acute_providers(spark)
+        filter_acute_providers(spark, "apc")
         .join(dc_procedures, ["fyear", "epikey"], "inner")
         .groupBy("fyear", "provider", "strategy")
         .agg(F.count("strategy").alias("denominator"))

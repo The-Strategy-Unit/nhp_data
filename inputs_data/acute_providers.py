@@ -27,15 +27,15 @@ def get_acute_providers(spark: SparkContext) -> DataFrame:
     return acute_df
 
 
-def _filter_acute_providers(
-    df: DataFrame, spark: SparkContext, org_code_col: str = "provider"
+def filter_acute_providers(
+    spark: SparkContext, table_name: str, org_code_col: str = "provider"
 ) -> DataFrame:
     """Filter a data frame to the acute providers
 
-    :param df: the data frame to filter
-    :type df: DataFrame
     :param spark: The spark context to use
     :type spark: SparkContext
+    :param table_name: the name of the table to select
+    :type table_name: str
     :param org_code_col: the org code column
     :type org_code_col: str
     :return: _description_
@@ -47,7 +47,4 @@ def _filter_acute_providers(
         .distinct()
     )
 
-    return df.join(acute_df, org_code_col, "semi")
-
-
-DataFrame.filter_acute_providers = _filter_acute_providers
+    return spark.read.table(table_name).join(acute_df, org_code_col, "semi")

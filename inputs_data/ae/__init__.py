@@ -6,6 +6,7 @@ import pyspark.sql.functions as F
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
 
+from inputs_data.acute_providers import filter_acute_providers
 from inputs_data.helpers import age_group
 
 
@@ -18,7 +19,7 @@ def get_ae_df(spark: SparkContext) -> DataFrame:
     :rtype: DataFrame
     """
     return (
-        spark.read.table("nhp.raw_data.ecds")
+        filter_acute_providers(spark, "ecds")
         .filter(F.col("age").isNotNull())
         .join(age_group(spark), "age")
     )

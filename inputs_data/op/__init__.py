@@ -6,6 +6,7 @@ import pyspark.sql.functions as F
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
 
+from inputs_data.acute_providers import filter_acute_providers
 from inputs_data.helpers import age_group, treatment_function_grouping
 
 
@@ -18,8 +19,7 @@ def get_op_df(spark: SparkContext) -> DataFrame:
     :rtype: DataFrame
     """
     return (
-        spark.read.table("opa_ungrouped")
-        .filter_acute_providers(spark)
+        filter_acute_providers(spark, "opa")
         .filter(F.col("age").isNotNull())
         .join(age_group(spark), "age")
         .join(treatment_function_grouping(spark), "tretspef")
