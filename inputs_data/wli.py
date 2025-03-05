@@ -59,4 +59,4 @@ def get_wli(path: str, spark: SparkContext = get_spark()) -> DataFrame:
 if __name__ == "__main__":
     path = sys.argv[1]
 
-    get_wli().toPandas().to_parquet(f"{path}/wli.parquet")
+    get_wli(path).toPandas().to_parquet(f"{path}/wli.parquet")
