@@ -14,7 +14,7 @@ identifies admissions of this type and categorises them into adult and child.
 from pyspark.sql import functions as F
 
 from hes_datasets import nhp_apc, procedures
-from mitigators import activity_avoidance_mitigator
+from raw_data.mitigators import activity_avoidance_mitigator
 
 
 def _zero_los(age_filter):

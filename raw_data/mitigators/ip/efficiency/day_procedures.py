@@ -97,10 +97,10 @@ are removed from the inpatients counts and are added to outpatients instead.
 
 import json
 
-from mitigators import efficiency_mitigator
 from pyspark.sql import functions as F
 
 from hes_datasets import nhp_apc, primary_procedure
+from raw_data.mitigators import efficiency_mitigator
 
 
 def _day_procedures(day_procedure_type):

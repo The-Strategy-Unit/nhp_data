@@ -69,7 +69,7 @@ from hes_datasets import (
     primary_procedure,
     secondary_diagnosis,
 )
-from mitigators import activity_avoidance_mitigator
+from raw_data.mitigators import activity_avoidance_mitigator
 
 
 @activity_avoidance_mitigator()
@@ -78,9 +78,7 @@ def _ambulatory_care_conditions_acute():
         primary_diagnosis, "L(0([34]|8[089])|88X|980)"
     ).admission_not(any_procedure, "[A-HJ-RTVW]", "S([123]|4[1-589])", "X0[1245]")
 
-    gangrene = nhp_apc.admission_has(
-        any_diagnosis, "R02X"
-    )
+    gangrene = nhp_apc.admission_has(any_diagnosis, "R02X")
 
     other_conditions = nhp_apc.admission_has(
         primary_diagnosis,
@@ -113,7 +111,7 @@ def _ambulatory_care_conditions_acute():
 def _ambulatory_care_conditions_chronic():
     def df(*args):
         return nhp_apc.admission_has(primary_diagnosis, *args)
-    
+
     conditions = [
         # angina
         df("I2(0|4[089])").admission_not(

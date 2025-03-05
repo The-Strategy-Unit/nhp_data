@@ -17,7 +17,7 @@ not undergo a procedure.
 from pyspark.sql import functions as F
 
 from hes_datasets import nhp_apc, primary_diagnosis, procedures
-from mitigators import activity_avoidance_mitigator
+from raw_data.mitigators import activity_avoidance_mitigator
 
 
 @activity_avoidance_mitigator()

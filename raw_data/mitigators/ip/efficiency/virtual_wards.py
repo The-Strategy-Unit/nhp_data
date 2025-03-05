@@ -14,8 +14,8 @@ This efficiency mitigator identifies patients who may be suitable for earlier di
 admission to step down ARI or Heart Failure virtual wards. 
 """
 
-from mitigators import efficiency_mitigator
-from mitigators.ip.activity_avoidance.virtual_wards import (
+from raw_data.mitigators import efficiency_mitigator
+from raw_data.mitigators.ip.activity_avoidance.virtual_wards import (
     virtual_wards_ari,
     virtual_wards_heart_failure,
 )

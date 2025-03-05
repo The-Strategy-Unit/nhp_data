@@ -11,7 +11,7 @@ In addition minimising the LOS for such patients would also free up capacity wit
 from pyspark.sql import functions as F
 
 from hes_datasets import nhp_apc
-from mitigators import efficiency_mitigator
+from raw_data.mitigators import efficiency_mitigator
 
 
 @efficiency_mitigator()

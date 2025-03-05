@@ -22,7 +22,7 @@ Heart Failure virtual ward.
 from pyspark.sql import functions as F
 
 from hes_datasets import nhp_apc, primary_diagnosis, procedures
-from mitigators import activity_avoidance_mitigator
+from raw_data.mitigators import activity_avoidance_mitigator
 
 
 def _virtual_wards_admissions(*args):
@@ -41,9 +41,8 @@ def _virtual_wards_admissions(*args):
 
 def virtual_wards_ari():
     """Virtual Wards: Acute Respiratory Infection (ARI)"""
-    return (
-        _virtual_wards_admissions("B(3[34]|97)", "J(0[6-9]|[1-9])", "U0[467]")
-        .join(procedures, ["epikey"], "anti")
+    return _virtual_wards_admissions("B(3[34]|97)", "J(0[6-9]|[1-9])", "U0[467]").join(
+        procedures, ["epikey"], "anti"
     )
 
 

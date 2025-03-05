@@ -8,8 +8,8 @@ from delta.tables import DeltaTable
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
-from mitigators.ip.activity_avoidance import *
-from mitigators.ip.efficiency import *
+from raw_data.mitigators.ip.activity_avoidance import *
+from raw_data.mitigators.ip.efficiency import *
 
 spark = DatabricksSession.builder.getOrCreate()
 

@@ -37,7 +37,7 @@ set.
 from pyspark.sql import functions as F
 
 from hes_datasets import any_diagnosis, nhp_apc, primary_diagnosis, secondary_diagnosis
-from mitigators import activity_avoidance_mitigator
+from raw_data.mitigators import activity_avoidance_mitigator
 
 
 def _medicines_related_admissions_implicit(primary_diags, secondary_diags):

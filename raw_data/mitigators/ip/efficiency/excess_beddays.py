@@ -32,7 +32,7 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 
 from hes_datasets import nhp_apc
-from mitigators import efficiency_mitigator
+from raw_data.mitigators import efficiency_mitigator
 
 spark = DatabricksSession.builder.getOrCreate()
 

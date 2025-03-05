@@ -22,8 +22,8 @@ Codes used within the model to identify spells of this type can be found on the
 """
 
 from hes_datasets import nhp_apc, primary_diagnosis, primary_procedure
-from mitigators import activity_avoidance_mitigator
-from mitigators.ip.activity_avoidance.evidence_based_interventions import (
+from raw_data.mitigators import activity_avoidance_mitigator
+from raw_data.mitigators.ip.activity_avoidance.evidence_based_interventions import (
     evidence_based_interventions,
 )
 

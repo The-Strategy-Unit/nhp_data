@@ -30,8 +30,8 @@ from hes_datasets import (
     primary_procedure,
     secondary_procedure,
 )
-from mitigators import activity_avoidance_mitigator
-from mitigators.ip.activity_avoidance.evidence_based_interventions import (
+from raw_data.mitigators import activity_avoidance_mitigator
+from raw_data.mitigators.ip.activity_avoidance.evidence_based_interventions import (
     evidence_based_interventions,
 )
 

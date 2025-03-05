@@ -40,7 +40,7 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 
 from hes_datasets import diagnoses, nhp_apc
-from mitigators import activity_avoidance_mitigator
+from raw_data.mitigators import activity_avoidance_mitigator
 
 spark = DatabricksSession.builder.getOrCreate()
 

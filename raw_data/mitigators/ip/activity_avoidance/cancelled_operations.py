@@ -25,7 +25,7 @@ HRG codes are published annually by [NHS England][co_1].
 from pyspark.sql import functions as F
 
 from hes_datasets import nhp_apc
-from mitigators import activity_avoidance_mitigator
+from raw_data.mitigators import activity_avoidance_mitigator
 
 
 @activity_avoidance_mitigator()

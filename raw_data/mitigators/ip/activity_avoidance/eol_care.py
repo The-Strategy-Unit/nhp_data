@@ -18,7 +18,7 @@ indication that the patient experienced any trauma and the patient dies in hospi
 from pyspark.sql import functions as F
 
 from hes_datasets import any_diagnosis, nhp_apc, procedures
-from mitigators import activity_avoidance_mitigator
+from raw_data.mitigators import activity_avoidance_mitigator
 
 
 # base function for the two mitigators
