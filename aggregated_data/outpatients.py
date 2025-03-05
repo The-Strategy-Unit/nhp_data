@@ -6,6 +6,12 @@
 
 # COMMAND ----------
 
+import sys
+
+sys.path.append("../")
+
+# COMMAND ----------
+
 from itertools import chain
 
 from databricks.connect import DatabricksSession

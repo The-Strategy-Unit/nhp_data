@@ -6,6 +6,12 @@
 
 # COMMAND ----------
 
+import sys
+
+sys.path.append("../")
+
+# COMMAND ----------
+
 from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
