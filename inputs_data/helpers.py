@@ -165,4 +165,7 @@ def complete_age_sex_data(
 
 if __name__ == "__main__":
 
-    create_tretspef_grouping()
+    spark = get_spark()
+
+    if not spark.catalog.tableExists("nhp.reference.tretspef_grouping"):
+        create_tretspef_grouping(spark)

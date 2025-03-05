@@ -60,7 +60,7 @@ def create_catchments(spark: SparkContext = get_spark()) -> None:
         .agg(F.sum("pop_catch").alias("pop_catch"))
     )
 
-    catchments.write.mode("overwrite").saveAsTable("inputs_catchments")
+    catchments.write.mode("overwrite").saveAsTable("nhp.reference.inputs_catchments")
 
 
 def get_catchments(spark: SparkContext = get_spark()) -> DataFrame:
@@ -71,7 +71,7 @@ def get_catchments(spark: SparkContext = get_spark()) -> DataFrame:
     :return: The catchments data
     :rtype: DataFrame
     """
-    return spark.read.table("inputs_catchments").persist()
+    return spark.read.table("nhp.reference.inputs_catchments").persist()
 
 
 def get_total_pop(spark: SparkContext = get_spark()) -> DataFrame:
@@ -91,6 +91,7 @@ def get_total_pop(spark: SparkContext = get_spark()) -> DataFrame:
 
 
 if __name__ == "__main__":
-    path = sys.argv[1]
+    spark = get_spark()
 
-    create_catchments()
+    if not spark.catalog.tableExists("nhp.reference.inputs_catchments"):
+        create_catchments(spark)
