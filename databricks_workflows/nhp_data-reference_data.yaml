@@ -1,0 +1,61 @@
+resources:
+  jobs:
+    Generate_NHP_Data_Reference_Data:
+      name: Generate NHP Data (Reference Data)
+      email_notifications:
+        no_alert_for_skipped_runs: true
+      webhook_notifications:
+        on_success:
+          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
+        on_failure:
+          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
+      notification_settings:
+        no_alert_for_skipped_runs: true
+        no_alert_for_canceled_runs: true
+      tasks:
+        - task_key: run_reference_data
+          condition_task:
+            op: EQUAL_TO
+            left: "{{job.parameters.run_reference_data}}"
+            right: "True"
+        - task_key: ods_trusts
+          depends_on:
+            - task_key: run_reference_data
+              outcome: "true"
+          spark_python_task:
+            python_file: reference/ods_trusts.py
+            source: GIT
+          job_cluster_key: generate_nhp_apc
+        - task_key: provider_main_icb
+          depends_on:
+            - task_key: ods_trusts
+          spark_python_task:
+            python_file: reference/provider_main_icb.py
+            source: GIT
+          job_cluster_key: generate_nhp_apc
+      job_clusters:
+        - job_cluster_key: generate_nhp_apc
+          new_cluster:
+            cluster_name: ""
+            spark_version: 15.4.x-scala2.12
+            spark_conf:
+              spark.master: local[*, 4]
+              spark.databricks.cluster.profile: singleNode
+            custom_tags:
+              ResourceClass: SingleNode
+            instance_pool_id: 0129-130615-maw351-pool-pss8mvfy
+            driver_instance_pool_id: 0129-130615-maw351-pool-pss8mvfy
+            data_security_mode: SINGLE_USER
+            runtime_engine: STANDARD
+            num_workers: 0
+      git_source:
+        git_url: https://github.com/The-Strategy-Unit/nhp_data
+        git_provider: gitHub
+        git_branch: main
+      tags:
+        group: nhp_data
+      queue:
+        enabled: true
+      parameters:
+        - name: run_reference_data
+          default: "True"
