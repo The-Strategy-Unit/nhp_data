@@ -37,7 +37,7 @@ def age_group(spark: SparkContext) -> DataFrame:
     )
 
 
-def create_tretspef_grouping(spark: SparkContext) -> None:
+def create_tretspef_grouping(spark: SparkContext = get_spark()) -> None:
     """Create Treatment Functrion Groupings
 
     :param spark: The spark context to use
@@ -161,3 +161,8 @@ def complete_age_sex_data(
         )
         .fillna(0, ["n"])
     )
+
+
+if __name__ == "__main__":
+
+    create_tretspef_grouping()
