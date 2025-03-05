@@ -15,10 +15,10 @@ referenced document."""
 
 import pyspark.sql.types as T
 from databricks.connect import DatabricksSession
+from mitigators import activity_avoidance_mitigator
 from pyspark.sql import functions as F
 
 from hes_datasets import diagnoses, nhp_apc
-from mitigators import activity_avoidance_mitigator
 
 spark = DatabricksSession.builder.getOrCreate()
 
@@ -28,7 +28,7 @@ import pathlib
 @activity_avoidance_mitigator()
 def _obesity_related_admissions():
     filename = "obesity_attributable_fractions.csv"
-    path = pathlib.Path(f"reference_data/{filename}").parent.resolve()
+    path = pathlib.Path(f"mitigators/reference_data/{filename}").parent.resolve()
 
     oaf = (
         spark.read.option("header", "true")

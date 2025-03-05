@@ -29,16 +29,18 @@ import re
 
 import pandas as pd
 from databricks.connect import DatabricksSession
+from mitigators import efficiency_mitigator
 from pyspark.sql import functions as F
 
 from hes_datasets import diagnoses, nhp_apc
-from mitigators import efficiency_mitigator
 
 spark = DatabricksSession.builder.getOrCreate()
 
 
 def _generate_aec_directory(group):
-    with open("reference_data/aec_directory.json", "r", encoding="UTF-8") as f:
+    with open(
+        "mitigators/reference_data/aec_directory.json", "r", encoding="UTF-8"
+    ) as f:
         aec_directory = json.load(f)
 
     ref_path = "/Volumes/nhp/reference/files"

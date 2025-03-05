@@ -37,10 +37,10 @@ import json
 
 import pyspark.sql.types as T
 from databricks.connect import DatabricksSession
+from mitigators import activity_avoidance_mitigator
 from pyspark.sql import functions as F
 
 from hes_datasets import any_diagnosis, diagnoses, nhp_apc
-from mitigators import activity_avoidance_mitigator
 
 spark = DatabricksSession.builder.getOrCreate()
 sc = spark.sparkContext
@@ -77,7 +77,9 @@ def _alcohol_wholly_attributable():
 def _alcohol_partially_attributable(condition_group):
     icd = spark.read.table("strategyunit.reference.icd10_codes")
 
-    with open("reference_data/alcohol_fractions.json", "r", encoding="UTF-8") as f:
+    with open(
+        "mitigators/reference_data/alcohol_fractions.json", "r", encoding="UTF-8"
+    ) as f:
         aaf = json.load(f)
 
     ages = list(zip(aaf["ages"], aaf["ages"][1:] + [10000]))

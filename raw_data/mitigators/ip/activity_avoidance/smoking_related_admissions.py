@@ -25,10 +25,10 @@ import pathlib
 
 import pyspark.sql.types as T
 from databricks.connect import DatabricksSession
+from mitigators import activity_avoidance_mitigator
 from pyspark.sql import functions as F
 
 from hes_datasets import diagnoses, nhp_apc
-from mitigators import activity_avoidance_mitigator
 
 spark = DatabricksSession.builder.getOrCreate()
 
@@ -36,7 +36,7 @@ spark = DatabricksSession.builder.getOrCreate()
 @activity_avoidance_mitigator()
 def _smoking():
     filename = "smoking_attributable_fractions.csv"
-    path = pathlib.Path(f"reference_data/{filename}").parent.resolve()
+    path = pathlib.Path(f"mitigators/reference_data/{filename}").parent.resolve()
 
     saf = (
         spark.read.option("header", "true")

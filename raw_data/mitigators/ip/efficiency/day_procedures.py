@@ -97,14 +97,16 @@ are removed from the inpatients counts and are added to outpatients instead.
 
 import json
 
+from mitigators import efficiency_mitigator
 from pyspark.sql import functions as F
 
 from hes_datasets import nhp_apc, primary_procedure
-from mitigators import efficiency_mitigator
 
 
 def _day_procedures(day_procedure_type):
-    with open("reference_data/day_procedures.json", "r", encoding="UTF-8") as f:
+    with open(
+        "mitigators/reference_data/day_procedures.json", "r", encoding="UTF-8"
+    ) as f:
         codes = json.load(f)[day_procedure_type]
 
     classpats = ["1"] if day_procedure_type.endswith("dc") else ["1", "2"]
