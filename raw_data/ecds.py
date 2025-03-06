@@ -8,7 +8,7 @@ from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
-from nhp_datasets.icbs import icb_mapping, main_icbs
+from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.providers import add_provider
 
 
@@ -121,9 +121,11 @@ def generate_ecds_data(spark: SparkContext) -> None:
         "1066321000000107",  # Left care setting before treatment completed (finding)
     ]
 
+    # add main icb column
+    df = add_main_icb(spark, df)
+
     hes_ecds_ungrouped = (
         df.join(freq_attenders, "ec_ident")
-        .join(main_icbs, "provider", "left")
         .withColumn(
             "age",
             F.when(F.col("age_at_arrival") > 90, 90)

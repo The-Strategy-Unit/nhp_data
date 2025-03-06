@@ -7,7 +7,7 @@ from pyspark.context import SparkContext
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
-from nhp_datasets.icbs import icb_mapping, main_icbs
+from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.providers import read_data_with_provider
 
 
@@ -18,10 +18,12 @@ def generate_outpatients_data(spark: SparkContext) -> None:
     # Calculate icb column
     df = df.withColumn("icb", icb_mapping[F.col("ccg_residence")])
 
+    # add main icb column
+    df = add_main_icb(spark, df)
+
     hes_opa_ungrouped = (
         df.filter(F.col("sex").isin(["1", "2"]))
         .filter(F.col("atentype").isin(["1", "2", "21", "22"]))
-        .join(main_icbs, "provider", "left")
         .withColumn(
             "age",
             F.when(F.col("apptage") >= 7000, 0)
