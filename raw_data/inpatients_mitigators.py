@@ -42,14 +42,6 @@ def generate_inpatients_mitigators(spark: SparkContext) -> None:
 
     print(errors)
 
-    (
-        spark.read.table("nhp.raw_data.apc_mitigators")
-        .groupBy("type", "strategy")
-        .count()
-        .orderBy("type", "strategy")
-        .display()
-    )
-
 
 if __name__ == "__main__":
     spark = DatabricksSession.builder.getOrCreate()
