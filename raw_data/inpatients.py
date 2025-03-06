@@ -7,7 +7,7 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
 from nhp_datasets.apc import apc_primary_procedures, hes_apc
-from nhp_datasets.icbs import main_icbs
+from nhp_datasets.icbs import add_main_icb
 
 
 def generate_inpatients_data(spark: SparkContext) -> None:
@@ -22,8 +22,10 @@ def generate_inpatients_data(spark: SparkContext) -> None:
         .withColumn("maternity_delivery_in_spell", F.lit(True))
     )
 
+    df = add_main_icb(spark, hes_apc)
+
     hes_apc_processed = (
-        hes_apc.withColumn(
+        df.withColumn(
             "age",
             F.when(
                 (F.col("admiage") == 999) | F.col("admiage").isNull(),
@@ -76,15 +78,11 @@ def generate_inpatients_data(spark: SparkContext) -> None:
             "left",
         )
         # add is_main_icb column
-        .join(
-            main_icbs.select(
-                F.col("provider"),
-                F.col("main_icb").alias("icb"),
-                F.lit(True).alias("is_main_icb"),
-            ),
-            ["provider", "icb"],
-            "left",
+        .withColumn(
+            "is_main_icb",
+            F.when(F.col("icb") == F.col("main_icb"), True).otherwise(False),
         )
+        .drop("main_icb")
         # add in maternity_delivery_in_spell column
         .join(mat_delivery_spells, on="susspellid", how="left")
         .na.fill(False, ["has_procedure", "is_main_icb", "maternity_delivery_in_spell"])
