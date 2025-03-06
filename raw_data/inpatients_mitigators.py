@@ -3,14 +3,10 @@
 import importlib
 import os
 
-from databricks.connect import DatabricksSession
-from pyspark.context import SparkContext
-from tqdm.auto import tqdm
-
 import raw_data.mitigators as mitigators
 
 
-def generate_inpatients_mitigators(spark: SparkContext) -> None:
+def generate_inpatients_mitigators() -> None:
     """Generrate Inpatients Mitigators"""
     path = ["mitigators", "ip"]
 
@@ -32,9 +28,7 @@ def generate_inpatients_mitigators(spark: SparkContext) -> None:
 
     errors = {}
 
-    for m in (pbar := tqdm(all_mitigators)):
-        pbar.set_description(f"Processing {m}:")
-
+    for m in all_mitigators:
         try:
             m.save()
         except Exception as e:  # pylint: disable=broad-exception-caught
@@ -44,5 +38,4 @@ def generate_inpatients_mitigators(spark: SparkContext) -> None:
 
 
 if __name__ == "__main__":
-    spark = DatabricksSession.builder.getOrCreate()
-    generate_inpatients_mitigators(spark)
+    generate_inpatients_mitigators()
