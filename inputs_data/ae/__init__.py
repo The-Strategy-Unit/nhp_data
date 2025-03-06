@@ -6,6 +6,7 @@ import pyspark.sql.functions as F
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
 
+from inputs_data.acute_providers import filter_acute_providers
 from inputs_data.helpers import age_group
 
 
@@ -17,21 +18,8 @@ def get_ae_df(spark: SparkContext) -> DataFrame:
     :return: The outpatients data
     :rtype: DataFrame
     """
-    df_aae = (
-        spark.read.table("su_data.nhp.aae_ungrouped")
-        .filter(F.col("fyear") < 201920)
-        .withColumnRenamed("aekey", "key")
-        .withColumn("acuity", F.lit(None).cast("string"))
-    )
-
-    df_ecds = (
-        spark.read.table("su_data.nhp.ecds_ungrouped")
-        .filter(F.col("fyear") >= 201920)
-        .withColumnRenamed("ec_ident", "key")
-    )
-
     return (
-        DataFrame.unionByName(df_aae, df_ecds)
+        filter_acute_providers(spark, "ecds")
         .filter(F.col("age").isNotNull())
         .join(age_group(spark), "age")
     )

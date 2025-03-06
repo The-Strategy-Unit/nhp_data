@@ -4,6 +4,7 @@ import pyspark.sql.functions as F
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
 
+from inputs_data.acute_providers import filter_acute_providers
 from inputs_data.helpers import age_group, treatment_function_grouping
 
 
@@ -16,7 +17,7 @@ def get_ip_df(spark: SparkContext) -> DataFrame:
     :rtype: DataFrame
     """
     return (
-        spark.read.table("apc")
+        filter_acute_providers(spark, "apc")
         .filter(F.col("age").isNotNull())
         .join(age_group(spark), "age")
         .join(treatment_function_grouping(spark), "tretspef")
@@ -53,7 +54,7 @@ def get_ip_mitigators(spark: SparkContext) -> DataFrame:
         )
     )
 
-    mitigators_df = spark.read.table("su_data.nhp.apc_mitigators")
+    mitigators_df = spark.read.table("nhp.raw_data.apc_mitigators")
 
     return DataFrame.unionByName(mitigators_df, general_los_df)
 

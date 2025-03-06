@@ -1,0 +1,57 @@
+resources:
+  jobs:
+    Generate_NHP_Data_OP:
+      name: Generate NHP Data (OP)
+      email_notifications:
+        no_alert_for_skipped_runs: true
+      webhook_notifications:
+        on_success:
+          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
+        on_failure:
+          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
+      notification_settings:
+        no_alert_for_skipped_runs: true
+        no_alert_for_canceled_runs: true
+      tasks:
+        - task_key: run_op
+          condition_task:
+            op: EQUAL_TO
+            left: "{{job.parameters.run_op}}"
+            right: "True"
+        - task_key: nhp-raw_data-opa
+          depends_on:
+            - task_key: run_op
+              outcome: "true"
+          spark_python_task:
+            python_file: raw_data/outpatients.py
+            source: GIT
+          job_cluster_key: generate_nhp_apc
+        - task_key: nhp-aggregated_data-opa
+          depends_on:
+            - task_key: nhp-raw_data-opa
+          spark_python_task:
+            python_file: aggregated_data/outpatients.py
+            source: GIT
+          job_cluster_key: generate_nhp_apc
+      job_clusters:
+        - job_cluster_key: generate_nhp_apc
+          new_cluster:
+            cluster_name: ""
+            spark_version: 15.4.x-scala2.12
+            instance_pool_id: 0129-130615-maw351-pool-pss8mvfy
+            data_security_mode: SINGLE_USER
+            runtime_engine: PHOTON
+            autoscale:
+              min_workers: 2
+              max_workers: 8
+      git_source:
+        git_url: https://github.com/The-Strategy-Unit/nhp_data
+        git_provider: gitHub
+        git_branch: main
+      tags:
+        group: nhp_data
+      queue:
+        enabled: true
+      parameters:
+        - name: run_op
+          default: "True"
