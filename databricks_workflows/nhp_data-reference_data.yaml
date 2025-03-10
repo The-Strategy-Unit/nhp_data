@@ -33,6 +33,13 @@ resources:
             python_file: reference/provider_main_icb.py
             source: GIT
           job_cluster_key: generate_nhp_apc
+        - task_key: population_by_imd_decile
+          depends_on:
+            - task_key: provider_main_icb
+          spark_python_task:
+            python_file: reference/population_by_imd_decile.py
+            source: GIT
+          job_cluster_key: generate_nhp_apc
       job_clusters:
         - job_cluster_key: generate_nhp_apc
           new_cluster:
