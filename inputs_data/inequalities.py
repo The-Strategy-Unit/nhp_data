@@ -3,6 +3,7 @@
 import sys
 import mlflow
 
+from pyspark import SparkContext
 from pyspark.sql import Window, DataFrame
 from pyspark.sql import functions as F
 from inputs_data.helpers import get_spark
@@ -10,10 +11,13 @@ import pandas as pd
 import statsmodels.api as sm
 
 
-def load_inequalities_data(fyears):
+def load_inequalities_data(spark: SparkContext, fyears: list) -> DataFrame:
     """
+    :param spark: The spark context to use
+    :type spark: SparkContext
     :param fyears: The financial years for the inequalities analysis, with each fyear as an int
     :type fyears: List
+
     :return: The dataframe containing the data required for inequalities analysis
     :rtype: DataFrame
     """
@@ -205,12 +209,14 @@ def process_calculated_inequalities(
     return df
 
 
-def main(path):
+def main(path, spark):
     """
     Loads data, calculates inequalities and saves the results to parquet
 
     :param path: The path to save the results to
     :type path: str
+    :param spark: The spark context to use
+    :type spark: SparkContext
 
     """
     mlflow.autolog(
@@ -224,7 +230,7 @@ def main(path):
     )
     fyears = [201920, 202223, 202324]
 
-    data_hrg_count = load_inequalities_data(fyears=fyears)
+    data_hrg_count = load_inequalities_data(spark, fyears=fyears)
     linreg_df = calculate_inequalities(data_hrg_count, fyears=fyears)
     inequalities = process_calculated_inequalities(linreg_df, data_hrg_count)
     inequalities.to_parquet(f"{path}/inequalities.parquet")
@@ -233,4 +239,4 @@ def main(path):
 if __name__ == "__main__":
     path = sys.argv[1]
     spark = get_spark()
-    main(path)
+    main(path, spark)
