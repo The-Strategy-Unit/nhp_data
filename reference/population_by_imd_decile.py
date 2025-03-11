@@ -69,6 +69,7 @@ def create_population_by_imd_decile(
     df_pop_msoa = (
         df_counts.join(lsoa_to_msoa, "lsoa11")
         .groupBy("provider", "msoa11", "age_group", "sex")
+        # count the activity (n), then calculate the proportion of the activity in the msoa (p)
         .agg(F.sum("n").alias("n"))
         .withColumn("p", F.col("n") / F.sum("n").over(w_msoa))
         .join(pop, ["msoa11", "age_group", "sex"])
