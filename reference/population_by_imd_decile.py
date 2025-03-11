@@ -7,7 +7,7 @@ from pyspark.sql import functions as F
 
 
 def create_population_by_imd_decile(
-    spark: SparkContext, base_year: int = 201920, min_pcnt: int = 0
+    spark: SparkContext, base_year: int = 201920
 ) -> None:
     """Create Population by IMD Decile
 
@@ -15,36 +15,70 @@ def create_population_by_imd_decile(
     :type spark: SparkContext
     :param base_year: which year of activity to be based on, defaults to 201920
     :type base_year: int, optional
-    :param min_pcnt: what minimum percentage, defaults to 0
-    :type min_pcnt: int, optional
     """
-    lsoa_pop_imd = spark.read.csv(
-        "/Volumes/strategyunit/reference/files/lsoa_pop_imd.csv",
-        header=True,
-        schema="lsoa11cd string, la11cd string, pop int, imd19_decile int",
+
+    df = spark.read.table("nhp.default.apc")
+
+    # create age group lookups
+    age_groups = spark.createDataFrame(
+        [("0-16", i) for i in range(0, 16 + 1)]
+        + [("17-40", i) for i in range(17, 40 + 1)]
+        + [("41-65", i) for i in range(41, 65 + 1)]
+        + [("66-75", i) for i in range(66, 75 + 1)]
+        + [("76+", i) for i in range(76, 90 + 1)],
+        ["age_group", "age"],
     )
 
-    total_window = Window.partitionBy("provider")
+    # cheat to get lsoa->msoa lookup
+    lsoa_to_msoa = (
+        spark.read.table("hes.silver.apc")
+        .select("lsoa11", "msoa11")
+        .filter(F.col("lsoa11").startswith("E"))
+        .filter(F.col("lsoa11") != "E99999999")
+        .distinct()
+        .persist()
+    )
 
-    df = (
-        spark.read.table("su_data.nhp.apc")
-        .filter(F.col("fyear") == base_year)
-        .filter(F.col("group") == "elective")
-        .filter(F.col("resladst_ons").rlike("^E0[6-9]"))
-        .groupBy("provider", "resladst_ons")
-        .count()
-        .withColumn("pcnt", F.col("count") / F.sum("count").over(total_window))
-        .filter(F.col("pcnt") > min_pcnt)
-        .withColumn("pcnt", F.col("count") / F.sum("count").over(total_window))
-        .withColumnRenamed("resladst_ons", "la11cd")
-        .join(lsoa_pop_imd, "la11cd")
-        .withColumn("pop", F.col("pop") * F.col("pcnt"))
-        .groupBy("provider", "imd19_decile")
+    pop = (
+        spark.read.csv(
+            "/Volumes/strategyunit/reference/files/sape22_pop_by_lsoa.csv", header=True
+        )
+        .withColumn("age", F.col("age").cast("int"))
+        .withColumn("imd19", F.col("imd19").cast("int"))
+        .withColumnRenamed("lsoa11cd", "lsoa11")
+        .join(age_groups, "age")
+        .groupBy("lsoa11", "imd19", "sex", "age_group")
         .agg(F.sum("pop").alias("pop"))
-        .orderBy("provider", "imd19_decile")
+        .join(lsoa_to_msoa, "lsoa11")
     )
 
-    df.write.mode("overwrite").saveAsTable("nhp.reference.population_by_imd_decile")
+    df_counts = (
+        df.filter(F.col("fyear") == base_year)
+        .filter(F.col("age").isNotNull())
+        .filter(F.col("sex").isin(["1", "2"]))
+        .filter(F.col("lsoa11").isNotNull())
+        .filter(F.col("admimeth").startswith("1"))
+        .join(age_groups, "age")
+        .groupBy("lsoa11", "provider", "age_group", "sex")
+        .agg(F.countDistinct("person_id").alias("n"))
+        .persist()
+    )
+
+    w_msoa = Window.partitionBy("msoa11", "age_group", "sex")
+
+    df_pop_msoa = (
+        df_counts.join(lsoa_to_msoa, "lsoa11")
+        .groupBy("provider", "msoa11", "age_group", "sex")
+        .agg(F.sum("n").alias("n"))
+        .withColumn("p", F.col("n") / F.sum("n").over(w_msoa))
+        .join(pop, ["msoa11", "age_group", "sex"])
+        .groupBy("provider", "imd19")
+        .agg(F.sum(F.col("pop") * F.col("p")).alias("pop"))
+    )
+
+    df_pop_msoa.orderBy("provider", "imd19").write.option("mergeSchema", "true").mode(
+        "overwrite"
+    ).saveAsTable("nhp.reference.population_by_imd_decile")
 
 
 def main() -> None:
