@@ -10,17 +10,6 @@ import pandas as pd
 import statsmodels.api as sm
 
 
-mlflow.autolog(
-    log_input_examples=False,
-    log_model_signatures=False,
-    log_models=False,
-    disable=True,
-    exclusive=False,
-    disable_for_unsupported_versions=True,
-    silent=False,
-)
-
-
 def load_inequalities_data(fyears):
     """
     :param fyears: The financial years for the inequalities analysis, with each fyear as an int
@@ -216,12 +205,32 @@ def process_calculated_inequalities(
     return df
 
 
-if __name__ == "__main__":
-    path = sys.argv[1]
+def main(path):
+    """
+    Loads data, calculates inequalities and saves the results to parquet
+
+    :param path: The path to save the results to
+    :type path: str
+
+    """
+    mlflow.autolog(
+        log_input_examples=False,
+        log_model_signatures=False,
+        log_models=False,
+        disable=True,
+        exclusive=False,
+        disable_for_unsupported_versions=True,
+        silent=False,
+    )
     fyears = [201920, 202223, 202324]
-    spark = get_spark()
 
     data_hrg_count = load_inequalities_data(fyears=fyears)
     linreg_df = calculate_inequalities(data_hrg_count, fyears=fyears)
     inequalities = process_calculated_inequalities(linreg_df, data_hrg_count)
     inequalities.to_parquet(f"{path}/inequalities.parquet")
+
+
+if __name__ == "__main__":
+    path = sys.argv[1]
+    spark = get_spark()
+    main(path)
