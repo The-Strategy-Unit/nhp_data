@@ -27,6 +27,15 @@ resources:
               - "{{job.parameters.save_path}}"
             source: GIT
           job_cluster_key: nhp_inputs_data_extract
+        - task_key: extract_inequalities
+          depends_on:
+            - task_key: helpers
+          spark_python_task:
+            python_file: inputs_data/inequalities.py
+            parameters:
+              - "{{job.parameters.save_path}}"
+            source: GIT
+          job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_age_sex
           depends_on:
             - task_key: catchments
