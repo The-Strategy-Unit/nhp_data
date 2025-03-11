@@ -5,6 +5,7 @@ from functools import reduce
 
 from pyspark import SparkContext
 from pyspark.sql import DataFrame
+from pyspark.sql import functions as F
 
 from inputs_data.ae import get_ae_age_sex_data
 from inputs_data.helpers import get_spark
@@ -32,4 +33,6 @@ def get_age_sex(spark: SparkContext = get_spark()) -> DataFrame:
 if __name__ == "__main__":
     path = sys.argv[1]
 
-    get_age_sex().toPandas().to_parquet(f"{path}/age_sex.parquet")
+    get_age_sex().filter(F.col("n") > 5).toPandas().to_parquet(
+        f"{path}/age_sex.parquet"
+    )

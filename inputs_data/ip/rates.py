@@ -7,6 +7,7 @@ from pyspark import SparkContext
 from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
+from inputs_data.acute_providers import filter_acute_providers
 from inputs_data.catchments import get_catchments, get_total_pop
 from inputs_data.helpers import complete_age_sex_data
 from inputs_data.ip import get_ip_age_sex_data, get_ip_df, get_ip_mitigators
@@ -152,7 +153,7 @@ def get_ip_preop_rates(spark: SparkContext) -> DataFrame:
     df_mitigators = get_ip_mitigators(spark)
 
     opertn_counts = (
-        spark.read.table("su_data.nhp.apc")
+        spark.read.table("nhp.raw_data.apc")
         .filter(F.col("admimeth").startswith("1"))
         .groupBy("fyear", "provider")
         .agg(F.count("has_procedure").alias("denominator"))
@@ -176,7 +177,7 @@ def get_ip_preop_rates(spark: SparkContext) -> DataFrame:
 @cache
 def _get_ip_day_procedures_code_list(spark: SparkContext) -> DataFrame:
     with open(
-        "/Volumes/su_data/nhp/reference_data/day_procedures.json", "r", encoding="UTF-8"
+        "/Volumes/nhp/reference/files/day_procedures.json", "r", encoding="UTF-8"
     ) as f:
         data = [
             {"strategy": f"day_procedures_{k}", "procedure_code": v}
@@ -206,7 +207,7 @@ def _get_ip_day_procedures_op_denominator(spark: SparkContext) -> DataFrame:
     )
 
     return (
-        spark.read.table("opa_ungrouped")
+        filter_acute_providers(spark, "opa")
         .join(op_procedures, ["fyear", "attendkey"], "inner")
         .groupBy("fyear", "provider", "strategy")
         .agg(F.count("strategy").alias("denominator"))
@@ -233,7 +234,7 @@ def _get_ip_day_procedures_dc_denominator(spark: SparkContext) -> DataFrame:
     )
 
     return (
-        spark.read.table("apc")
+        filter_acute_providers(spark, "apc")
         .join(dc_procedures, ["fyear", "epikey"], "inner")
         .groupBy("fyear", "provider", "strategy")
         .agg(F.count("strategy").alias("denominator"))

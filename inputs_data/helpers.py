@@ -13,8 +13,8 @@ def get_spark() -> SparkContext:
     :rtype: SparkContext
     """
     spark: SparkContext = DatabricksSession.builder.getOrCreate()
-    spark.catalog.setCurrentCatalog("su_data")
-    spark.catalog.setCurrentDatabase("nhp")
+    spark.catalog.setCurrentCatalog("nhp")
+    spark.catalog.setCurrentDatabase("raw_data")
     return spark
 
 
@@ -37,7 +37,7 @@ def age_group(spark: SparkContext) -> DataFrame:
     )
 
 
-def create_tretspef_grouping(spark: SparkContext) -> None:
+def create_tretspef_grouping(spark: SparkContext = get_spark()) -> None:
     """Create Treatment Functrion Groupings
 
     :param spark: The spark context to use
@@ -80,7 +80,7 @@ def create_tretspef_grouping(spark: SparkContext) -> None:
             .otherwise("Other"),
         )
         .write.mode("overwrite")
-        .saveAsTable("tretspef_grouping")
+        .saveAsTable("nhp.reference.tretspef_grouping")
     )
 
 
@@ -92,7 +92,7 @@ def treatment_function_grouping(spark: SparkContext) -> DataFrame:
     :return: Treatment Function Grouping Table
     :rtype: DataFrame
     """
-    return spark.read.table("tretspef_grouping")
+    return spark.read.table("nhp.reference.tretspef_grouping")
 
 
 def complete_age_sex_data(
@@ -161,3 +161,11 @@ def complete_age_sex_data(
         )
         .fillna(0, ["n"])
     )
+
+
+if __name__ == "__main__":
+
+    spark = get_spark()
+
+    if not spark.catalog.tableExists("nhp.reference.tretspef_grouping"):
+        create_tretspef_grouping(spark)

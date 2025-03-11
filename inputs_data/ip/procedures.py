@@ -30,7 +30,7 @@ def get_ip_procedures(spark: SparkContext) -> DataFrame:
         .join(procs, ["epikey", "fyear"])
         .join(mitigators, ["epikey"])
         .groupBy("fyear", "provider", "strategy", "procedure_code")
-        .agg(F.count("epikey").alias("n"))
+        .agg(F.sum("sample_rate").alias("n"))
         .withColumn("total", F.sum("n").over(procs_w))
         .withColumn("pcnt", F.col("n") / F.col("total"))
         .withColumn("rn", F.row_number().over(procs_w.orderBy(F.desc("n"))))
