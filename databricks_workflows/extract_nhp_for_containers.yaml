@@ -26,6 +26,7 @@ resources:
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version\
                     }}"
+                  - "{{input}}"
                 source: GIT
               job_cluster_key: run_nhp_extracts_cluster
         - task_key: generate_gams
@@ -40,6 +41,9 @@ resources:
               - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
             source: GIT
           job_cluster_key: run_nhp_extracts_cluster
+          libraries:
+            - pypi:
+                package: pygam==0.9.1
         - task_key: generate_national_gams
           depends_on:
             - task_key: generate_gams
@@ -50,6 +54,9 @@ resources:
               - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
             source: GIT
           job_cluster_key: run_nhp_extracts_cluster
+          libraries:
+            - pypi:
+                package: pygam==0.9.1
       job_clusters:
         - job_cluster_key: run_nhp_extracts_cluster
           new_cluster:
@@ -85,4 +92,4 @@ resources:
         - name: just_generate_gams
           default: "false"
         - name: save_path
-          default: /Volumes/su_data/nhp/old_nhp_data
+          default: /Volumes/nhp/model_data/files
