@@ -227,5 +227,11 @@ def main(save_path: str, fyear: int) -> None:
     extract_demographic_factors_data(spark, save_path, fyear)
 
 
+def __init__(*args):
+    path = args[0]
+    fyear = int(args[1])
+    main(path, fyear)
+
+
 if __name__ == "__main__":
-    main(*sys.argv[1:])
+    __init__(*sys.argv[1:])
