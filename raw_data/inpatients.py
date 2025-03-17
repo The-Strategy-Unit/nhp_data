@@ -24,6 +24,14 @@ def generate_inpatients_data(spark: SparkContext) -> None:
 
     df = add_main_icb(spark, hes_apc)
 
+    df_primary_diagnosis = spark.read.table("hes.silver.apc_diagnoses").filter(
+        F.col("diagnosis_order") == 1
+    )
+
+    df_primary_procedure = spark.read.table("hes.silver.apc_procedures").filter(
+        F.col("procedure_order") == 1
+    )
+
     hes_apc_processed = (
         df.withColumn(
             "age",
@@ -86,6 +94,9 @@ def generate_inpatients_data(spark: SparkContext) -> None:
         # add in maternity_delivery_in_spell column
         .join(mat_delivery_spells, on="susspellid", how="left")
         .na.fill(False, ["has_procedure", "is_main_icb", "maternity_delivery_in_spell"])
+        # add in primary diagnosis and procedure columns
+        .join(df_primary_diagnosis, ["epikey", "fyear", "procode3"], "left")
+        .join(df_primary_procedure, ["epikey", "fyear", "procode3"], "left")
         .select(
             F.col("epikey"),
             F.col("fyear"),
@@ -118,6 +129,8 @@ def generate_inpatients_data(spark: SparkContext) -> None:
             F.col("is_main_icb"),
             F.col("has_procedure"),
             F.col("maternity_delivery_in_spell"),
+            F.col("diagnosis").alias("primary_diagnosis"),
+            F.col("procedure_code").alias("primary_procedure"),
         )
         .repartition("fyear", "provider")
     )
