@@ -14,14 +14,10 @@ from nhp_datasets.providers import add_provider
 
 def generate_ecds_data(spark: SparkContext) -> None:
     """Generate ECDS data"""
-    df = spark.read.parquet(
-        "abfss://nhse-nhp-data@sudata.dfs.core.windows.net/NHP_EC_Core/"
-    )
+    df = spark.read.table("hes.silver.ecds")
 
-    df = (
-        add_provider(spark, df, "der_provider_code", "der_provider_site_code")
-        .filter(F.col("sex").isin(["1", "2"]))
-        .filter(F.col("deleted") == 0)
+    df = add_provider(spark, df, "der_provider_code", "der_provider_site_code").filter(
+        F.col("sex").isin(["1", "2"])
     )
 
     df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
