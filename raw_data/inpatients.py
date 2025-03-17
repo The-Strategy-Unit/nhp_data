@@ -25,7 +25,7 @@ def get_inpatients_data(spark: SparkContext) -> None:
     df = add_main_icb(spark, hes_apc)
 
     df_primary_diagnosis = spark.read.table("hes.silver.apc_diagnoses").filter(
-        F.col("diagnosis_order") == 1
+        F.col("diag_order") == 1
     )
 
     df_primary_procedure = spark.read.table("hes.silver.apc_procedures").filter(
