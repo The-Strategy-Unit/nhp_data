@@ -11,8 +11,8 @@ from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.providers import read_data_with_provider
 
 
-def generate_outpatients_data(spark: SparkContext) -> None:
-    """Generate Outpatients Data"""
+def get_outpatients_data(spark: SparkContext) -> None:
+    """Get Outpatients Data"""
     df = read_data_with_provider(spark, "hes.silver.opa")
 
     # Calculate icb column
@@ -110,6 +110,13 @@ def generate_outpatients_data(spark: SparkContext) -> None:
             "hsagrp", F.concat(F.lit("op_"), F.col("type"), F.lit("_"), F.col("group"))
         )
     )
+
+    return hes_opa_ungrouped
+
+
+def generate_outpatients_data(spark: SparkContext) -> None:
+    """Generate Outpatients Data"""
+    hes_opa_ungrouped = get_outpatients_data(spark)
 
     (
         hes_opa_ungrouped.write.partitionBy("fyear", "provider")

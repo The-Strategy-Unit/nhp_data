@@ -10,8 +10,8 @@ from nhp_datasets.apc import apc_primary_procedures, hes_apc
 from nhp_datasets.icbs import add_main_icb
 
 
-def generate_inpatients_data(spark: SparkContext) -> None:
-    """Generate Inpatients Data"""
+def get_inpatients_data(spark: SparkContext) -> None:
+    """Get Inpatients Data"""
     # Spell has maternity delivery episode
     mat_delivery_spells = (
         spark.read.table("hes.silver.apc")
@@ -134,6 +134,13 @@ def generate_inpatients_data(spark: SparkContext) -> None:
         )
         .repartition("fyear", "provider")
     )
+
+    return hes_apc_processed
+
+
+def generate_inpatients_data(spark: SparkContext) -> None:
+    """Generate Inpatients Data"""
+    hes_apc_processed = get_inpatients_data(spark)
 
     target = (
         DeltaTable.createIfNotExists(spark)
