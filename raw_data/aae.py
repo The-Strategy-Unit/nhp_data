@@ -12,8 +12,8 @@ from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.providers import read_data_with_provider
 
 
-def generate_aae_data(spark: SparkContext) -> None:
-    """Generate AAE data
+def get_aae_data(spark: SparkContext) -> None:
+    """Get AAE data
 
     inserts into the ECDS table, before ECDS dataset was available"""
 
@@ -179,6 +179,13 @@ def generate_aae_data(spark: SparkContext) -> None:
         .withColumn("tretspef", F.lit("Other"))
         .repartition("fyear", "provider")
     )
+
+    return hes_aae_ungrouped
+
+
+def generate_aae_data(spark: SparkContext) -> None:
+    """Generate AAE data"""
+    hes_aae_ungrouped = get_aae_data(spark)
 
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
 

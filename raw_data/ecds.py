@@ -12,8 +12,8 @@ from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.providers import add_provider
 
 
-def generate_ecds_data(spark: SparkContext) -> None:
-    """Generate ECDS data"""
+def get_ecds_data(spark: SparkContext) -> None:
+    """Get ECDS data"""
     df = spark.read.table("hes.silver.ecds")
 
     df = add_provider(spark, df, "der_provider_code", "der_provider_site_code").filter(
@@ -225,6 +225,13 @@ def generate_ecds_data(spark: SparkContext) -> None:
         .withColumn("tretspef", F.lit("Other"))
         .repartition("fyear", "provider")
     )
+
+    return hes_ecds_ungrouped
+
+
+def generate_ecds_data(spark: SparkContext) -> None:
+    """Generate ECDS data"""
+    hes_ecds_ungrouped = get_ecds_data(spark)
 
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
 
