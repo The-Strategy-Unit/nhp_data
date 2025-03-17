@@ -21,6 +21,14 @@ def get_outpatients_data(spark: SparkContext) -> None:
     # add main icb column
     df = add_main_icb(spark, df)
 
+    df_primary_diagnosis = spark.read.table("hes.silver.opa_diagnoses").filter(
+        F.col("diag_order") == 1
+    )
+
+    df_primary_procedure = spark.read.table("hes.silver.opa_procedures").filter(
+        F.col("procedure_order") == 1
+    )
+
     hes_opa_ungrouped = (
         df.filter(F.col("sex").isin(["1", "2"]))
         .filter(F.col("atentype").isin(["1", "2", "21", "22"]))
@@ -60,6 +68,9 @@ def get_outpatients_data(spark: SparkContext) -> None:
         )
         .withColumn("attendance", 1 - F.col("is_tele_appointment"))
         .withColumn("tele_attendance", F.col("is_tele_appointment"))
+        # add in primary diagnosis and procedure columns
+        .join(df_primary_diagnosis, ["attendkey", "fyear", "procode3"], "left")
+        .join(df_primary_procedure, ["attendkey", "fyear", "procode3"], "left")
         .select(
             F.col("attendkey"),
             F.col("fyear"),
@@ -77,6 +88,8 @@ def get_outpatients_data(spark: SparkContext) -> None:
             F.col("resladst_ons"),
             F.col("lsoa11"),
             F.col("icb"),
+            F.col("diagnosis").alias("primary_diagnosis"),
+            F.col("procedure_code").alias("primary_procedure"),
             F.col("is_main_icb"),
             F.col("is_surgical_specialty"),
             F.col("is_adult"),
