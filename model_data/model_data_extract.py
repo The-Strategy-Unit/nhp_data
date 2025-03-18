@@ -89,7 +89,6 @@ def extract_apc_data(spark: SparkContext, save_path: str, fyear: int) -> None:
         ("activity_avoidance", "activity_avoidance"),
         ("efficiencies", "efficiency"),
     ]:
-
         (
             spark.read.table("apc_mitigators")
             .filter(F.col("type") == v)
@@ -122,6 +121,51 @@ def extract_opa_data(spark: SparkContext, save_path: str, fyear: int) -> None:
         .withColumn("fyear", F.floor(F.col("fyear") / 100))
         .withColumn("tretspef_raw", F.col("tretspef"))
         .withColumn("is_wla", F.lit(True))
+    )
+
+    inequalities = (
+        spark.read.parquet("/Volumes/nhp/inputs_data/files/dev/inequalities.parquet")
+        .filter(F.col("fyear") == fyear)
+        .select("provider", "sushrg_trimmed")
+        .withColumnRenamed("provider", "dataset")
+        .distinct()
+    )
+
+    # We don't want to keep sushrg_trimmed and imd_quintile if not in inequalities parquet file
+    opa_collapse = (
+        opa.join(inequalities, how="anti", on=["dataset", "sushrg_trimmed"])
+        .withColumn("sushrg_trimmed", F.lit(None))
+        .withColumn("imd_quintile", F.lit(None))
+    )
+    opa = (
+        opa_collapse.unionByName(
+            opa.join(inequalities, how="inner", on=["dataset", "sushrg_trimmed"])
+        )
+        .groupBy(
+            F.col("fyear"),
+            F.col("dataset"),
+            F.col("age"),
+            F.col("sex"),
+            F.col("imd_quintile"),
+            F.col("tretspef"),
+            F.col("sitetret"),
+            F.col("type"),
+            F.col("group"),
+            F.col("hsagrp"),
+            F.col("has_procedures"),
+            F.col("sushrg_trimmed"),
+            F.col("is_main_icb"),
+            F.col("is_surgical_specialty"),
+            F.col("is_adult"),
+            F.col("is_gp_ref"),
+            F.col("is_cons_cons_ref"),
+            F.col("is_first"),
+        )
+        .agg(
+            F.sum("attendances").alias("attendances"),
+            F.sum("tele_attendances").alias("tele_attendances"),
+        )
+        .withColumn("index", F.expr("uuid()"))
     )
 
     opa = add_tretspef_column(opa)
