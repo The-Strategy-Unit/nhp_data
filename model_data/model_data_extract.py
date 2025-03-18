@@ -141,26 +141,7 @@ def extract_opa_data(spark: SparkContext, save_path: str, fyear: int) -> None:
         opa_collapse.unionByName(
             opa.join(inequalities, how="inner", on=["dataset", "sushrg_trimmed"])
         )
-        .groupBy(
-            F.col("fyear"),
-            F.col("dataset"),
-            F.col("age"),
-            F.col("sex"),
-            F.col("imd_quintile"),
-            F.col("tretspef"),
-            F.col("sitetret"),
-            F.col("type"),
-            F.col("group"),
-            F.col("hsagrp"),
-            F.col("has_procedures"),
-            F.col("sushrg_trimmed"),
-            F.col("is_main_icb"),
-            F.col("is_surgical_specialty"),
-            F.col("is_adult"),
-            F.col("is_gp_ref"),
-            F.col("is_cons_cons_ref"),
-            F.col("is_first"),
-        )
+        .groupBy(opa.drop("index", "attendances", "tele_attendances").columns)
         .agg(
             F.sum("attendances").alias("attendances"),
             F.sum("tele_attendances").alias("tele_attendances"),
