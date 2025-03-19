@@ -89,7 +89,6 @@ def extract_apc_data(spark: SparkContext, save_path: str, fyear: int) -> None:
         ("activity_avoidance", "activity_avoidance"),
         ("efficiencies", "efficiency"),
     ]:
-
         (
             spark.read.table("apc_mitigators")
             .filter(F.col("type") == v)
@@ -123,6 +122,33 @@ def extract_opa_data(spark: SparkContext, save_path: str, fyear: int) -> None:
         .withColumn("tretspef_raw", F.col("tretspef"))
         .withColumn("is_wla", F.lit(True))
     )
+
+    inequalities = (
+        spark.read.parquet("/Volumes/nhp/inputs_data/files/dev/inequalities.parquet")
+        .filter(F.col("fyear") == fyear)
+        .select("provider", "sushrg_trimmed")
+        .withColumnRenamed("provider", "dataset")
+        .distinct()
+    )
+
+    # We don't want to keep sushrg_trimmed and imd_quintile if not in inequalities parquet file
+    opa_collapse = (
+        opa.join(inequalities, how="anti", on=["dataset", "sushrg_trimmed"])
+        .withColumn("sushrg_trimmed", F.lit(None))
+        .withColumn("imd_quintile", F.lit(None))
+        .groupBy(opa.drop("index", "attendances", "tele_attendances").columns)
+        .agg(
+            F.sum("attendances").alias("attendances"),
+            F.sum("tele_attendances").alias("tele_attendances"),
+            F.min("index").alias("index")
+        )
+    )
+
+    opa_dont_collapse = (
+        opa.join(inequalities, how="semi", on=["dataset", "sushrg_trimmed"])
+    )
+
+    opa = DataFrame.unionByName(opa_collapse, opa_dont_collapse)
 
     opa = add_tretspef_column(opa)
 
