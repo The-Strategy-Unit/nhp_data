@@ -136,18 +136,19 @@ def extract_opa_data(spark: SparkContext, save_path: str, fyear: int) -> None:
         opa.join(inequalities, how="anti", on=["dataset", "sushrg_trimmed"])
         .withColumn("sushrg_trimmed", F.lit(None))
         .withColumn("imd_quintile", F.lit(None))
-    )
-    opa = (
-        opa_collapse.unionByName(
-            opa.join(inequalities, how="inner", on=["dataset", "sushrg_trimmed"])
-        )
         .groupBy(opa.drop("index", "attendances", "tele_attendances").columns)
         .agg(
             F.sum("attendances").alias("attendances"),
             F.sum("tele_attendances").alias("tele_attendances"),
+            F.min("index").alias("index")
         )
-        .withColumn("index", F.expr("uuid()"))
     )
+
+    opa_dont_collapse = (
+        opa.join(inequalities, how="semi", on=["dataset", "sushrg_trimmed"])
+    )
+
+    opa = DataFrame.unionByName(opa_collapse, opa_dont_collapse)
 
     opa = add_tretspef_column(opa)
 
