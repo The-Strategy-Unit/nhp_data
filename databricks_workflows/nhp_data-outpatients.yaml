@@ -26,9 +26,16 @@ resources:
             python_file: raw_data/outpatients.py
             source: GIT
           job_cluster_key: generate_nhp_apc
-        - task_key: nhp-aggregated_data-opa
+        - task_key: nhp-raw_data-opa_mitigators
           depends_on:
             - task_key: nhp-raw_data-opa
+          spark_python_task:
+            python_file: raw_data/outpatients_mitigators.py
+            source: GIT
+          job_cluster_key: generate_nhp_apc
+        - task_key: nhp-aggregated_data-opa
+          depends_on:
+            - task_key: nhp-raw_data-opa_mitigators
           spark_python_task:
             python_file: aggregated_data/outpatients.py
             source: GIT
