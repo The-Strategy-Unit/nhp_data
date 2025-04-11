@@ -10,7 +10,6 @@ from inputs_data.ae.rates import get_ae_rates
 from inputs_data.helpers import get_spark
 from inputs_data.ip.rates import (
     get_ip_activity_avoidance_rates,
-    get_ip_aec_rates,
     get_ip_day_procedures,
     get_ip_mean_los,
     get_ip_preop_rates,
@@ -30,7 +29,6 @@ def get_rates(spark: SparkContext = get_spark()) -> DataFrame:
         get_ae_rates,
         get_ip_activity_avoidance_rates,
         get_ip_mean_los,
-        get_ip_aec_rates,
         get_ip_preop_rates,
         get_ip_day_procedures,
         get_op_rates,
