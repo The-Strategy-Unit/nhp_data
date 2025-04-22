@@ -27,15 +27,6 @@ resources:
               - "{{job.parameters.save_path}}"
             source: GIT
           job_cluster_key: nhp_inputs_data_extract
-        - task_key: extract_inequalities
-          depends_on:
-            - task_key: helpers
-          spark_python_task:
-            python_file: inputs_data/inequalities.py
-            parameters:
-              - "{{job.parameters.save_path}}"
-            source: GIT
-          job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_age_sex
           depends_on:
             - task_key: catchments
@@ -47,7 +38,7 @@ resources:
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_baseline
           depends_on:
-            - task_key: catchments
+            - task_key: extract_age_sex
           spark_python_task:
             python_file: inputs_data/baseline.py
             parameters:
@@ -56,7 +47,7 @@ resources:
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_covid_adjustment
           depends_on:
-            - task_key: catchments
+            - task_key: extract_baseline
           spark_python_task:
             python_file: inputs_data/covid_adjustment.py
             parameters:
@@ -65,7 +56,7 @@ resources:
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_diagnoses
           depends_on:
-            - task_key: catchments
+            - task_key: extract_covid_adjustment
           spark_python_task:
             python_file: inputs_data/diagnoses.py
             parameters:
@@ -74,7 +65,7 @@ resources:
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_expat_repat
           depends_on:
-            - task_key: catchments
+            - task_key: extract_diagnoses
           spark_python_task:
             python_file: inputs_data/expat_repat.py
             parameters:
@@ -83,7 +74,7 @@ resources:
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_procedures
           depends_on:
-            - task_key: catchments
+            - task_key: extract_expat_repat
           spark_python_task:
             python_file: inputs_data/procedures.py
             parameters:
@@ -92,7 +83,7 @@ resources:
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_rates
           depends_on:
-            - task_key: catchments
+            - task_key: extract_procedures
           spark_python_task:
             python_file: inputs_data/rates.py
             parameters:
@@ -101,9 +92,18 @@ resources:
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_wli
           depends_on:
-            - task_key: catchments
+            - task_key: extract_rates
           spark_python_task:
             python_file: inputs_data/wli.py
+            parameters:
+              - "{{job.parameters.save_path}}"
+            source: GIT
+          job_cluster_key: nhp_inputs_data_extract
+        - task_key: extract_inequalities
+          depends_on:
+            - task_key: extract_wli
+          spark_python_task:
+            python_file: inputs_data/inequalities.py
             parameters:
               - "{{job.parameters.save_path}}"
             source: GIT
@@ -133,4 +133,4 @@ resources:
         - name: run_inputs_data
           default: "True"
         - name: save_path
-          default: /Volumes/su_data/nhp/old_nhp_inputs/dev/
+          default: /Volumes/nhp/inputs_data/files/dev
