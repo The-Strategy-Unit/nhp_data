@@ -33,7 +33,7 @@ def _get_data(spark: SparkContext, save_path: str) -> pd.DataFrame:
 
     demog = (
         spark.read.parquet(
-            "/Volumes/su_data/nhp/population-projections/demographic_data"
+            "/Volumes/nhp/population_projections/files/demographic_data/"
         )
         .filter(F.col("area_code").rlike("^E0[6-9]"))
         .filter(F.col("projection") == "principal_proj")
