@@ -9,7 +9,7 @@ import sys
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
 from pyspark.context import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, Window
 
 
 def add_tretspef_column(self: DataFrame) -> DataFrame:
@@ -140,12 +140,12 @@ def extract_opa_data(spark: SparkContext, save_path: str, fyear: int) -> None:
         .agg(
             F.sum("attendances").alias("attendances"),
             F.sum("tele_attendances").alias("tele_attendances"),
-            F.min("index").alias("index")
+            F.min("index").alias("index"),
         )
     )
 
-    opa_dont_collapse = (
-        opa.join(inequalities, how="semi", on=["dataset", "sushrg_trimmed"])
+    opa_dont_collapse = opa.join(
+        inequalities, how="semi", on=["dataset", "sushrg_trimmed"]
     )
 
     opa = DataFrame.unionByName(opa_collapse, opa_dont_collapse)
@@ -206,6 +206,65 @@ def extract_birth_factors_data(spark: SparkContext, save_path: str, fyear: int) 
     )
 
 
+def create_custom_demographic_factors_R0A(spark: SparkContext) -> None:
+    """Create custom demographic factors file for R0A using agreed methodology
+
+    :param spark: the spark context to use
+    :type spark: SparkContext
+    """
+    # Load demographics - principal projection only
+    demographics = spark.read.parquet(
+        f"/Volumes/nhp/population_projections/files/demographic_data/projection=principal_proj/"
+    ).filter(F.col("area_code") != "E08000003")
+    # Load custom file
+    years = [str(y) for y in range(2018, 2044)]
+    stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
+    custom_file = (
+        spark.read.csv(
+            "/Volumes/nhp/population_projections/files/ManchesterCityCouncil_custom_E08000003.csv",
+            header=True,
+            inferSchema=True,
+        )
+        .withColumnRenamed("Sex", "sex")
+        .withColumnRenamed("Age", "age")
+        .withColumn(
+            "sex", F.when(F.col("sex") == "male", 1).when(F.col("sex") == "female", 2)
+        )
+        .withColumn("area_code", F.lit("E08000003"))
+        .selectExpr(
+            "area_code",
+            "sex",
+            "age",
+            f"stack({len(years)}, {stack_str}) as (year, value)",
+        )
+        .orderBy("age")
+    )
+    demographics = demographics.unionByName(custom_file)
+    # Work out catchment with patched demographics
+    total_window = Window.partitionBy("provider")
+    df = (
+        spark.read.table("apc")
+        .filter(F.col("sitetret") == "R0A66")
+        .filter(F.col("fyear") == 202324)
+        .filter(F.col("resladst_ons").rlike("^E0[6-9]"))
+        .groupBy("provider", "resladst_ons")
+        .count()
+        .withColumn("pcnt", F.col("count") / F.sum("count").over(total_window))
+        .filter(F.col("pcnt") > 0.05)
+        .withColumn("pcnt", F.col("count") / F.sum("count").over(total_window))
+        .withColumnRenamed("resladst_ons", "area_code")
+        .withColumnRenamed("provider", "dataset")
+        .join(demographics, "area_code")
+        .withColumn("variant", F.lit("custom_projection"))
+        .withColumn("value", F.col("value") * F.col("pcnt"))
+        .groupBy("dataset", "age", "sex", "variant")
+        .pivot("year")
+        .agg(F.sum("value"))
+        .orderBy("dataset", "age", "sex", "variant")
+    )
+    return df
+
+
 def extract_demographic_factors_data(
     spark: SparkContext, save_path: str, fyear: int
 ) -> None:
@@ -221,6 +280,10 @@ def extract_demographic_factors_data(
     df = spark.read.table("demographic_factors").withColumnRenamed(
         "provider", "dataset"
     )
+
+    custom_R0A = create_custom_demographic_factors_R0A(spark)
+
+    df = df.unionByName(custom_R0A)
 
     (
         df.repartition(1)
