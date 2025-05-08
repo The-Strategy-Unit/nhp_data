@@ -6,26 +6,22 @@ from pyspark.sql import Window
 from pyspark.sql import functions as F
 
 
-def get_provider_catchments(
-    spark: SparkContext, base_year: int = 201920, min_pcnt: float = 0.05
-) -> None:
+def get_provider_catchments(spark: SparkContext, min_pcnt: float = 0.05) -> None:
     """get Provider Catchments
 
     :param spark: The Spark context
     :type spark: SparkContext
-    :param base_year: the base (financial) year for the data (default: 201920)
-    :type base_year: int
     :param min_pcnt: the minimum percentage of patients in a catchment area (default: 0.05)
     :type min_pcnt: float
     """
 
-    total_window = Window.partitionBy("provider")
+    total_window = Window.partitionBy("fyear", "provider")
 
     return (
         spark.read.table("nhp.raw_data.apc")
-        .filter(F.col("fyear") == base_year)
+        .filter(F.col("fyear") >= 201819)
         .filter(F.col("resladst_ons").rlike("^E0[6-9]"))
-        .groupBy("provider", "resladst_ons")
+        .groupBy("fyear", "provider", "resladst_ons")
         .count()
         .withColumn("pcnt", F.col("count") / F.sum("count").over(total_window))
         .filter(F.col("pcnt") > min_pcnt)
@@ -34,20 +30,16 @@ def get_provider_catchments(
     )
 
 
-def create_provider_catchments(
-    spark: SparkContext, base_year: int = 201920, min_pcnt: float = 0.05
-) -> None:
+def create_provider_catchments(spark: SparkContext, min_pcnt: float = 0.05) -> None:
     """Create Provider Catchments
 
     :param spark: The Spark context
     :type spark: SparkContext
-    :param base_year: the base (financial) year for the data (default: 201920)
-    :type base_year: int
     :param min_pcnt: the minimum percentage of patients in a catchment area (default: 0.05)
     :type min_pcnt: float
     """
 
-    df = get_provider_catchments(spark, base_year, min_pcnt)
+    df = get_provider_catchments(spark, min_pcnt)
     df.write.mode("overwrite").saveAsTable(
         "nhp.population_projections.provider_catchments"
     )
