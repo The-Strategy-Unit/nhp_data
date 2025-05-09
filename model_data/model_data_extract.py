@@ -140,12 +140,12 @@ def extract_opa_data(spark: SparkContext, save_path: str, fyear: int) -> None:
         .agg(
             F.sum("attendances").alias("attendances"),
             F.sum("tele_attendances").alias("tele_attendances"),
-            F.min("index").alias("index")
+            F.min("index").alias("index"),
         )
     )
 
-    opa_dont_collapse = (
-        opa.join(inequalities, how="semi", on=["dataset", "sushrg_trimmed"])
+    opa_dont_collapse = opa.join(
+        inequalities, how="semi", on=["dataset", "sushrg_trimmed"]
     )
 
     opa = DataFrame.unionByName(opa_collapse, opa_dont_collapse)
@@ -186,6 +186,36 @@ def extract_ecds_data(spark: SparkContext, save_path: str, fyear: int) -> None:
     )
 
 
+def _create_population_projections(
+    spark: SparkContext, df: DataFrame, fyear: int
+) -> DataFrame:
+    providers = (
+        spark.read.table("strategyunit.reference.ods_trusts")
+        .filter(F.col("org_type").startswith("ACUTE"))
+        .select(F.col("org_to").alias("provider"))
+        .distinct()
+    )
+
+    catchments = (
+        spark.read.table("nhp.population_projections.provider_catchments")
+        .filter(F.col("fyear") == fyear)
+        .drop("fyear")
+        .join(providers, "provider", how="semi")
+    )
+
+    # currently fixed to use the 2018 projection year: awaiting new data from ONS to be published
+    return (
+        df.filter(F.col("projection_year") == 2018)
+        .join(catchments, "area_code")
+        .withColumnRenamed("projection", "variant")
+        .withColumnRenamed("provider", "dataset")
+        .groupBy("dataset", "variant", "age", "sex")
+        .pivot("year")
+        .agg(F.sum(F.col("value") * F.col("pcnt")))
+        .orderBy("dataset", "variant", "age", "sex")
+    )
+
+
 def extract_birth_factors_data(spark: SparkContext, save_path: str, fyear: int) -> None:
     """Extract Birth Factors data
 
@@ -196,10 +226,14 @@ def extract_birth_factors_data(spark: SparkContext, save_path: str, fyear: int) 
     :param fyear: what year to extract
     :type fyear: int
     """
-    df = spark.read.table("birth_factors").withColumnRenamed("provider", "dataset")
+    births = spark.read.table("nhp.population_projections.births").withColumn(
+        "sex", F.lit(2)
+    )
 
     (
-        df.repartition(1)
+        # using a fixed year of 2018/19 to match prior logic
+        _create_population_projections(spark, births, 201819)
+        .repartition(1)
         .write.mode("overwrite")
         .partitionBy("dataset")
         .parquet(f"{save_path}/birth_factors/fyear={fyear // 100}")
@@ -218,12 +252,13 @@ def extract_demographic_factors_data(
     :param fyear: what year to extract
     :type fyear: int
     """
-    df = spark.read.table("demographic_factors").withColumnRenamed(
-        "provider", "dataset"
-    )
+
+    demographics = spark.read.table("nhp.population_projections.demographics")
 
     (
-        df.repartition(1)
+        # using a fixed year of 2018/19 to match prior logic
+        _create_population_projections(spark, demographics, 201819)
+        .repartition(1)
         .write.mode("overwrite")
         .partitionBy("dataset")
         .parquet(f"{save_path}/demographic_factors/fyear={fyear // 100}")
