@@ -67,9 +67,13 @@ def _generate_gams(spark: SparkContext, save_path: str) -> dict:
     # generate the GAMs as a nested dictionary by dataset/year/(HSA group, sex).
     # This may be amenable to some parallelisation? or other speed tricks possible with pygam?
 
+    print("Generating GAMs")
     all_gams = {}
-    for dataset, v1 in list(dfr.groupby("dataset")):
+    to_iterate = list(dfr.groupby("dataset"))
+    n = len(to_iterate)
+    for i, (dataset, v1) in enumerate(to_iterate):
         all_gams[dataset] = {}
+        print(f"> {dataset} {i}/{n} ({i/n*100:.1f}%)")
         for fyear, v2 in list(v1.groupby("fyear")):
             g = {
                 k: GAM().gridsearch(
