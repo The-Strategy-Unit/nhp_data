@@ -29,10 +29,10 @@ def _get_data(spark: SparkContext, save_path: str) -> pd.DataFrame:
         )
         .filter(~F.col("hsagrp").isin(["birth", "maternity", "paeds"]))
         .filter(F.col("fyear").isin([2019, 2022, 2023]))
+        .filter(F.col("age") >= 18)
     )
 
-    # load the demographics data, then cross join to the distinct HSA groups
-
+    # load the demographics data
     demog = (
         spark.read.parquet(f"{save_path}/demographic_factors/fyear=2019/")
         .filter(F.col("variant") == "principal_proj")
@@ -40,15 +40,20 @@ def _get_data(spark: SparkContext, save_path: str) -> pd.DataFrame:
         .select(
             F.col("age"), F.col("sex"), F.col("dataset"), F.col("2019").alias("pop")
         )
-        .crossJoin(dfr.select("hsagrp").distinct())
+        # join back to the unique combination of dataset/sex/fyear/hsagrp, we
+        # will use this below to ensure we have a 0-count row of activity
+        .join(
+            dfr.select("dataset", "sex", "fyear", "hsagrp").distinct(),
+            ["dataset", "sex"],
+            "inner",
+        )
     )
 
     # generate the data. we right join to the demographics and fill the missing rows with 0's,
     # before calculating the activity rate as the amount of activity (count) divided by the
     # population.
-
     return (
-        dfr.join(demog, ["age", "sex", "dataset", "hsagrp"], "right")
+        dfr.join(demog, ["age", "sex", "dataset", "hsagrp", "fyear"], "right")
         .fillna(0)
         .withColumn("activity_rate", F.col("count") / F.col("pop"))
         .drop("count", "pop")
