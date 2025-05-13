@@ -37,7 +37,9 @@ def _get_data(spark: SparkContext, save_path: str) -> pd.DataFrame:
         spark.read.parquet(f"{save_path}/demographic_factors/fyear=2019/")
         .filter(F.col("variant") == "principal_proj")
         .filter(F.col("age") >= 18)
-        .select(F.col("age"), F.col("sex"), F.col("2019").alias("pop"))
+        .select(
+            F.col("age"), F.col("sex"), F.col("dataset"), F.col("2019").alias("pop")
+        )
         .crossJoin(dfr.select("hsagrp").distinct())
     )
 
@@ -46,7 +48,7 @@ def _get_data(spark: SparkContext, save_path: str) -> pd.DataFrame:
     # population.
 
     return (
-        dfr.join(demog, ["age", "sex", "hsagrp"], "right")
+        dfr.join(demog, ["age", "sex", "dataset", "hsagrp"], "right")
         .fillna(0)
         .withColumn("activity_rate", F.col("count") / F.col("pop"))
         .drop("count", "pop")
