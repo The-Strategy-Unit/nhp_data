@@ -4,6 +4,7 @@ import os
 import pickle as pkl
 import sys
 from functools import reduce
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -14,7 +15,7 @@ from pyspark.context import SparkContext
 from pyspark.sql import DataFrame
 
 
-def _get_data(spark: SparkContext, save_path: str) -> pd.DataFrame:
+def _get_data(spark: SparkContext, save_path: str) -> DataFrame:
     dfr = (
         reduce(
             DataFrame.unionByName,
@@ -57,16 +58,21 @@ def _get_data(spark: SparkContext, save_path: str) -> pd.DataFrame:
         .fillna(0)
         .withColumn("activity_rate", F.col("count") / F.col("pop"))
         .drop("count", "pop")
-        .toPandas()
     )
 
 
-def _generate_gams(spark: SparkContext, save_path: str) -> dict:
-    dfr = _get_data(spark, save_path)
+def _generate_gam(data: pd.DataFrame, progress: bool = False) -> Any:
+    x = data[["age"]].to_numpy()
+    y = data["activity_rate"].to_numpy()
 
+    return GAM().gridsearch(x, y, progress=progress)
+
+
+def _generate_gams(save_path: str, dfr: DataFrame) -> dict:
     # generate the GAMs as a nested dictionary by dataset/year/(HSA group, sex).
     # This may be amenable to some parallelisation? or other speed tricks possible with pygam?
 
+    dfr = dfr.toPandas()
     print("Generating GAMs")
     all_gams = {}
     to_iterate = list(dfr.groupby("dataset"))
@@ -75,12 +81,7 @@ def _generate_gams(spark: SparkContext, save_path: str) -> dict:
         all_gams[dataset] = {}
         print(f"> {dataset} {i}/{n} ({i/n*100:.1f}%)")
         for fyear, v2 in list(v1.groupby("fyear")):
-            g = {
-                k: GAM().gridsearch(
-                    v[["age"]].to_numpy(), v["activity_rate"].to_numpy(), progress=False
-                )
-                for k, v in list(v2.groupby(["hsagrp", "sex"]))
-            }
+            g = {k: _generate_gam(v) for k, v in list(v2.groupby(["hsagrp", "sex"]))}
             all_gams[dataset][fyear] = g
 
             path = f"{save_path}/hsa_gams/{fyear=}/dataset={dataset}"
@@ -157,7 +158,8 @@ def main(save_path: str) -> None:
     spark.catalog.setCurrentCatalog("nhp")
     spark.catalog.setCurrentDatabase("default")
 
-    all_gams = _generate_gams(spark, save_path)
+    dfr = _get_data(spark, save_path)
+    all_gams = _generate_gams(save_path, dfr)
     _generate_activity_tables(spark, save_path, all_gams)
 
 
