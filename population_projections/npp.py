@@ -81,7 +81,7 @@ def process_npp_variant(
         "hlh": "young_age_structure",
         "ppz": "zero_net_migration",
         "pnp": "no_mortality_improvement",
-        "cnp": "const_fert_no_mort_imp",
+        "cnp": "const_fertility_no_mortality_improvement",
         "cpp": "const_fertility",
         "rpp": "replacement_fertility",
         "ppr": "half_eu_migration",
