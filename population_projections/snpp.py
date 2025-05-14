@@ -10,14 +10,13 @@ from pyspark.sql import functions as F
 def _processs_demographics_file(
     spark: SparkContext, path: str, projection_year: int, projection_name: str
 ) -> None:
-    prefix = "" if projection_name == "principal_proj" else "var_proj_"
-    file_name = f"{prefix}{projection_name}"
     years = [str(y) for y in range(2018, 2044)]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
+    path = f"{path}/{projection_year}-projections/raw/demographics"
     for sex_int, sex_string in [(1, "males"), (2, "females")]:
         (
             spark.read.csv(
-                f"{path}/{projection_year}-projections/raw/demographics/{file_name}/{sex_string}.csv",
+                f"{path}/{projection_name}/{sex_string}.csv",
                 header=True,
             )
             .filter(F.col("AGE_GROUP") != "All ages")
@@ -48,13 +47,12 @@ def _processs_demographics_file(
 def _process_births_file(
     spark: SparkContext, path: str, projection_year: int, projection_name: str
 ) -> None:
-    prefix = "" if projection_name == "principal_proj" else "var_proj_"
-    file_name = f"{prefix}{projection_name}"
     years = [str(y) for y in range(2019, 2044)]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
+    path = f"{path}/{projection_year}-projections/raw/births"
     (
         spark.read.csv(
-            f"{path}/{projection_year}-projections/raw/births/{file_name}/persons.csv",
+            f"{path}/{projection_name}/persons.csv",
             header=True,
         )
         .filter(F.col("AGE_GROUP") != "All ages")
