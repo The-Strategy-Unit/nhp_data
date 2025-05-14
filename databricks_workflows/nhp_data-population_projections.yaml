@@ -23,9 +23,9 @@ resources:
             - task_key: run_population_data
               outcome: "true"
           for_each_task:
-            inputs:
-              '["principal_proj", "10_year_migration", "alt_internal_migration",
-              "high_intl_migration", "low_intl_migration"]'
+            inputs: '["principal_proj", "var_proj_10_year_migration",
+              "var_proj_alt_internal_migration", "var_proj_high_intl_migration",
+              "var_proj_low_intl_migration"]'
             task:
               task_key: subnational_population_projections_iteration
               spark_python_task:
