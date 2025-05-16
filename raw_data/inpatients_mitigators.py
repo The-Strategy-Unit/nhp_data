@@ -10,6 +10,7 @@ def generate_inpatients_mitigators() -> None:
     """Generrate Inpatients Mitigators"""
     path = ["mitigators", "ip"]
 
+    import_errors = False
     for i in ["activity_avoidance", "efficiency"]:
         for j in sorted(os.listdir("/".join(path + [i]))):
             if j == "__init__.py":
@@ -18,7 +19,11 @@ def generate_inpatients_mitigators() -> None:
             try:
                 importlib.import_module(module)
             except:  # pylint: disable=bare-except
+                import_errors = True
                 print(f"Error: {module}")
+
+    if import_errors:
+        raise ImportError("Error importing modules")
 
     all_mitigators = [
         v2
@@ -26,15 +31,8 @@ def generate_inpatients_mitigators() -> None:
         for v2 in v1.values()
     ]
 
-    errors = {}
-
     for m in all_mitigators:
-        try:
-            m.save()
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            errors[str(m)] = e
-
-    print(errors)
+        m.save()
 
 
 if __name__ == "__main__":
