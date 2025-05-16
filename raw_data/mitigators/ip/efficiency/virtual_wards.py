@@ -19,10 +19,10 @@ from raw_data.mitigators.ip.shared import virtual_wards
 
 
 @efficiency_mitigator()
-def _virtual_wards_activity_avoidance_ari():
+def _virtual_wards_efficiencies_ari():
     return virtual_wards.ari()
 
 
 @efficiency_mitigator()
-def _virtual_wards_activity_avoidance_heart_failure():
+def _virtual_wards_efficiencies_heart_failure():
     return virtual_wards.heart_failure()
