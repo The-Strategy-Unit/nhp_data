@@ -19,15 +19,32 @@ Heart Failure virtual ward.
 - Heart Failure (IP-AA-031)
 """
 
-from raw_data.mitigators import activity_avoidance_mitigator
-from raw_data.mitigators.ip.shared import virtual_wards
+from pyspark.sql import functions as F
+
+from hes_datasets import nhp_apc, primary_diagnosis, procedures
 
 
-@activity_avoidance_mitigator()
-def _virtual_wards_activity_avoidance_ari():
-    return virtual_wards.ari()
+def _virtual_wards_admissions(*args):
+    return (
+        nhp_apc.filter(F.col("admimeth").rlike("^2"))
+        .filter(F.col("dismeth").isin(["1", "2", "3"]))
+        .filter(F.col("age") >= 18)
+        .admission_has(primary_diagnosis, *args)
+        .select("epikey")
+        .withColumn("sample_rate", F.lit(1.0))
+    )
 
 
-@activity_avoidance_mitigator()
-def _virtual_wards_activity_avoidance_heart_failure():
-    return virtual_wards.heart_failure()
+# define these methods so they can be used for both activity avoidance and efficiencies
+
+
+def ari():
+    """Virtual Wards: Acute Respiratory Infection (ARI)"""
+    return _virtual_wards_admissions("B(3[34]|97)", "J(0[6-9]|[1-9])", "U0[467]").join(
+        procedures, ["epikey"], "anti"
+    )
+
+
+def heart_failure():
+    """Virtual Wards: Heart Failure"""
+    return _virtual_wards_admissions("I(110|255|42[09]|50[019])")
