@@ -113,7 +113,7 @@ def _dupuytrens():
     return (
         nhp_apc.admission_has(primary_procedure, "T5(2[1256]|4[13])")
         .admission_has(primary_diagnosis, "M720")
-        .filter((F.col("admiage") >= 19) & (F.col("admiage") <= 120))
+        .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
 
@@ -134,7 +134,7 @@ def _fusion_surgery():
         .admission_has(primary_diagnosis, "M54[34589]")
         .admission_not(secondary_diagnosis, "M4(0[012]|[12]|3[01589]|45)")
         .join(pregnancy_diagnoses, ["epikey", "fyear"], "anti")
-        .filter((F.col("admiage") >= 19) & (F.col("admiage") <= 120))
+        .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
 
@@ -171,7 +171,7 @@ def _knee_athroscopy_for_osteoarhritis():
     return (
         procs.admission_has(primary_diagnosis, "M1[57]")
         .admission_not(secondary_diagnosis, "M238")
-        .filter((F.col("admiage") >= 19) & (F.col("admiage") <= 120))
+        .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
 
@@ -191,7 +191,7 @@ def _lumbar_disectomy():
     )
 
     return procs.admission_has(primary_diagnosis, "M5(1[01]|4[134])").filter(
-        (F.col("admiage") >= 19) & (F.col("admiage") <= 120)
+        (F.col("age") >= 19) & (F.col("age") <= 120)
     )
 
 
@@ -207,7 +207,7 @@ def _lumbar_rf_facet_joint_denervation():
         nhp_apc.admission_has(primary_procedure, "V48[57]")
         .admission_has(primary_diagnosis, "M5(1[289]|4[59])")
         .admission_has(any_diagnosis, "Z(67[567]|993)")
-        .filter((F.col("admiage") >= 19) & (F.col("admiage") <= 120))
+        .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
 
@@ -222,7 +222,7 @@ def _trigger_finger_release():
     return (
         nhp_apc.admission_has(primary_procedure, "T(69[1289]|7(0[12]|1[189]|2[389]))")
         .admission_has(primary_diagnosis, "M65(3|[89]4)")
-        .filter((F.col("admiage") >= 19) & (F.col("admiage") <= 120))
+        .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
 
@@ -237,7 +237,7 @@ def _vertebral_augmentation():
     return (
         nhp_apc.admission_has(primary_procedure, "V44[45]")
         .admission_has(primary_diagnosis, "M80[01234589]")
-        .filter((F.col("admiage") >= 19) & (F.col("admiage") <= 120))
+        .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
 

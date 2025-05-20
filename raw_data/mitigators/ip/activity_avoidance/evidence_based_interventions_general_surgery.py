@@ -53,7 +53,7 @@ def _cholecystectomy():
     return (
         nhp_apc.admission_has(primary_procedure, "J18[1234589]")
         .admission_has(primary_diagnosis, "K851")
-        .filter((F.col("admiage") >= 19) & (F.col("admiage") <= 120))
+        .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
 
@@ -79,7 +79,7 @@ def _hernia():
     return (
         nhp_apc.admission_has(primary_procedure, "T20")
         .admission_has(primary_diagnosis, "K40[29]")
-        .filter((F.col("admiage") >= 19) & (F.col("admiage") <= 120))
+        .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
 

@@ -49,7 +49,7 @@ def _cystocopy():
         .admission_not(secondary_procedure, "M45[1-4]")
         .admission_has(any_diagnosis, "F171", "N390", "R3(1|98)")
         .filter(F.col("sex") == "1")
-        .filter((F.col("admiage") >= 19) & (F.col("admiage") <= 120))
+        .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
 
@@ -68,7 +68,7 @@ def _prostatic_hyperplasia():
         .admission_has(primary_diagnosis, "N40")
         .admission_not(any_diagnosis, "N1([39]|7[01289]|8[1-59])")
         .filter(F.col("sex") == "1")
-        .filter((F.col("admiage") >= 19) & (F.col("admiage") <= 120))
+        .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
 

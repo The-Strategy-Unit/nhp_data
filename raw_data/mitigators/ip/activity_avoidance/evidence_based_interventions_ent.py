@@ -53,8 +53,7 @@ def _adenoids():
             secondary_diagnosis, "G473", "J3(2[0123489]|52)", "Q3(5[13579]|7[01234589])"
         )
         .filter(
-            (F.col("admiage") <= 18)
-            | ((F.col("admiage") >= 7001) & (F.col("admiage") <= 7007))
+            (F.col("age") <= 18) | ((F.col("age") >= 7001) & (F.col("age") <= 7007))
         )
     )
 
@@ -71,8 +70,7 @@ def _grommets():
         .admission_has(any_procedure, "D151")
         .admission_has(primary_diagnosis, "H6(5[^01]|6)")
         .filter(
-            (F.col("admiage") <= 18)
-            | ((F.col("admiage") >= 7001) & (F.col("admiage") <= 7007))
+            (F.col("age") <= 18) | ((F.col("age") >= 7001) & (F.col("age") <= 7007))
         )
     )
 
@@ -88,7 +86,7 @@ def _snoring():
         nhp_apc.admission_has(primary_procedure, "F32[456]")
         .admission_has(primary_diagnosis, "R065")
         .admission_not(secondary_diagnosis, "G473")
-        .filter((F.col("admiage") >= 19) & (F.col("admiage") <= 120))
+        .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
 
