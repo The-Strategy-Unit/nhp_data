@@ -97,6 +97,13 @@ def get_inpatients_data(spark: SparkContext) -> None:
         # add in primary diagnosis and procedure columns
         .join(df_primary_diagnosis, ["epikey", "fyear", "procode3"], "left")
         .join(df_primary_procedure, ["epikey", "fyear", "procode3"], "left")
+        # force maternity group to be Other (Maternity)
+        .withColumn(
+            "tretspef",
+            F.when(F.col("group") == "maternity", "Other (Medical)").otherwise(
+                F.col("tretspef")
+            ),
+        )
         .select(
             F.col("epikey"),
             F.col("fyear"),
