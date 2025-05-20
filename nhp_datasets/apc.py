@@ -16,7 +16,14 @@ hes_apc = (
     .filter(~((F.col("tretspef") == "424") & (F.col("epitype") == "3")))
     # ---
     .filter(F.col("sex").isin(["1", "2"]))
-    .withColumn("icb", icb_mapping[F.col("ccg_residence")])
+    .withColumn(
+        "icb",
+        # use the ccg of residence if available, otherwise use the ccg of responsibility
+        F.coalesce(
+            icb_mapping[F.col("ccg_residence")],
+            icb_mapping[F.col("ccg_responsibility")],
+        ),
+    )
 )
 
 apc_primary_procedures = (
