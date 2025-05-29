@@ -87,6 +87,7 @@ def get_outpatients_data(spark: SparkContext) -> None:
             F.col("sex").cast("int"),
             F.col("imd_decile"),
             F.col("imd_quintile"),
+            F.col("ethnos"),
             F.col("tretspef"),
             F.col("sitetret"),
             F.col("has_procedures"),

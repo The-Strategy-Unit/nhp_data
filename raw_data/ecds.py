@@ -197,6 +197,7 @@ def get_ecds_data(spark: SparkContext) -> None:
             F.col("sex").cast("int"),
             F.col("imd_decile"),
             F.col("imd_quintile"),
+            F.col("Ethnic_Category").alias("ethnos"),
             F.col("der_provider_site_code").alias("sitetret"),
             F.col("ec_department_type").alias("aedepttype"),
             F.col("ec_attendancecategory").alias("attendance_category"),
