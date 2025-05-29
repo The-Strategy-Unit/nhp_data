@@ -45,6 +45,8 @@ class Mitigator:
 
     def save(self) -> None:
         """Save the mitigator"""
+        print(f"Saving mitigator: {self.mitigator_name} ({self.mitigator_type})")
+
         # get the mitigators we want to insert
         source = (
             self.get()
