@@ -115,7 +115,7 @@ def _day_procedures(day_procedure_type):
         nhp_apc.admission_has(primary_procedure, *codes)
         .filter(F.col("admimeth").startswith("1"))
         .filter(F.col("classpat").isin(classpats))
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
 

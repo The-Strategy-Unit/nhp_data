@@ -125,7 +125,7 @@ def _alcohol_partially_attributable(condition_group):
                 F.col("nhp_apc.type") == F.col("aaf.type"),
             ],
         )
-        .groupBy("epikey")
+        .groupBy("fyear", "provider", "epikey")
         .agg(F.max("value").alias("sample_rate"))
     )
 

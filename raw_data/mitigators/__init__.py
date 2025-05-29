@@ -59,6 +59,7 @@ class Mitigator:
             DeltaTable.createIfNotExists(spark)
             .tableName("nhp.raw_data.apc_mitigators")
             .addColumns(source.schema)
+            .partitionedBy("fyear", "provider")
             .execute()
         )
         # perform an upsert
@@ -68,6 +69,8 @@ class Mitigator:
                 source.alias("source"),
                 " and ".join(
                     [
+                        "source.fyear = target.fyear",
+                        "source.provider = target.provider",
                         "source.epikey = target.epikey",
                         "source.type = target.type",
                         "source.strategy = target.strategy",

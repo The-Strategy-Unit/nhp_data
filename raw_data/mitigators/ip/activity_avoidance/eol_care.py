@@ -29,7 +29,7 @@ def _eol_care(min_speldur, max_speldur):
         .filter(F.col("dismeth") == 4)
         .filter(F.col("speldur") >= min_speldur)
         .filter(F.col("speldur") <= max_speldur)
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
 

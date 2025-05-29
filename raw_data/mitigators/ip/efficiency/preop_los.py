@@ -25,7 +25,7 @@ def _preop_los(days):
         .filter(F.col("admidate") <= F.col("date"))
         .filter(F.col("date") <= F.col("disdate"))
         .filter(F.date_diff(F.col("date"), F.col("admidate")) == days)
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
 

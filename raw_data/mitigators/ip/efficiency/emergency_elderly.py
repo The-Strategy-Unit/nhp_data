@@ -19,6 +19,6 @@ def _emergency_elderly():
     return (
         nhp_apc.filter(F.col("age") >= 75)
         .filter(F.col("admimeth").rlike("^2"))
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )

@@ -101,7 +101,7 @@ def _ambulatory_care_conditions_acute():
     return (
         reduce(DataFrame.unionByName, [cellulitis, gangrene, other_conditions])
         .filter(F.col("admimeth").rlike("^2"))
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
         .distinct()
     )
