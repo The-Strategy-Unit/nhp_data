@@ -65,6 +65,6 @@ def _smoking():
             saf_mapping,
             ["diagnosis", "sex"],
         )
-        .groupBy("epikey")
+        .groupBy("fyear", "provider", "epikey")
         .agg(F.max("value").alias("sample_rate"))
     )

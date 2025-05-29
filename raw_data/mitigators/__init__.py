@@ -45,6 +45,8 @@ class Mitigator:
 
     def save(self) -> None:
         """Save the mitigator"""
+        print(f"Saving mitigator: {self.mitigator_name} ({self.mitigator_type})")
+
         # get the mitigators we want to insert
         source = (
             self.get()
@@ -57,6 +59,7 @@ class Mitigator:
             DeltaTable.createIfNotExists(spark)
             .tableName("nhp.raw_data.apc_mitigators")
             .addColumns(source.schema)
+            .partitionedBy("fyear", "provider")
             .execute()
         )
         # perform an upsert
@@ -66,6 +69,8 @@ class Mitigator:
                 source.alias("source"),
                 " and ".join(
                     [
+                        "source.fyear = target.fyear",
+                        "source.provider = target.provider",
                         "source.epikey = target.epikey",
                         "source.type = target.type",
                         "source.strategy = target.strategy",

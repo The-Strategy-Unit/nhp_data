@@ -23,7 +23,7 @@ def evidence_based_interventions(*args: List[Callable[[], DataFrame]]) -> DataFr
         .filter(~F.col("admimeth").startswith("2"))
         # .filter(F.col("admincat") != "02")
         .admission_not(any_diagnosis, "C", "D(0|3[789]|4[0-8])")
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .distinct()
         .withColumn("sample_rate", F.lit(1.0))
     )

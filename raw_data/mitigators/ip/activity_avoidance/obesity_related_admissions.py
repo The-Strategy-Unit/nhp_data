@@ -51,5 +51,10 @@ def _obesity_related_admissions():
         # over-represented (coding change?)
         # .filter(~F.col("diagnosis").rlike("^I[12]2"))
         .join(oaf, ["diagnosis"])
-        .select(F.col("epikey"), F.col("fraction").alias("sample_rate"))
+        .select(
+            F.col("fyear"),
+            F.col("provider"),
+            F.col("epikey"),
+            F.col("fraction").alias("sample_rate"),
+        )
     )

@@ -23,6 +23,6 @@ def _intentional_self_harm():
     return (
         nhp_apc.admission_has(any_diagnosis, "X([67]|8[0-4])", "Y870")
         .filter(F.col("admimeth").rlike("^2"))
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )

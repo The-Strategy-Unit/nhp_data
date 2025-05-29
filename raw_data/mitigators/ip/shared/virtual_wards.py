@@ -22,7 +22,7 @@ def _virtual_wards_admissions(*args):
         .filter(F.col("dismeth").isin(["1", "2", "3"]))
         .filter(F.col("age") >= 18)
         .admission_has(primary_diagnosis, *args)
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
 

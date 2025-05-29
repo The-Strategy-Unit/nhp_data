@@ -69,7 +69,7 @@ def _alcohol_wholly_attributable():
     return (
         nhp_apc.filter(F.col("age") >= 16)
         .admission_has(any_diagnosis, *diag_codes)
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
 
@@ -125,7 +125,7 @@ def _alcohol_partially_attributable(condition_group):
                 F.col("nhp_apc.type") == F.col("aaf.type"),
             ],
         )
-        .groupBy("epikey")
+        .groupBy("fyear", "provider", "epikey")
         .agg(F.max("value").alias("sample_rate"))
     )
 

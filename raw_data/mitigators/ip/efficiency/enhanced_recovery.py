@@ -1,7 +1,7 @@
 """Enhanced Recovery
 
 [Enhanced Recovery][er_1] (ER) is an evidence-based model that is intended to help patients recover
-from major elective surgery quicker than they normally would do. 
+from major elective surgery quicker than they normally would do.
 It is based on the following principles:
 
 - the patient is in the best possible condition for surgery
@@ -46,7 +46,7 @@ def _enhanced_recovery(*args, sex="[12]"):
         nhp_apc.filter(F.col("admimeth").rlike("^1"))
         .filter(F.col("sex").rlike(f"^{sex}"))
         .admission_has(primary_procedure, *args)
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
 

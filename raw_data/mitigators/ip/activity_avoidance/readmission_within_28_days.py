@@ -1,10 +1,10 @@
 """Readmissions Within 28 Days of Discharge (IP-AA-028)
 
-Emergency readmission to hospital is typically regarded as an unfavourable outcome. 
+Emergency readmission to hospital is typically regarded as an unfavourable outcome.
 There are a range of interventions that have been shown to be effective in reducing the level of
 readmissions, including patient education, timely outpatient appointments, medication
 reconciliation, and telephone follow ups.
-The model identifies patients who are readmitted within 28 days of being discharged from hospital. 
+The model identifies patients who are readmitted within 28 days of being discharged from hospital.
 
 Some of these patients may have been discharged from a different hospital than the one they were
 readmitted to.
@@ -61,6 +61,6 @@ def _readmission_within_28_days():
     return (
         readm.filter(F.col("admimeth").rlike("^2"))
         .join(prior, join_condition, "semi")
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )

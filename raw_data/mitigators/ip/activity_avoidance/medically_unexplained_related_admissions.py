@@ -31,6 +31,6 @@ def _medically_unexplained_related_admissions():
             "R(0(02|7[14])|12X|251|42X|5[13]X)",
         )
         .filter(F.col("admimeth").rlike("^2"))
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )

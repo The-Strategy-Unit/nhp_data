@@ -34,6 +34,6 @@ def _cancelled_operations():
         nhp_apc.filter(F.col("admimeth").rlike("^1[123]"))
         .filter(F.col("dismeth") != 4)
         .filter(F.col("sushrg").rlike("^(S22|W(A14|H50))"))
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )

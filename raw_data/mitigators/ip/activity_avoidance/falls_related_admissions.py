@@ -61,7 +61,7 @@ def _falls_related_admissions():
         reduce(DataFrame.unionByName, dfs)
         .filter(F.col("admimeth").rlike("^2"))
         .filter(F.col("age") >= 65)
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .distinct()
         .withColumn("sample_rate", F.lit(1.0))
     )

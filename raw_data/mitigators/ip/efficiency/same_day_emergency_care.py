@@ -3,7 +3,7 @@
 The [Ambulatory Emergency Care Network](https://www.nhselect.nhs.uk/improvement-collaboratives/Clinical-networks/AEC) has published a Directory of Ambulatory Emergency Care for adults, 6th ed (2018) which identifies emergency conditions that have the potential to be managed as an emergency day case delivered in an SDEC unit.
 We have grouped these conditions into four mitigator cohorts, those that the network suggest have a:
 
-* low potential to be managed on an ambulatory basis (10-30% of cases) 
+* low potential to be managed on an ambulatory basis (10-30% of cases)
 * moderate potential to be managed on an ambulatory basis (30-60% of cases)
 * high potential to be managed on an ambulatory basis (60-90% of cases)
 * very high potential to be managed on an ambulatory basis (90-100% of cases)
@@ -85,7 +85,7 @@ def _same_day_emergency_care(group):
         .filter(F.col("diag_order") == 1)
         .filter(F.col("speldur") <= 2)
         .join(aec_df, ["diagnosis", "sushrg"], "semi")
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
 
