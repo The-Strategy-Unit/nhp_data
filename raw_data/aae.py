@@ -152,6 +152,7 @@ def get_aae_data(spark: SparkContext) -> None:
             F.col("sex").cast("int"),
             F.col("imd_decile"),
             F.col("imd_quintile"),
+            F.col("ethnos"),
             F.col("provider").alias("sitetret"),
             F.col("aedepttype"),
             F.col("aeattendcat").alias("attendance_category"),
