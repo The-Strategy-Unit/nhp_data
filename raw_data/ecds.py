@@ -39,8 +39,8 @@ def get_ecds_data(spark: SparkContext) -> None:
         "icb",
         # use the ccg of residence if available, otherwise use the ccg of responsibility
         F.coalesce(
-            icb_mapping[F.col("ccg_residence")],
-            icb_mapping[F.col("ccg_responsibility")],
+            icb_mapping[F.col("der_postcode_ccg_code")],
+            icb_mapping[F.col("Responsible_CCG_From_General_Practice")],
         ),
     )
 
