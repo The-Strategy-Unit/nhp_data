@@ -21,7 +21,7 @@ from raw_data.mitigators import efficiency_mitigator
 def _preop_los(days):
     return (
         nhp_apc.filter(F.col("admimeth").startswith("1"))
-        .join(apc_primary_procedures, ["epikey"])
+        .join(apc_primary_procedures.drop("fyear"), ["epikey"])
         .filter(F.col("admidate") <= F.col("date"))
         .filter(F.col("date") <= F.col("disdate"))
         .filter(F.date_diff(F.col("date"), F.col("admidate")) == days)

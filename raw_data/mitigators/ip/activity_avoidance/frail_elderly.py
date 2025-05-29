@@ -113,7 +113,7 @@ def _frail_elderly():
         .filter(F.col("admimeth").startswith("2"))
         .filter(F.col("age") >= 75)
         .withColumn("diagnosis", F.col("diagnosis").substr(1, 3))
-        .select("i.epikey", "fyear", "diagnosis", "score")
+        .select("i.epikey", "fyear", "provider", "diagnosis", "score")
         .distinct()
         .groupby("fyear", "provider", "epikey")
         .agg(F.sum("score").alias("score"))
