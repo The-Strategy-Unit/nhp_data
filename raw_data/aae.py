@@ -1,10 +1,9 @@
 """Generate the AAE data"""
 
-from itertools import chain
 
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
-from pyspark.sql import DataFrame, SparkSession, Window
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.types import *  # pylint: disable-all
 
 from nhp_datasets.icbs import add_main_icb, icb_mapping
