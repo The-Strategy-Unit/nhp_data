@@ -240,6 +240,7 @@ def extract_birth_factors_data(spark: SparkContext, save_path: str, fyear: int) 
     )
 
 
+# pylint: disable=invalid-name
 def create_custom_demographic_factors_R0A(spark: SparkContext) -> None:
     """Create custom demographic factors file for R0A using agreed methodology
 
@@ -247,10 +248,15 @@ def create_custom_demographic_factors_R0A(spark: SparkContext) -> None:
     :type spark: SparkContext
     """
     # Load demographics - principal projection only
-    demographics = spark.read.parquet(
-        f"/Volumes/nhp/population_projections/files/demographic_data/projection=principal_proj/"
-    ).filter(F.col("area_code") != "E08000003")
+    demographics = (
+        spark.read.table("nhp.population_projections.demographics")
+        .filter(F.col("projection") == "principal_proj")
+        .filter(F.col("projection_year") == 2018)
+        .filter(F.col("area_code") != "E08000003")
+        .drop("projection", "projection_year")
+    )
     # Load custom file
+    # TODO: this should be moved into population_projections scope
     years = [str(y) for y in range(2018, 2044)]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
     custom_file = (
@@ -277,7 +283,7 @@ def create_custom_demographic_factors_R0A(spark: SparkContext) -> None:
     # Work out catchment with patched demographics
     total_window = Window.partitionBy("provider")
     df = (
-        spark.read.table("apc")
+        spark.read.table("nhp.raw_data.apc")
         .filter(F.col("sitetret") == "R0A66")
         .filter(F.col("fyear") == 202324)
         .filter(F.col("resladst_ons").rlike("^E0[6-9]"))
@@ -316,11 +322,10 @@ def extract_demographic_factors_data(
 
     custom_R0A = create_custom_demographic_factors_R0A(spark)
 
-    df = df.unionByName(custom_R0A)
-
     (
         # using a fixed year of 2018/19 to match prior logic
         _create_population_projections(spark, demographics, 201819)
+        .unionByName(custom_R0A)
         .repartition(1)
         .write.mode("overwrite")
         .partitionBy("dataset")
