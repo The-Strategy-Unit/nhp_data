@@ -241,8 +241,8 @@ def extract_birth_factors_data(spark: SparkContext, save_path: str, fyear: int) 
 
 
 # pylint: disable=invalid-name
-def create_custom_demographic_factors_R0A(spark: SparkContext) -> None:
-    """Create custom demographic factors file for R0A using agreed methodology
+def create_custom_demographic_factors_R0A66(spark: SparkContext) -> None:
+    """Create custom demographic factors file for R0A66 using agreed methodology
 
     :param spark: the spark context to use
     :type spark: SparkContext
@@ -320,7 +320,7 @@ def extract_demographic_factors_data(
 
     demographics = spark.read.table("nhp.population_projections.demographics")
 
-    custom_R0A = create_custom_demographic_factors_R0A(spark)
+    custom_R0A = create_custom_demographic_factors_R0A66(spark)
 
     (
         # using a fixed year of 2018/19 to match prior logic
