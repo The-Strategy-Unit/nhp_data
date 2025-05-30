@@ -295,7 +295,7 @@ def create_custom_demographic_factors_R0A(spark: SparkContext) -> None:
         .withColumnRenamed("resladst_ons", "area_code")
         .withColumnRenamed("provider", "dataset")
         .join(demographics, "area_code")
-        .withColumn("variant", F.lit("custom_projection"))
+        .withColumn("variant", F.lit("custom_projection_R0A66"))
         .withColumn("value", F.col("value") * F.col("pcnt"))
         .groupBy("dataset", "age", "sex", "variant")
         .pivot("year")
