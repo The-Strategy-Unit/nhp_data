@@ -2,7 +2,7 @@ from itertools import chain
 
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.types import *  # pylint: disable-all
+from pyspark.sql.types import *  # noqa: F403
 
 
 def get_provider_successors_mapping(spark: SparkSession):

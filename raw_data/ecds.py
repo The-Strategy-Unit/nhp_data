@@ -5,7 +5,7 @@ from itertools import chain
 from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import *  # pylint: disable-all
+from pyspark.sql.types import *  # noqa: F403
 
 from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.providers import add_provider
@@ -250,6 +250,11 @@ def generate_ecds_data(spark: SparkSession) -> None:
     )
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """main method"""
     spark = DatabricksSession.builder.getOrCreate()
     generate_ecds_data(spark)
+
+
+if __name__ == "__main__":
+    main()

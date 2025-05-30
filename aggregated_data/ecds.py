@@ -3,7 +3,7 @@
 from databricks.connect import DatabricksSession
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import *  # pylint: disable-all
+from pyspark.sql.types import *  # noqa: F403
 
 
 def generate_ecds_data(spark: SparkSession) -> None:
@@ -43,6 +43,11 @@ def generate_ecds_data(spark: SparkSession) -> None:
     )
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """main method"""
     spark = DatabricksSession.builder.getOrCreate()
     generate_ecds_data(spark)
+
+
+if __name__ == "__main__":
+    main()
