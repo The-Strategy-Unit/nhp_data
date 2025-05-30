@@ -52,7 +52,7 @@ def load_inequalities_data(spark: SparkSession, fyears: list) -> DataFrame:
     opa = (
         spark.read.table("nhp.default.opa")
         .filter(F.col("fyear").isin(fyears))
-        .filter(F.col("has_procedures") == True)
+        .filter(F.col("has_procedures"))
         .groupby("provider", "imd_quintile", "sushrg_trimmed", "fyear")
         .agg(F.sum("attendances").alias("count"))
     )

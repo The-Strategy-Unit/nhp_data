@@ -1,8 +1,6 @@
 """Generate Provider Main ICB"""
 
-import os
 
-from databricks.sdk.runtime import dbutils
 from pyspark.sql import Window
 from pyspark.sql import functions as F
 

@@ -35,7 +35,6 @@ The AAFs are also sourced from the above referenced document.
 
 import json
 
-import pyspark.sql.types as T
 from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 

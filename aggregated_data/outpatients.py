@@ -1,6 +1,5 @@
 """Generate Outpatients Data"""
 
-from itertools import chain
 
 from databricks.connect import DatabricksSession
 from pyspark.sql import SparkSession
