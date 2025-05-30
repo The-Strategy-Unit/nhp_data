@@ -1,7 +1,7 @@
 """Stroke Early Supported Discharge (IP-EF-025)
 
 Early supported discharge is an intervention for adults after a stroke that allows their care to be
-transferred from an inpatient environment to a community setting. 
+transferred from an inpatient environment to a community setting.
 
 It enables people to continue their rehabilitation therapy at home, with the same intensity and
 expertise that they would receive in hospital.

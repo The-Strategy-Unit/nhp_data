@@ -3,7 +3,7 @@
 
 Ambulatory Care Sensitive Conditions (ACSC) admissions are those that can potentially be avoided
 with effective management and treatment such as improved primary or community health care services
-such as screening, vaccination, immunisation and health monitoring. 
+such as screening, vaccination, immunisation and health monitoring.
 Admissions of this type are identified using a basket of ICD10 codes for 19 chronic and acute
 conditions.
 
@@ -42,7 +42,7 @@ These three groups can then be broken down into 19 health groups.
 ## Source of Ambulatory Care Sensitive Admissions codes
 
 The list of conditions used within this factor comes from the
-[NHS Institute for Innovation and Improvement from the document below][asc_1]. 
+[NHS Institute for Innovation and Improvement from the document below][asc_1].
 
 The full condition list and coding logic can be found within the [appendix][asc_2].
 

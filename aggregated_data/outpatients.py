@@ -1,14 +1,12 @@
 """Generate Outpatients Data"""
 
-from itertools import chain
-
 from databricks.connect import DatabricksSession
-from pyspark.context import SparkContext
+from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import *  # pylint: disable-all
+from pyspark.sql.types import *  # noqa: F403
 
 
-def generate_outpatients_data(spark: SparkContext) -> None:
+def generate_outpatients_data(spark: SparkSession) -> None:
 
     hes_opa_processed = (
         spark.read.table("nhp.raw_data.opa")
@@ -47,6 +45,11 @@ def generate_outpatients_data(spark: SparkContext) -> None:
     )
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """main method"""
     spark = DatabricksSession.builder.getOrCreate()
     generate_outpatients_data(spark)
+
+
+if __name__ == "__main__":
+    main()

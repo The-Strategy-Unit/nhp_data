@@ -3,13 +3,12 @@
 from functools import reduce
 
 from databricks.connect import DatabricksSession
-from pyspark.context import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import *  # pylint: disable-all
+from pyspark.sql.types import *  # noqa: F403
 
 
-def get_outpatients_mitigators(spark: SparkContext) -> None:
+def get_outpatients_mitigators(spark: SparkSession) -> None:
     df = spark.read.table("nhp.raw_data.opa")
 
     op_strategies = [
@@ -43,7 +42,7 @@ def get_outpatients_mitigators(spark: SparkContext) -> None:
     return reduce(DataFrame.unionByName, op_strategies)
 
 
-def generate_outpatients_mitigators(spark: SparkContext) -> None:
+def generate_outpatients_mitigators(spark: SparkSession) -> None:
     """Generate Outpatients Mitigators Data"""
     hes_opa_mitigators = get_outpatients_mitigators(spark)
 
@@ -56,6 +55,11 @@ def generate_outpatients_mitigators(spark: SparkContext) -> None:
     )
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """main method"""
     spark = DatabricksSession.builder.getOrCreate()
     generate_outpatients_mitigators(spark)
+
+
+if __name__ == "__main__":
+    main()

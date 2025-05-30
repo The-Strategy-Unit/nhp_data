@@ -18,7 +18,7 @@ def generate_inpatients_mitigators() -> None:
             module = ".".join(path + [i, j])[:-3]
             try:
                 importlib.import_module(module)
-            except:  # pylint: disable=bare-except
+            except:  # noqa: E722
                 import_errors = True
                 print(f"Error: {module}")
 

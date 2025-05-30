@@ -1,7 +1,7 @@
 """Enhanced Recovery
 
 [Enhanced Recovery][er_1] (ER) is an evidence-based model that is intended to help patients recover
-from major elective surgery quicker than they normally would do. 
+from major elective surgery quicker than they normally would do.
 It is based on the following principles:
 
 - the patient is in the best possible condition for surgery
