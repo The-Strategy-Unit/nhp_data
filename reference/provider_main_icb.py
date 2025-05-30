@@ -1,6 +1,5 @@
 """Generate Provider Main ICB"""
 
-
 from pyspark.sql import Window
 from pyspark.sql import functions as F
 

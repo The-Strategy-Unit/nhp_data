@@ -1,6 +1,5 @@
 """Generate Outpatients Data"""
 
-
 from databricks.connect import DatabricksSession
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
