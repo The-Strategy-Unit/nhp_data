@@ -5,7 +5,7 @@ from functools import reduce
 from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import *  # pylint: disable-all
+from pyspark.sql.types import *  # noqa: F403
 
 
 def get_outpatients_mitigators(spark: SparkSession) -> None:
@@ -55,6 +55,11 @@ def generate_outpatients_mitigators(spark: SparkSession) -> None:
     )
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """main method"""
     spark = DatabricksSession.builder.getOrCreate()
     generate_outpatients_mitigators(spark)
+
+
+if __name__ == "__main__":
+    main()

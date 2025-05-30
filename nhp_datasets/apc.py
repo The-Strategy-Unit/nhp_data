@@ -1,6 +1,6 @@
 from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import *  # pylint: disable-all
+from pyspark.sql.types import *  # noqa: F403
 
 from nhp_datasets.icbs import icb_mapping
 from nhp_datasets.providers import read_data_with_provider
