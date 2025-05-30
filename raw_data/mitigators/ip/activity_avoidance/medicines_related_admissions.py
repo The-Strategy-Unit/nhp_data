@@ -3,7 +3,7 @@
 
 Between 5 and 10%[^mra_1] of all hospital admissions may be medicines related.
 Such admissions can occur due to drug therapy failure, adverse reactions to drug therapy, failure to
-adhere to prescribed regimen or unintentional overdose. 
+adhere to prescribed regimen or unintentional overdose.
 Admissions of this type could be prevented with better self management on the patients' part or
 improved medicines management.
 
@@ -19,7 +19,7 @@ indicative of a medicine related cause. For example the long term use of high do
 possible cause of an admission with a primary diagnosis of gastric ulcer and a secondary diagnosis
 of arthritis. The list of diagnoses used within the coding of this factor is based on exploratory
 work undertaken by the Strategy Unit. Other valid combinations could potentially be added to current
-set.  
+set.
 
 [^mra_1]: Kongkaew, C., Noyce, P.R. and Ashcroft, D.M., 2008. Hospital admissions associated with adverse drug reactions: a systematic review of prospective observational studies. *Annals of Pharmacotherapy*, 42(7-8), pp.1017-1025.
 

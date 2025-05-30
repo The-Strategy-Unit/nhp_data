@@ -1,6 +1,5 @@
 """Generate the AAE data"""
 
-
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
