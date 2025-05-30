@@ -3,12 +3,12 @@
 import sys
 
 from databricks.connect import DatabricksSession
-from pyspark.context import SparkContext
+from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
 
 def _processs_demographics_file(
-    spark: SparkContext, path: str, projection_year: int, projection_name: str
+    spark: SparkSession, path: str, projection_year: int, projection_name: str
 ) -> None:
     years = [str(y) for y in range(2018, 2044)]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
@@ -45,7 +45,7 @@ def _processs_demographics_file(
 
 
 def _process_births_file(
-    spark: SparkContext, path: str, projection_year: int, projection_name: str
+    spark: SparkSession, path: str, projection_year: int, projection_name: str
 ) -> None:
     years = [str(y) for y in range(2019, 2044)]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
@@ -80,12 +80,12 @@ def _process_births_file(
 
 
 def process_snpp_variant(
-    spark: SparkContext, path: str, projection_year: int, projection_name: str
+    spark: SparkSession, path: str, projection_year: int, projection_name: str
 ) -> None:
     """Process the SNPP variant data from ONS.
 
     :param spark: Spark session
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param path: The path to the data
     :type path: str
     :param projection_year: The year the projections were created in
@@ -102,7 +102,7 @@ def _init():
     projection_year = int(sys.argv[2])
     projection_name = sys.argv[3]
 
-    spark: SparkContext = DatabricksSession.builder.getOrCreate()
+    spark: SparkSession = DatabricksSession.builder.getOrCreate()
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
 
     process_snpp_variant(spark, path, projection_year, projection_name)

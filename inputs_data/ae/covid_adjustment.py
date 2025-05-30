@@ -1,17 +1,17 @@
 """A&E Covid Adjustment Data"""
 
 import pyspark.sql.functions as F
-from pyspark import SparkContext
+from pyspark import SparkSession
 from pyspark.sql import DataFrame
 
 from inputs_data.ae import get_ae_df
 
 
-def get_ae_covid_adjustment(spark: SparkContext) -> DataFrame:
+def get_ae_covid_adjustment(spark: SparkSession) -> DataFrame:
     """Get A&E Covid Adjustment Data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The A&E covid adjustment data
     :rtype: DataFrame
     """

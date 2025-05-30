@@ -1,17 +1,17 @@
 """Get A&E diagnoses data"""
 
-from pyspark import SparkContext
+from pyspark import SparkSession
 from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
 from inputs_data.ae import get_ae_df, get_ae_mitigators
 
 
-def get_ae_procedures(spark: SparkContext) -> DataFrame:
+def get_ae_procedures(spark: SparkSession) -> DataFrame:
     """Get A&E procedures
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The A&E procedures data
     :rtype: DataFrame
     """

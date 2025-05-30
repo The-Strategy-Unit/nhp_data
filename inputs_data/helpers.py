@@ -2,27 +2,27 @@
 
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
-from pyspark import SparkContext
+from pyspark import SparkSession
 from pyspark.sql import DataFrame
 
 
-def get_spark() -> SparkContext:
+def get_spark() -> SparkSession:
     """_summary_
 
     :return: get the spark context to use
-    :rtype: SparkContext
+    :rtype: SparkSession
     """
-    spark: SparkContext = DatabricksSession.builder.getOrCreate()
+    spark: SparkSession = DatabricksSession.builder.getOrCreate()
     spark.catalog.setCurrentCatalog("nhp")
     spark.catalog.setCurrentDatabase("raw_data")
     return spark
 
 
-def age_group(spark: SparkContext) -> DataFrame:
+def age_group(spark: SparkSession) -> DataFrame:
     """Get age groupings
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: Age Grouping Table
     :rtype: DataFrame
     """
@@ -37,11 +37,11 @@ def age_group(spark: SparkContext) -> DataFrame:
     )
 
 
-def create_tretspef_grouping(spark: SparkContext = get_spark()) -> None:
+def create_tretspef_grouping(spark: SparkSession = get_spark()) -> None:
     """Create Treatment Functrion Groupings
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     """
     df = spark.read.table("apc").select("tretspef").distinct().orderBy("tretspef")
 
@@ -84,11 +84,11 @@ def create_tretspef_grouping(spark: SparkContext = get_spark()) -> None:
     )
 
 
-def treatment_function_grouping(spark: SparkContext) -> DataFrame:
+def treatment_function_grouping(spark: SparkSession) -> DataFrame:
     """Get Treatment Function Groupings
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: Treatment Function Grouping Table
     :rtype: DataFrame
     """
@@ -96,7 +96,7 @@ def treatment_function_grouping(spark: SparkContext) -> DataFrame:
 
 
 def complete_age_sex_data(
-    spark: SparkContext, df: DataFrame, complete_type: str = "full"
+    spark: SparkSession, df: DataFrame, complete_type: str = "full"
 ) -> DataFrame:
     """Complete Age/Sex data
 
@@ -104,7 +104,7 @@ def complete_age_sex_data(
     then add a "0" row.
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param df: The DataFrame to complete
     :type df: DataFrame
     :param complete_type: which method to use, one of "full", "age_range", or "simple", defaults to

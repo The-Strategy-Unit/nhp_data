@@ -1,20 +1,21 @@
 """Generate Inequalities Dataframe"""
 
 import sys
-import mlflow
 
-from pyspark import SparkContext
-from pyspark.sql import Window, DataFrame
-from pyspark.sql import functions as F
-from inputs_data.helpers import get_spark
+import mlflow
 import pandas as pd
 import statsmodels.api as sm
+from pyspark import SparkSession
+from pyspark.sql import DataFrame, Window
+from pyspark.sql import functions as F
+
+from inputs_data.helpers import get_spark
 
 
-def load_inequalities_data(spark: SparkContext, fyears: list) -> DataFrame:
+def load_inequalities_data(spark: SparkSession, fyears: list) -> DataFrame:
     """
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param fyears: The financial years for the inequalities analysis, with each fyear as an int
     :type fyears: List
 
@@ -216,7 +217,7 @@ def main(path, spark):
     :param path: The path to save the results to
     :type path: str
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
 
     """
     mlflow.autolog(

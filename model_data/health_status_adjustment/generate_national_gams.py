@@ -8,11 +8,10 @@ import pandas as pd
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
 from pygam import GAM
-from pyspark.context import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 
-def _get_data(spark: SparkContext, save_path: str) -> pd.DataFrame:
+def _get_data(spark: SparkSession, save_path: str) -> pd.DataFrame:
     dfr = (
         reduce(
             DataFrame.unionByName,
@@ -56,7 +55,7 @@ def _get_data(spark: SparkContext, save_path: str) -> pd.DataFrame:
     )
 
 
-def _generate_gams(spark: SparkContext, save_path: str) -> dict:
+def _generate_gams(spark: SparkSession, save_path: str) -> dict:
     dfr = _get_data(spark, save_path)
 
     # generate the GAMs as a nested dictionary by dataset/year/(HSA group, sex).
@@ -74,7 +73,7 @@ def _generate_gams(spark: SparkContext, save_path: str) -> dict:
     return all_gams
 
 
-def _generate_activity_tables(spark: SparkContext, all_gams: dict) -> None:
+def _generate_activity_tables(spark: SparkSession, all_gams: dict) -> None:
     # Generate activity tables
     #
     # we usually rely on interpolated values in the model for efficiency, generate these tables and
@@ -121,7 +120,7 @@ def main(save_path: str) -> None:
     :param save_path: where to save the gams
     :type save_path: str
     """
-    spark: SparkContext = DatabricksSession.builder.getOrCreate()
+    spark: SparkSession = DatabricksSession.builder.getOrCreate()
     spark.catalog.setCurrentCatalog("nhp")
     spark.catalog.setCurrentDatabase("default")
 

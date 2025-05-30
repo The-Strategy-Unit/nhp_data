@@ -1,17 +1,17 @@
 """Outpatients Baseline Data"""
 
 import pyspark.sql.functions as F
-from pyspark import SparkContext
+from pyspark import SparkSession
 from pyspark.sql import DataFrame
 
 from inputs_data.op import get_op_df
 
 
-def get_op_baseline(spark: SparkContext) -> DataFrame:
+def get_op_baseline(spark: SparkSession) -> DataFrame:
     """Get Outpatients Baseline Data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The outpatients baseline data
     :rtype: DataFrame
     """

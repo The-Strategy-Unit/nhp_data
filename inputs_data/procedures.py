@@ -3,7 +3,7 @@
 import sys
 from functools import reduce
 
-from pyspark import SparkContext
+from pyspark import SparkSession
 from pyspark.sql import DataFrame
 
 from inputs_data.ae.procedures import get_ae_procedures
@@ -12,11 +12,11 @@ from inputs_data.ip.procedures import get_ip_procedures
 from inputs_data.op.procedures import get_op_procedures
 
 
-def get_procedures(spark: SparkContext = get_spark()) -> DataFrame:
+def get_procedures(spark: SparkSession = get_spark()) -> DataFrame:
     """Get procedures (combined)
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The procedures data
     :rtype: DataFrame
     """

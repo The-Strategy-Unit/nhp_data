@@ -4,15 +4,14 @@ from itertools import chain
 
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
-from pyspark.context import SparkContext
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql.types import *  # pylint: disable-all
 
 from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.providers import read_data_with_provider
 
 
-def get_aae_data(spark: SparkContext) -> None:
+def get_aae_data(spark: SparkSession) -> None:
     """Get AAE data
 
     inserts into the ECDS table, before ECDS dataset was available"""
@@ -191,7 +190,7 @@ def get_aae_data(spark: SparkContext) -> None:
     return hes_aae_ungrouped
 
 
-def generate_aae_data(spark: SparkContext) -> None:
+def generate_aae_data(spark: SparkSession) -> None:
     """Generate AAE data"""
     hes_aae_ungrouped = get_aae_data(spark)
 

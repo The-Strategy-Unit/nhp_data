@@ -3,7 +3,7 @@
 import sys
 from functools import reduce
 
-from pyspark import SparkContext
+from pyspark import SparkSession
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
@@ -13,11 +13,11 @@ from inputs_data.ip import get_ip_age_sex_data
 from inputs_data.op import get_op_age_sex_data
 
 
-def get_age_sex(spark: SparkContext = get_spark()) -> DataFrame:
+def get_age_sex(spark: SparkSession = get_spark()) -> DataFrame:
     """Get age/sex (combined)
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The age/sex data
     :rtype: DataFrame
     """

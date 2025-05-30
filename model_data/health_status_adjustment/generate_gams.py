@@ -11,11 +11,10 @@ import pandas as pd
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
 from pygam import GAM
-from pyspark.context import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 
-def _get_data(spark: SparkContext, save_path: str) -> DataFrame:
+def _get_data(spark: SparkSession, save_path: str) -> DataFrame:
     dfr = (
         reduce(
             DataFrame.unionByName,
@@ -92,7 +91,7 @@ def _generate_gams(save_path: str, dfr: DataFrame) -> dict:
 
 
 def _generate_activity_tables(
-    spark: SparkContext, save_path: str, all_gams: dict
+    spark: SparkSession, save_path: str, all_gams: dict
 ) -> None:
     # Generate activity tables
     #
@@ -154,7 +153,7 @@ def main(save_path: str) -> None:
     :param save_path: where to save the gams
     :type save_path: str
     """
-    spark: SparkContext = DatabricksSession.builder.getOrCreate()
+    spark: SparkSession = DatabricksSession.builder.getOrCreate()
     spark.catalog.setCurrentCatalog("nhp")
     spark.catalog.setCurrentDatabase("default")
 
