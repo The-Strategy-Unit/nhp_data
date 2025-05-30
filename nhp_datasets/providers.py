@@ -1,13 +1,12 @@
 from itertools import chain
 
 import pyspark.sql.functions as F
-from pyspark.context import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
 
-def get_provider_successors_mapping(spark: SparkContext):
+def get_provider_successors_mapping(spark: SparkSession):
     provider_successors = spark.read.table(
         "strategyunit.reference.ods_trusts"
     ).collect()
@@ -23,7 +22,7 @@ def get_provider_successors_mapping(spark: SparkContext):
 
 
 def add_provider(
-    spark: SparkContext,
+    spark: SparkSession,
     df: DataFrame,
     procode3_col: str = "procode3",
     sitetret_col: str = "sitetret",
@@ -31,7 +30,7 @@ def add_provider(
     """Add the provider column
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param df: The data frame
     :type df: DataFrame
     :param procode3_col: the column which contains the procode3 field, defaults to "procode3"
@@ -52,7 +51,7 @@ def add_provider(
 
 
 def read_data_with_provider(
-    spark: SparkContext,
+    spark: SparkSession,
     table: str,
     procode3_col: str = "procode3",
     sitetret_col: str = "sitetret",
@@ -60,7 +59,7 @@ def read_data_with_provider(
     """Read a table and add the provider column
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param table: The table to load
     :type table: str
     :param procode3_col: the column which contains the procode3 field, defaults to "procode3"

@@ -3,7 +3,7 @@
 import sys
 from functools import reduce
 
-from pyspark import SparkContext
+from pyspark import SparkSession
 from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
@@ -13,11 +13,11 @@ from inputs_data.ip.covid_adjustment import get_ip_covid_adjustment
 from inputs_data.op.covid_adjustment import get_op_covid_adjustment
 
 
-def get_covid_adjustment(spark: SparkContext = get_spark()) -> DataFrame:
+def get_covid_adjustment(spark: SparkSession = get_spark()) -> DataFrame:
     """Get Covid Adjustment Data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The covid adjustment data
     :rtype: DataFrame
     """

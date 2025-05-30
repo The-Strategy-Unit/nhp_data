@@ -3,18 +3,18 @@
 from functools import cache, reduce
 
 import pyspark.sql.functions as F
-from pyspark import SparkContext
+from pyspark import SparkSession
 from pyspark.sql import DataFrame
 
 from inputs_data.acute_providers import filter_acute_providers
 from inputs_data.helpers import age_group, treatment_function_grouping
 
 
-def get_op_df(spark: SparkContext) -> DataFrame:
+def get_op_df(spark: SparkSession) -> DataFrame:
     """Get Outpatients DataFrame
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The outpatients data
     :rtype: DataFrame
     """
@@ -29,11 +29,11 @@ def get_op_df(spark: SparkContext) -> DataFrame:
 
 
 @cache
-def get_op_mitigators(spark: SparkContext) -> DataFrame:
+def get_op_mitigators(spark: SparkSession) -> DataFrame:
     """Get Outpatients Mitigators DataFrame
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The outpatients mitigators data
     :rtype: DataFrame
     """
@@ -76,11 +76,11 @@ def get_op_mitigators(spark: SparkContext) -> DataFrame:
     return reduce(DataFrame.unionByName, op_strategies)
 
 
-def get_op_age_sex_data(spark: SparkContext) -> DataFrame:
+def get_op_age_sex_data(spark: SparkSession) -> DataFrame:
     """Get the op age sex table
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients age/sex data
     :rtype: DataFrame
     """

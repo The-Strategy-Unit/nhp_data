@@ -8,8 +8,7 @@ import sys
 
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
-from pyspark.context import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 
 def add_tretspef_column(self: DataFrame) -> DataFrame:
@@ -55,11 +54,11 @@ def add_tretspef_column(self: DataFrame) -> DataFrame:
     return self.withColumn("tretspef", tretspef_column)
 
 
-def extract_apc_data(spark: SparkContext, save_path: str, fyear: int) -> None:
+def extract_apc_data(spark: SparkSession, save_path: str, fyear: int) -> None:
     """Extract APC (+mitigators) data
 
     :param spark: the spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param save_path: where to save the parquet files
     :type save_path: str
     :param fyear: what year to extract
@@ -103,11 +102,11 @@ def extract_apc_data(spark: SparkContext, save_path: str, fyear: int) -> None:
         )
 
 
-def extract_opa_data(spark: SparkContext, save_path: str, fyear: int) -> None:
+def extract_opa_data(spark: SparkSession, save_path: str, fyear: int) -> None:
     """Extract OPA data
 
     :param spark: the spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param save_path: where to save the parquet files
     :type save_path: str
     :param fyear: what year to extract
@@ -160,11 +159,11 @@ def extract_opa_data(spark: SparkContext, save_path: str, fyear: int) -> None:
     )
 
 
-def extract_ecds_data(spark: SparkContext, save_path: str, fyear: int) -> None:
+def extract_ecds_data(spark: SparkSession, save_path: str, fyear: int) -> None:
     """Extract ECDS data
 
     :param spark: the spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param save_path: where to save the parquet files
     :type save_path: str
     :param fyear: what year to extract
@@ -187,7 +186,7 @@ def extract_ecds_data(spark: SparkContext, save_path: str, fyear: int) -> None:
 
 
 def _create_population_projections(
-    spark: SparkContext, df: DataFrame, fyear: int
+    spark: SparkSession, df: DataFrame, fyear: int
 ) -> DataFrame:
     providers = (
         spark.read.table("strategyunit.reference.ods_trusts")
@@ -216,11 +215,11 @@ def _create_population_projections(
     )
 
 
-def extract_birth_factors_data(spark: SparkContext, save_path: str, fyear: int) -> None:
+def extract_birth_factors_data(spark: SparkSession, save_path: str, fyear: int) -> None:
     """Extract Birth Factors data
 
     :param spark: the spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param save_path: where to save the parquet files
     :type save_path: str
     :param fyear: what year to extract
@@ -241,12 +240,12 @@ def extract_birth_factors_data(spark: SparkContext, save_path: str, fyear: int) 
 
 
 def extract_demographic_factors_data(
-    spark: SparkContext, save_path: str, fyear: int
+    spark: SparkSession, save_path: str, fyear: int
 ) -> None:
     """Extract Birth Factors data
 
     :param spark: the spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param save_path: where to save the parquet files
     :type save_path: str
     :param fyear: what year to extract
@@ -274,7 +273,7 @@ def main(save_path: str, fyear: int) -> None:
     :type fyear: int
     """
 
-    spark: SparkContext = DatabricksSession.builder.getOrCreate()
+    spark: SparkSession = DatabricksSession.builder.getOrCreate()
 
     spark.catalog.setCurrentCatalog("nhp")
     spark.catalog.setCurrentDatabase("default")

@@ -2,7 +2,7 @@
 
 import sys
 
-from pyspark import SparkContext
+from pyspark import SparkSession
 from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
@@ -10,11 +10,11 @@ from inputs_data.helpers import get_spark
 from inputs_data.ip import get_ip_df
 
 
-def get_pop(spark: SparkContext = get_spark()) -> DataFrame:
+def get_pop(spark: SparkSession = get_spark()) -> DataFrame:
     """Get the population by year table
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The population by year/lsoa11/age/sex
     :rtype: DataFrame
     """
@@ -37,11 +37,11 @@ def get_pop(spark: SparkContext = get_spark()) -> DataFrame:
     )
 
 
-def create_catchments(spark: SparkContext = get_spark()) -> None:
+def create_catchments(spark: SparkSession = get_spark()) -> None:
     """Create the catchments table
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     """
     w = Window.partitionBy("fyear", "lsoa11", "age_group", "sex")
 
@@ -63,22 +63,22 @@ def create_catchments(spark: SparkContext = get_spark()) -> None:
     catchments.write.mode("overwrite").saveAsTable("nhp.reference.inputs_catchments")
 
 
-def get_catchments(spark: SparkContext = get_spark()) -> DataFrame:
+def get_catchments(spark: SparkSession = get_spark()) -> DataFrame:
     """Get the catchments table
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The catchments data
     :rtype: DataFrame
     """
     return spark.read.table("nhp.reference.inputs_catchments").persist()
 
 
-def get_total_pop(spark: SparkContext = get_spark()) -> DataFrame:
+def get_total_pop(spark: SparkSession = get_spark()) -> DataFrame:
     """_summary_
 
     :param spark: _description_
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: _description_
     :rtype: DataFrame
     """

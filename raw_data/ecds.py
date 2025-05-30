@@ -3,8 +3,7 @@
 from itertools import chain
 
 from databricks.connect import DatabricksSession
-from pyspark.context import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
@@ -12,7 +11,7 @@ from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.providers import add_provider
 
 
-def get_ecds_data(spark: SparkContext) -> None:
+def get_ecds_data(spark: SparkSession) -> None:
     """Get ECDS data"""
     df = spark.read.table("hes.silver.ecds")
 
@@ -237,7 +236,7 @@ def get_ecds_data(spark: SparkContext) -> None:
     return hes_ecds_ungrouped
 
 
-def generate_ecds_data(spark: SparkContext) -> None:
+def generate_ecds_data(spark: SparkSession) -> None:
     """Generate ECDS data"""
     hes_ecds_ungrouped = get_ecds_data(spark)
 

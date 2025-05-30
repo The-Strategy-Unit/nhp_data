@@ -2,7 +2,7 @@
 
 import sys
 
-from pyspark import SparkContext
+from pyspark import SparkSession
 from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
@@ -12,13 +12,13 @@ from inputs_data.op.wli import get_op_wli
 from nhp_datasets.providers import get_provider_successors_mapping
 
 
-def get_wli(path: str, spark: SparkContext = get_spark()) -> DataFrame:
+def get_wli(path: str, spark: SparkSession = get_spark()) -> DataFrame:
     """Get WLI (combined)
 
     :param path: Where to read the waiting list avg change file from
     :type path: str
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The WLI data
     :rtype: DataFrame
     """

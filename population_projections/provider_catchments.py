@@ -1,16 +1,15 @@
 """Create Provider Catchments"""
 
 from databricks.connect import DatabricksSession
-from pyspark.context import SparkContext
-from pyspark.sql import Window
+from pyspark.sql import SparkSession, Window
 from pyspark.sql import functions as F
 
 
-def get_provider_catchments(spark: SparkContext, min_pcnt: float = 0.05) -> None:
+def get_provider_catchments(spark: SparkSession, min_pcnt: float = 0.05) -> None:
     """get Provider Catchments
 
     :param spark: The Spark context
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param min_pcnt: the minimum percentage of patients in a catchment area (default: 0.05)
     :type min_pcnt: float
     """
@@ -30,11 +29,11 @@ def get_provider_catchments(spark: SparkContext, min_pcnt: float = 0.05) -> None
     )
 
 
-def create_provider_catchments(spark: SparkContext, min_pcnt: float = 0.05) -> None:
+def create_provider_catchments(spark: SparkSession, min_pcnt: float = 0.05) -> None:
     """Create Provider Catchments
 
     :param spark: The Spark context
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param min_pcnt: the minimum percentage of patients in a catchment area (default: 0.05)
     :type min_pcnt: float
     """
@@ -46,7 +45,7 @@ def create_provider_catchments(spark: SparkContext, min_pcnt: float = 0.05) -> N
 
 
 def _init():
-    spark: SparkContext = DatabricksSession.builder.getOrCreate()
+    spark: SparkSession = DatabricksSession.builder.getOrCreate()
     create_provider_catchments(spark)
 
 

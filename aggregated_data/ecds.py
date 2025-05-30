@@ -1,13 +1,12 @@
 """Generate ECDS Data"""
 
 from databricks.connect import DatabricksSession
-from pyspark.context import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # pylint: disable-all
 
 
-def generate_ecds_data(spark: SparkContext) -> None:
+def generate_ecds_data(spark: SparkSession) -> None:
     """Generate ECDS Data"""
     hes_ecds_processed = (
         spark.read.table("nhp.raw_data.ecds")

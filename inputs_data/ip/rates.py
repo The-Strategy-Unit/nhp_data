@@ -3,7 +3,7 @@
 import json
 from functools import cache
 
-from pyspark import SparkContext
+from pyspark import SparkSession
 from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 
@@ -13,11 +13,11 @@ from inputs_data.helpers import complete_age_sex_data
 from inputs_data.ip import get_ip_age_sex_data, get_ip_df, get_ip_mitigators
 
 
-def get_ip_activity_avoidance_rates(spark: SparkContext) -> DataFrame:
+def get_ip_activity_avoidance_rates(spark: SparkSession) -> DataFrame:
     """Get inpatients activity avoidance rates
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients activity avoidances rates
     :rtype: DataFrame
     """
@@ -70,11 +70,11 @@ def get_ip_activity_avoidance_rates(spark: SparkContext) -> DataFrame:
     return df_provider.join(df_national, ["fyear", "strategy"])
 
 
-def get_ip_mean_los(spark: SparkContext) -> DataFrame:
+def get_ip_mean_los(spark: SparkSession) -> DataFrame:
     """Get inpatients mean length of stay data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients mean los rates
     :rtype: DataFrame
     """
@@ -118,11 +118,11 @@ def get_ip_mean_los(spark: SparkContext) -> DataFrame:
     )
 
 
-def get_ip_preop_rates(spark: SparkContext) -> DataFrame:
+def get_ip_preop_rates(spark: SparkSession) -> DataFrame:
     """Get inpatients pre-op rates
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients pre-op rates
     :rtype: DataFrame
     """
@@ -153,7 +153,7 @@ def get_ip_preop_rates(spark: SparkContext) -> DataFrame:
 
 
 @cache
-def _get_ip_day_procedures_code_list(spark: SparkContext) -> DataFrame:
+def _get_ip_day_procedures_code_list(spark: SparkSession) -> DataFrame:
     with open(
         "/Volumes/nhp/reference/files/day_procedures.json", "r", encoding="UTF-8"
     ) as f:
@@ -165,11 +165,11 @@ def _get_ip_day_procedures_code_list(spark: SparkContext) -> DataFrame:
         return spark.createDataFrame(data).persist()
 
 
-def _get_ip_day_procedures_op_denominator(spark: SparkContext) -> DataFrame:
+def _get_ip_day_procedures_op_denominator(spark: SparkSession) -> DataFrame:
     """Get inpatients day procedures (outpatients) denominator
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients day procedures (outpatients) denominator
     :rtype: DataFrame
     """
@@ -192,11 +192,11 @@ def _get_ip_day_procedures_op_denominator(spark: SparkContext) -> DataFrame:
     )
 
 
-def _get_ip_day_procedures_dc_denominator(spark: SparkContext) -> DataFrame:
+def _get_ip_day_procedures_dc_denominator(spark: SparkSession) -> DataFrame:
     """Get inpatients day procedures (daycase) denominator
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients day procedures (daycase) denominator
     :rtype: DataFrame
     """
@@ -219,11 +219,11 @@ def _get_ip_day_procedures_dc_denominator(spark: SparkContext) -> DataFrame:
     )
 
 
-def get_ip_day_procedures(spark: SparkContext) -> DataFrame:
+def get_ip_day_procedures(spark: SparkSession) -> DataFrame:
     """Get inpatients day procedures rates
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients day procedures  rates
     :rtype: DataFrame
     """
