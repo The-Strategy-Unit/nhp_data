@@ -4,6 +4,7 @@ import os
 import pickle as pkl
 import sys
 from functools import reduce
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -14,7 +15,7 @@ from pyspark.context import SparkContext
 from pyspark.sql import DataFrame
 
 
-def _get_data(spark: SparkContext, save_path: str) -> pd.DataFrame:
+def _get_data(spark: SparkContext, save_path: str) -> DataFrame:
     dfr = (
         reduce(
             DataFrame.unionByName,
@@ -29,47 +30,58 @@ def _get_data(spark: SparkContext, save_path: str) -> pd.DataFrame:
         )
         .filter(~F.col("hsagrp").isin(["birth", "maternity", "paeds"]))
         .filter(F.col("fyear").isin([2019, 2022, 2023]))
+        .filter(F.col("age") >= 18)
     )
 
-    # load the demographics data, then cross join to the distinct HSA groups
-
+    # load the demographics data
     demog = (
         spark.read.parquet(f"{save_path}/demographic_factors/fyear=2019/")
         .filter(F.col("variant") == "principal_proj")
         .filter(F.col("age") >= 18)
-        .select(F.col("age"), F.col("sex"), F.col("2019").alias("pop"))
-        .crossJoin(dfr.select("hsagrp").distinct())
+        .select(
+            F.col("age"), F.col("sex"), F.col("dataset"), F.col("2019").alias("pop")
+        )
+        # join back to the unique combination of dataset/sex/fyear/hsagrp, we
+        # will use this below to ensure we have a 0-count row of activity
+        .join(
+            dfr.select("dataset", "sex", "fyear", "hsagrp").distinct(),
+            ["dataset", "sex"],
+            "inner",
+        )
     )
 
     # generate the data. we right join to the demographics and fill the missing rows with 0's,
     # before calculating the activity rate as the amount of activity (count) divided by the
     # population.
-
     return (
-        dfr.join(demog, ["age", "sex", "hsagrp"], "right")
+        dfr.join(demog, ["age", "sex", "dataset", "hsagrp", "fyear"], "right")
         .fillna(0)
         .withColumn("activity_rate", F.col("count") / F.col("pop"))
         .drop("count", "pop")
-        .toPandas()
     )
 
 
-def _generate_gams(spark: SparkContext, save_path: str) -> dict:
-    dfr = _get_data(spark, save_path)
+def _generate_gam(data: pd.DataFrame, progress: bool = False) -> Any:
+    x = data[["age"]].to_numpy()
+    y = data["activity_rate"].to_numpy()
 
+    return GAM().gridsearch(x, y, progress=progress)
+
+
+def _generate_gams(save_path: str, dfr: DataFrame) -> dict:
     # generate the GAMs as a nested dictionary by dataset/year/(HSA group, sex).
     # This may be amenable to some parallelisation? or other speed tricks possible with pygam?
 
+    dfr = dfr.toPandas()
+    print("Generating GAMs")
     all_gams = {}
-    for dataset, v1 in list(dfr.groupby("dataset")):
+    to_iterate = list(dfr.groupby("dataset"))
+    n = len(to_iterate)
+    for i, (dataset, v1) in enumerate(to_iterate):
         all_gams[dataset] = {}
+        print(f"> {dataset} {i}/{n} ({i/n*100:.1f}%)")
         for fyear, v2 in list(v1.groupby("fyear")):
-            g = {
-                k: GAM().gridsearch(
-                    v[["age"]].to_numpy(), v["activity_rate"].to_numpy(), progress=False
-                )
-                for k, v in list(v2.groupby(["hsagrp", "sex"]))
-            }
+            g = {k: _generate_gam(v) for k, v in list(v2.groupby(["hsagrp", "sex"]))}
             all_gams[dataset][fyear] = g
 
             path = f"{save_path}/hsa_gams/{fyear=}/dataset={dataset}"
@@ -146,7 +158,8 @@ def main(save_path: str) -> None:
     spark.catalog.setCurrentCatalog("nhp")
     spark.catalog.setCurrentDatabase("default")
 
-    all_gams = _generate_gams(spark, save_path)
+    dfr = _get_data(spark, save_path)
+    all_gams = _generate_gams(save_path, dfr)
     _generate_activity_tables(spark, save_path, all_gams)
 
 

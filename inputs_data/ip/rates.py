@@ -27,7 +27,12 @@ def get_ip_activity_avoidance_rates(spark: SparkContext) -> DataFrame:
 
     mitigators = (
         get_ip_mitigators(spark)
-        .filter(F.col("type") == "activity_avoidance")
+        .filter(
+            (F.col("type") == "activity_avoidance")
+            # sdec is technically an efficiency mitigator, but behaves like an
+            # activity avoidance mitigator
+            | F.col("strategy").startswith("same_day_emergency_care_")
+        )
         .select("strategy")
         .distinct()
     )
@@ -106,33 +111,6 @@ def get_ip_mean_los(spark: SparkContext) -> DataFrame:
         .agg(
             F.sum("speldur").alias("numerator"), F.count("speldur").alias("denominator")
         )
-        .withColumn("rate", F.col("numerator") / F.col("denominator"))
-        .withColumn(
-            "national_rate", F.sum("numerator").over(w) / F.sum("denominator").over(w)
-        )
-    )
-
-
-def get_ip_aec_rates(spark: SparkContext) -> DataFrame:
-    """Get inpatients aec rates
-
-    :param spark: The spark context to use
-    :type spark: SparkContext
-    :return: The inpatients activity avoidances rates
-    :rtype: DataFrame
-    """
-
-    df = get_ip_df(spark)
-    df_mitigators = get_ip_mitigators(spark)
-
-    w = Window.partitionBy("fyear", "strategy")
-
-    return (
-        df.join(df_mitigators, "epikey", "inner")
-        .filter(F.col("strategy").startswith("ambulatory_emergency_care_"))
-        .withColumn("n", (F.col("speldur") > 0).cast("int"))
-        .groupBy("fyear", "strategy", "provider")
-        .agg(F.sum("n").alias("numerator"), F.count("n").alias("denominator"))
         .withColumn("rate", F.col("numerator") / F.col("denominator"))
         .withColumn(
             "national_rate", F.sum("numerator").over(w) / F.sum("denominator").over(w)

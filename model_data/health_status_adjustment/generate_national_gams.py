@@ -32,9 +32,7 @@ def _get_data(spark: SparkContext, save_path: str) -> pd.DataFrame:
     # load the demographics data, then cross join to the distinct HSA groups
 
     demog = (
-        spark.read.parquet(
-            "/Volumes/su_data/nhp/population-projections/demographic_data"
-        )
+        spark.read.table("nhp.population_projections.demographics")
         .filter(F.col("area_code").rlike("^E0[6-9]"))
         .filter(F.col("projection") == "principal_proj")
         .filter(F.col("age") >= 18)

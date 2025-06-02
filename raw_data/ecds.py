@@ -21,8 +21,8 @@ def get_ecds_data(spark: SparkContext) -> None:
     )
 
     df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
-    # Add IMD fields
 
+    # Add IMD fields
     imd_lookup = (
         spark.read.table("strategyunit.reference.lsoa11_to_imd19")
         .withColumnRenamed("lsoa11", "der_postcode_lsoa_2011_code")
@@ -33,9 +33,16 @@ def get_ecds_data(spark: SparkContext) -> None:
     )
 
     df = df.join(imd_lookup, "der_postcode_lsoa_2011_code", "left")
-    # Calculate icb column
 
-    df = df.withColumn("icb", icb_mapping[F.col("der_postcode_ccg_code")])
+    # Calculate icb column
+    df = df.withColumn(
+        "icb",
+        # use the ccg of residence if available, otherwise use the ccg of responsibility
+        F.coalesce(
+            icb_mapping[F.col("der_postcode_ccg_code")],
+            icb_mapping[F.col("Responsible_CCG_From_General_Practice")],
+        ),
+    )
 
     # Acuity mapping
     acuity_mapping = {
@@ -190,6 +197,7 @@ def get_ecds_data(spark: SparkContext) -> None:
             F.col("sex").cast("int"),
             F.col("imd_decile"),
             F.col("imd_quintile"),
+            F.col("Ethnic_Category").alias("ethnos"),
             F.col("der_provider_site_code").alias("sitetret"),
             F.col("ec_department_type").alias("aedepttype"),
             F.col("ec_attendancecategory").alias("attendance_category"),

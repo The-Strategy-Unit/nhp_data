@@ -95,7 +95,14 @@ def get_aae_data(spark: SparkContext) -> None:
     )
 
     # Calculate icb column
-    df = df.withColumn("icb", icb_mapping[F.col("ccg_residence")])
+    df = df.withColumn(
+        "icb",
+        # use the ccg of residence if available, otherwise use the ccg of responsibility
+        F.coalesce(
+            icb_mapping[F.col("ccg_residence")],
+            icb_mapping[F.col("ccg_responsibility")],
+        ),
+    )
 
     # add main icb column
     df = add_main_icb(spark, df)
@@ -145,6 +152,7 @@ def get_aae_data(spark: SparkContext) -> None:
             F.col("sex").cast("int"),
             F.col("imd_decile"),
             F.col("imd_quintile"),
+            F.col("ethnos"),
             F.col("provider").alias("sitetret"),
             F.col("aedepttype"),
             F.col("aeattendcat").alias("attendance_category"),
