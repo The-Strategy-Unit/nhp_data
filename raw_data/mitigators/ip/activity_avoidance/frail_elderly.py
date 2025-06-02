@@ -113,9 +113,9 @@ def _frail_elderly():
         .filter(F.col("admimeth").startswith("2"))
         .filter(F.col("age") >= 75)
         .withColumn("diagnosis", F.col("diagnosis").substr(1, 3))
-        .select("i.epikey", "fyear", "diagnosis", "score")
+        .select("i.epikey", "fyear", "provider", "diagnosis", "score")
         .distinct()
-        .groupby("epikey", "fyear")
+        .groupby("fyear", "provider", "epikey")
         .agg(F.sum("score").alias("score"))
         .persist()
     )
@@ -127,7 +127,7 @@ def _frail_elderly_intermediate():
         _frail_elderly()
         .filter(F.col("score") >= 5)
         .filter(F.col("score") <= 15)
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
 
@@ -137,6 +137,6 @@ def _frail_elderly_high():
     return (
         _frail_elderly()
         .filter(F.col("score") > 15)
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )

@@ -24,7 +24,7 @@ def _zero_los(age_filter):
         .filter(F.col("speldur") == 0)
         .filter(F.col("dismeth").isin(["1", "2", "3"]))
         .filter(age_filter)
-        .select("epikey")
+        .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
 
