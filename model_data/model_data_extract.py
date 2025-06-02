@@ -216,6 +216,22 @@ def _create_population_projections(
     )
 
 
+# pylint: disable=invalid-name
+def create_custom_birth_factors_R0A66(
+    spark: SparkContext, birth_factors: DataFrame
+) -> DataFrame:
+    """Create custom birth factors file for R0A66, using principal projection
+
+    :param spark: the spark context to use
+    :type spark: SparkContext
+    """
+    custom_R0A = birth_factors.filter(
+        (F.col("dataset") == "R0A") & (F.col("variant") == "principal_proj")
+    ).withColumn("variant", F.lit("custom_projection_R0A66"))
+
+    return custom_R0A
+
+
 def extract_birth_factors_data(spark: SparkContext, save_path: str, fyear: int) -> None:
     """Extract Birth Factors data
 
@@ -230,9 +246,13 @@ def extract_birth_factors_data(spark: SparkContext, save_path: str, fyear: int) 
         "sex", F.lit(2)
     )
 
+    birth_factors = _create_population_projections(spark, births, 201819)
+
+    custom_R0A = create_custom_birth_factors_R0A66(spark, birth_factors)
+
     (
         # using a fixed year of 2018/19 to match prior logic
-        _create_population_projections(spark, births, 201819)
+        birth_factors.unionByName(custom_R0A)
         .repartition(1)
         .write.mode("overwrite")
         .partitionBy("dataset")
