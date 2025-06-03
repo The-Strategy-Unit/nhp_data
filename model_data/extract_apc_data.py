@@ -1,4 +1,4 @@
-"""Helper methods/tables"""
+"""Extract APC data for model"""
 
 import sys
 import pyspark.sql.functions as F
