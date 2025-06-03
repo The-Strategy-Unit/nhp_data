@@ -9,33 +9,6 @@ import sys
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession, Window
-from model_data.helpers import add_tretspef_column
-
-
-def extract_ecds_data(spark: SparkSession, save_path: str, fyear: int) -> None:
-    """Extract ECDS data
-
-    :param spark: the spark context to use
-    :type spark: SparkSession
-    :param save_path: where to save the parquet files
-    :type save_path: str
-    :param fyear: what year to extract
-    :type fyear: int
-    """
-
-    ecds = (
-        spark.read.table("ecds")
-        .filter(F.col("fyear") == fyear)
-        .withColumnRenamed("provider", "dataset")
-        .withColumn("fyear", F.floor(F.col("fyear") / 100))
-    )
-
-    (
-        ecds.repartition(1)
-        .write.mode("overwrite")
-        .partitionBy(["fyear", "dataset"])
-        .parquet(f"{save_path}/aae")
-    )
 
 
 def _create_population_projections(
@@ -264,7 +237,6 @@ def main(save_path: str, fyear: int) -> None:
 
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
 
-    extract_ecds_data(spark, save_path, fyear)
     extract_birth_factors_data(spark, save_path, fyear)
     extract_demographic_factors_data(spark, save_path, fyear)
 
