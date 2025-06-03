@@ -231,6 +231,21 @@ def create_custom_birth_factors_R0A66(
 
     return custom_R0A
 
+# pylint: disable=invalid-name
+def create_custom_birth_factors_RD8(
+    spark: SparkContext, birth_factors: DataFrame
+) -> DataFrame:
+    """Create custom birth factors file for RD8, using principal projection
+
+    :param spark: the spark context to use
+    :type spark: SparkContext
+    """
+    custom_RD8 = birth_factors.filter(
+        (F.col("dataset") == "RD8") & (F.col("variant") == "principal_proj")
+    ).withColumn("variant", F.lit("custom_projection_RD8"))
+
+    return custom_RD8
+
 
 def extract_birth_factors_data(spark: SparkContext, save_path: str, fyear: int) -> None:
     """Extract Birth Factors data
@@ -249,16 +264,40 @@ def extract_birth_factors_data(spark: SparkContext, save_path: str, fyear: int) 
     birth_factors = _create_population_projections(spark, births, 201819)
 
     custom_R0A = create_custom_birth_factors_R0A66(spark, birth_factors)
+    custom_RD8 = create_custom_birth_factors_RD8(spark, birth_factors)
 
     (
         # using a fixed year of 2018/19 to match prior logic
-        birth_factors.unionByName(custom_R0A)
+        birth_factors
+        .unionByName(custom_R0A)
+        .unionByName(custom_RD8)
         .repartition(1)
         .write.mode("overwrite")
         .partitionBy("dataset")
         .parquet(f"{save_path}/birth_factors/fyear={fyear // 100}")
     )
 
+# pylint: disable=invalid-name
+def create_custom_demographic_factors_RD8(spark: SparkContext) -> None:
+    """Create custom demographic factors file for RD8 using agreed methodology
+
+    :param spark: the spark context to use
+    :type spark: SparkContext
+    """
+    # Load demographics - principal projection only
+    custom_file = (
+        spark.read.csv(
+            "/Volumes/nhp/population_projections/files/RD8_population_projection V2.csv",
+            header=True,
+            inferSchema=True,
+        )
+        .withColumnRenamed("Sex", "sex")
+        .withColumnRenamed("Age", "age")
+        .drop("Type")
+        .withColumn("dataset", F.lit("RD8"))
+        .withColumn("variant", F.lit("custom_projection_RD8"))
+    )
+    return custom_file
 
 # pylint: disable=invalid-name
 def create_custom_demographic_factors_R0A66(spark: SparkContext) -> None:
@@ -341,11 +380,13 @@ def extract_demographic_factors_data(
     demographics = spark.read.table("nhp.population_projections.demographics")
 
     custom_R0A = create_custom_demographic_factors_R0A66(spark)
+    custom_RD8 = create_custom_demographic_factors_RD8(spark)
 
     (
         # using a fixed year of 2018/19 to match prior logic
         _create_population_projections(spark, demographics, 201819)
         .unionByName(custom_R0A)
+        .unionByName(custom_RD8)
         .repartition(1)
         .write.mode("overwrite")
         .partitionBy("dataset")
