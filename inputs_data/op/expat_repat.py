@@ -2,18 +2,17 @@
 
 from functools import cache
 
-from pyspark import SparkContext
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
 from inputs_data.op import get_op_df
 
 
-def get_op_expat_data(spark: SparkContext) -> DataFrame:
+def get_op_expat_data(spark: SparkSession) -> DataFrame:
     """Get outpatients expat data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The outpatients expat data
     :rtype: DataFrame
     """
@@ -27,7 +26,7 @@ def get_op_expat_data(spark: SparkContext) -> DataFrame:
 
 
 @cache
-def _get_icb_df(spark: SparkContext) -> DataFrame:
+def _get_icb_df(spark: SparkSession) -> DataFrame:
     return (
         get_op_df(spark)
         .filter(F.col("icb").isNotNull())
@@ -38,11 +37,11 @@ def _get_icb_df(spark: SparkContext) -> DataFrame:
     )
 
 
-def get_op_repat_local_data(spark: SparkContext) -> DataFrame:
+def get_op_repat_local_data(spark: SparkSession) -> DataFrame:
     """Get outpatients repat (local) data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The outpatients repat (local) data
     :rtype: DataFrame
     """
@@ -65,11 +64,11 @@ def get_op_repat_local_data(spark: SparkContext) -> DataFrame:
     )
 
 
-def get_op_repat_nonlocal_data(spark: SparkContext) -> DataFrame:
+def get_op_repat_nonlocal_data(spark: SparkSession) -> DataFrame:
     """Get outpatients repat (non-local) data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The outpatients repat (non-local) data
     :rtype: DataFrame
     """

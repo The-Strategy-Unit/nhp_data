@@ -1,18 +1,17 @@
 """Inpatients Data"""
 
 import pyspark.sql.functions as F
-from pyspark import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.acute_providers import filter_acute_providers
 from inputs_data.helpers import age_group, treatment_function_grouping
 
 
-def get_ip_df(spark: SparkContext) -> DataFrame:
+def get_ip_df(spark: SparkSession) -> DataFrame:
     """Get Inpatients DataFrame
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients data
     :rtype: DataFrame
     """
@@ -26,11 +25,11 @@ def get_ip_df(spark: SparkContext) -> DataFrame:
     )
 
 
-def get_ip_mitigators(spark: SparkContext) -> DataFrame:
+def get_ip_mitigators(spark: SparkSession) -> DataFrame:
     """Get Inpatients Mitigators DataFrame
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients mitigators data
     :rtype: DataFrame
     """
@@ -59,11 +58,11 @@ def get_ip_mitigators(spark: SparkContext) -> DataFrame:
     return DataFrame.unionByName(mitigators_df, general_los_df)
 
 
-def get_ip_age_sex_data(spark: SparkContext) -> DataFrame:
+def get_ip_age_sex_data(spark: SparkSession) -> DataFrame:
     """Get the IP age sex table
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients age/sex data
     :rtype: DataFrame
     """

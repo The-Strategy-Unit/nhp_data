@@ -3,8 +3,7 @@
 import sys
 from functools import reduce
 
-from pyspark import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.ae.rates import get_ae_rates
 from inputs_data.helpers import get_spark
@@ -17,11 +16,11 @@ from inputs_data.ip.rates import (
 from inputs_data.op.rates import get_op_rates
 
 
-def get_rates(spark: SparkContext = get_spark()) -> DataFrame:
+def get_rates(spark: SparkSession = get_spark()) -> DataFrame:
     """Get rates (combined)
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The rates data
     :rtype: DataFrame
     """

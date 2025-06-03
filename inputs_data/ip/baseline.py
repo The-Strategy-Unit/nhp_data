@@ -1,17 +1,16 @@
 """Inpatients Baseline Data"""
 
 import pyspark.sql.functions as F
-from pyspark import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.ip import get_ip_df
 
 
-def get_ip_baseline(spark: SparkContext) -> DataFrame:
+def get_ip_baseline(spark: SparkSession) -> DataFrame:
     """Get Inpatients Baseline Data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients baseline data
     :rtype: DataFrame
     """

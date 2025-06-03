@@ -1,5 +1,4 @@
-"""Helper methods for Evidence Based Interventions Mitigators
-"""
+"""Helper methods for Evidence Based Interventions Mitigators"""
 
 from functools import reduce
 from typing import Callable, List

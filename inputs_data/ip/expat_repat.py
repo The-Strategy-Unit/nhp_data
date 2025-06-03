@@ -2,18 +2,17 @@
 
 from functools import cache
 
-from pyspark import SparkContext
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
 from inputs_data.ip import get_ip_df
 
 
-def get_ip_expat_data(spark: SparkContext) -> DataFrame:
+def get_ip_expat_data(spark: SparkSession) -> DataFrame:
     """Get inpatients expat data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients expat data
     :rtype: DataFrame
     """
@@ -32,7 +31,7 @@ def get_ip_expat_data(spark: SparkContext) -> DataFrame:
 
 
 @cache
-def _get_icb_df(spark: SparkContext) -> DataFrame:
+def _get_icb_df(spark: SparkSession) -> DataFrame:
     return (
         get_ip_df(spark)
         .withColumn(
@@ -48,11 +47,11 @@ def _get_icb_df(spark: SparkContext) -> DataFrame:
     )
 
 
-def get_ip_repat_local_data(spark: SparkContext) -> DataFrame:
+def get_ip_repat_local_data(spark: SparkSession) -> DataFrame:
     """Get inpatients repat (local) data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients repat (local) data
     :rtype: DataFrame
     """
@@ -75,11 +74,11 @@ def get_ip_repat_local_data(spark: SparkContext) -> DataFrame:
     )
 
 
-def get_ip_repat_nonlocal_data(spark: SparkContext) -> DataFrame:
+def get_ip_repat_nonlocal_data(spark: SparkSession) -> DataFrame:
     """Get inpatients repat (non-local) data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients repat (non-local) data
     :rtype: DataFrame
     """

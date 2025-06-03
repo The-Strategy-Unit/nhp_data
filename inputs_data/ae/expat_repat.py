@@ -2,18 +2,17 @@
 
 from functools import cache
 
-from pyspark import SparkContext
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
 from inputs_data.ae import get_ae_df
 
 
-def get_ae_expat_data(spark: SparkContext) -> DataFrame:
+def get_ae_expat_data(spark: SparkSession) -> DataFrame:
     """Get A&E expat data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The A&E expat data
     :rtype: DataFrame
     """
@@ -26,7 +25,7 @@ def get_ae_expat_data(spark: SparkContext) -> DataFrame:
 
 
 @cache
-def _get_icb_df(spark: SparkContext) -> DataFrame:
+def _get_icb_df(spark: SparkSession) -> DataFrame:
     return (
         get_ae_df(spark)
         .filter(F.col("icb").isNotNull())
@@ -36,11 +35,11 @@ def _get_icb_df(spark: SparkContext) -> DataFrame:
     )
 
 
-def get_ae_repat_local_data(spark: SparkContext) -> DataFrame:
+def get_ae_repat_local_data(spark: SparkSession) -> DataFrame:
     """Get A&E repat (local) data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The A&E  repat (local) data
     :rtype: DataFrame
     """
@@ -63,11 +62,11 @@ def get_ae_repat_local_data(spark: SparkContext) -> DataFrame:
     )
 
 
-def get_ae_repat_nonlocal_data(spark: SparkContext) -> DataFrame:
+def get_ae_repat_nonlocal_data(spark: SparkSession) -> DataFrame:
     """Get A&E repat (non-local) data
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The A&E repat (non-local) data
     :rtype: DataFrame
     """

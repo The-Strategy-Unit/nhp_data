@@ -2,15 +2,15 @@
 
 from databricks.connect import DatabricksSession
 from delta.tables import DeltaTable
-from pyspark.context import SparkContext
+from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import *  # pylint: disable-all
+from pyspark.sql.types import *  # noqa: F403
 
 from nhp_datasets.apc import apc_primary_procedures, hes_apc
 from nhp_datasets.icbs import add_main_icb
 
 
-def get_inpatients_data(spark: SparkContext) -> None:
+def get_inpatients_data(spark: SparkSession) -> None:
     """Get Inpatients Data"""
     # Spell has maternity delivery episode
     mat_delivery_spells = (
@@ -140,7 +140,7 @@ def get_inpatients_data(spark: SparkContext) -> None:
     return hes_apc_processed
 
 
-def generate_inpatients_data(spark: SparkContext) -> None:
+def generate_inpatients_data(spark: SparkSession) -> None:
     """Generate Inpatients Data"""
     hes_apc_processed = get_inpatients_data(spark)
 
@@ -163,6 +163,11 @@ def generate_inpatients_data(spark: SparkContext) -> None:
     )
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """main method"""
     spark = DatabricksSession.builder.getOrCreate()
     generate_inpatients_data(spark)
+
+
+if __name__ == "__main__":
+    main()

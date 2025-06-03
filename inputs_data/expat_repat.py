@@ -3,8 +3,7 @@
 import sys
 from functools import reduce
 
-from pyspark import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.ae.expat_repat import (
     get_ae_expat_data,
@@ -24,11 +23,11 @@ from inputs_data.op.expat_repat import (
 )
 
 
-def get_expat_data(spark: SparkContext = get_spark()) -> DataFrame:
+def get_expat_data(spark: SparkSession = get_spark()) -> DataFrame:
     """Get expat data (combined)
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The expat data
     :rtype: DataFrame
     """
@@ -37,11 +36,11 @@ def get_expat_data(spark: SparkContext = get_spark()) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def get_repat_local_data(spark: SparkContext = get_spark()) -> DataFrame:
+def get_repat_local_data(spark: SparkSession = get_spark()) -> DataFrame:
     """Get repat (local) data (combined)
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The repat (local) data
     :rtype: DataFrame
     """
@@ -50,11 +49,11 @@ def get_repat_local_data(spark: SparkContext = get_spark()) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def get_repat_nonlocal_data(spark: SparkContext = get_spark()) -> DataFrame:
+def get_repat_nonlocal_data(spark: SparkSession = get_spark()) -> DataFrame:
     """Get repat (non-local) data (combined)
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The repat (non-local) data
     :rtype: DataFrame
     """

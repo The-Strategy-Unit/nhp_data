@@ -3,8 +3,7 @@
 import sys
 from functools import reduce
 
-from pyspark import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.ae.diagnoses import get_ae_diagnoses
 from inputs_data.helpers import get_spark
@@ -12,11 +11,11 @@ from inputs_data.ip.diagnoses import get_ip_diagnoses
 from inputs_data.op.diagnoses import get_op_diagnoses
 
 
-def get_diagnoses(spark: SparkContext = get_spark()) -> DataFrame:
+def get_diagnoses(spark: SparkSession = get_spark()) -> DataFrame:
     """Get Diagnoses (combined)
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The diagnoses data
     :rtype: DataFrame
     """

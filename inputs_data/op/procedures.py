@@ -1,17 +1,16 @@
 """Get outpatients diagnoses data"""
 
-from pyspark import SparkContext
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
 from inputs_data.op import get_op_df, get_op_mitigators
 
 
-def get_op_procedures(spark: SparkContext) -> DataFrame:
+def get_op_procedures(spark: SparkSession) -> DataFrame:
     """Get outpatients procedures
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The outpatients procedures data
     :rtype: DataFrame
     """

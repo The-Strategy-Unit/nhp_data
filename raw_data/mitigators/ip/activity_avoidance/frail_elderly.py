@@ -32,7 +32,6 @@ Available breakdowns
   hospital records: an observational study. The Lancet, 391(10132), pp.1775-1782
 """
 
-from datetime import date
 from functools import cache
 
 import pyspark.sql.types as T

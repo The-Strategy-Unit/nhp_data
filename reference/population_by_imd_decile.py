@@ -1,18 +1,17 @@
 """Create Population by IMD Decile"""
 
 from databricks.connect import DatabricksSession
-from pyspark.context import SparkContext
-from pyspark.sql import Window
+from pyspark.sql import SparkSession, Window
 from pyspark.sql import functions as F
 
 
 def create_population_by_imd_decile(
-    spark: SparkContext, base_year: int = 201920
+    spark: SparkSession, base_year: int = 201920
 ) -> None:
     """Create Population by IMD Decile
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param base_year: which year of activity to be based on, defaults to 201920
     :type base_year: int, optional
     """

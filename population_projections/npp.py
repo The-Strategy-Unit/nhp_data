@@ -5,13 +5,12 @@ import sys
 
 import pandas as pd
 from databricks.connect import DatabricksSession
-from pyspark.context import SparkContext
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
 
 def _process_npp_demographics(
-    spark: SparkContext, df: DataFrame, projection_name: str, projection_year: int
+    spark: SparkSession, df: DataFrame, projection_name: str, projection_year: int
 ):
     w = Window.partitionBy("year", "sex", "age")
 
@@ -32,7 +31,7 @@ def _process_npp_demographics(
 
 
 def _process_npp_births(
-    spark: SparkContext, df: DataFrame, projection_name: str, projection_year: int
+    spark: SparkSession, df: DataFrame, projection_name: str, projection_year: int
 ):
     w = Window.partitionBy("year", "sex", "age")
 
@@ -53,14 +52,14 @@ def _process_npp_births(
 
 
 def process_npp_variant(
-    spark: SparkContext, path: str, projection_year: int, file: str
+    spark: SparkSession, path: str, projection_year: int, file: str
 ) -> None:
     """Process the NPP variant data from ONS.
 
     Process the national projections at subnational level.
 
     :param spark: The Spark context
-    :type spark: SparkContext
+    :type spark: SparkSession
     :param path: The path to the data
     :type path: str
     :param projection_year: The year the projections were created in
@@ -115,7 +114,7 @@ def _init():
     projection_year = int(sys.argv[2])
     file = sys.argv[3]
 
-    spark: SparkContext = DatabricksSession.builder.getOrCreate()
+    spark: SparkSession = DatabricksSession.builder.getOrCreate()
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
 
     process_npp_variant(spark, path, projection_year, file)

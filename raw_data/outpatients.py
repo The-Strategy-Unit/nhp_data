@@ -1,17 +1,15 @@
 """Generate outpatients data"""
 
-from itertools import chain
-
 from databricks.connect import DatabricksSession
-from pyspark.context import SparkContext
+from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import *  # pylint: disable-all
+from pyspark.sql.types import *  # noqa: F403
 
 from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.providers import read_data_with_provider
 
 
-def get_outpatients_data(spark: SparkContext) -> None:
+def get_outpatients_data(spark: SparkSession) -> None:
     """Get Outpatients Data"""
     df = read_data_with_provider(spark, "hes.silver.opa")
 
@@ -135,7 +133,7 @@ def get_outpatients_data(spark: SparkContext) -> None:
     return hes_opa_ungrouped
 
 
-def generate_outpatients_data(spark: SparkContext) -> None:
+def generate_outpatients_data(spark: SparkSession) -> None:
     """Generate Outpatients Data"""
     hes_opa_ungrouped = get_outpatients_data(spark)
 
@@ -146,6 +144,11 @@ def generate_outpatients_data(spark: SparkContext) -> None:
     )
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """main method"""
     spark = DatabricksSession.builder.getOrCreate()
     generate_outpatients_data(spark)
+
+
+if __name__ == "__main__":
+    main()

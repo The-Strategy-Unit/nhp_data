@@ -3,18 +3,17 @@
 from functools import cache, reduce
 
 import pyspark.sql.functions as F
-from pyspark import SparkContext
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.acute_providers import filter_acute_providers
 from inputs_data.helpers import age_group
 
 
-def get_ae_df(spark: SparkContext) -> DataFrame:
+def get_ae_df(spark: SparkSession) -> DataFrame:
     """Get A&E DataFrame
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The outpatients data
     :rtype: DataFrame
     """
@@ -26,11 +25,11 @@ def get_ae_df(spark: SparkContext) -> DataFrame:
 
 
 @cache
-def get_ae_mitigators(spark: SparkContext) -> DataFrame:
+def get_ae_mitigators(spark: SparkSession) -> DataFrame:
     """Get A&E Mitigators DataFrame
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The outpatients mitigators data
     :rtype: DataFrame
     """
@@ -59,11 +58,11 @@ def get_ae_mitigators(spark: SparkContext) -> DataFrame:
     return reduce(DataFrame.unionByName, ae_strategies)
 
 
-def get_ae_age_sex_data(spark: SparkContext) -> DataFrame:
+def get_ae_age_sex_data(spark: SparkSession) -> DataFrame:
     """Get the ae age sex table
 
     :param spark: The spark context to use
-    :type spark: SparkContext
+    :type spark: SparkSession
     :return: The inpatients age/sex data
     :rtype: DataFrame
     """
