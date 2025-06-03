@@ -2,8 +2,7 @@
 
 import sys
 
-from pyspark import SparkSession
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
 from inputs_data.helpers import get_spark

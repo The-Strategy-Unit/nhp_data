@@ -2,8 +2,7 @@
 
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
-from pyspark import SparkSession
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 
 def get_spark() -> SparkSession:

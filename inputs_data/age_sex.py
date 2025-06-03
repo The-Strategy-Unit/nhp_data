@@ -3,8 +3,7 @@
 import sys
 from functools import reduce
 
-from pyspark import SparkSession
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
 from inputs_data.ae import get_ae_age_sex_data

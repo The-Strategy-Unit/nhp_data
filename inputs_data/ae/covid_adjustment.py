@@ -1,8 +1,7 @@
 """A&E Covid Adjustment Data"""
 
 import pyspark.sql.functions as F
-from pyspark import SparkSession
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.ae import get_ae_df
 

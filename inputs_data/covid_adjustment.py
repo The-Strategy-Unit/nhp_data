@@ -3,8 +3,7 @@
 import sys
 from functools import reduce
 
-from pyspark import SparkSession
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
 from inputs_data.ae.covid_adjustment import get_ae_covid_adjustment

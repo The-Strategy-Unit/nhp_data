@@ -1,7 +1,6 @@
 """Outpatients Waiting List Imbalances"""
 
-from pyspark import SparkSession
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
 from inputs_data.op import get_op_df

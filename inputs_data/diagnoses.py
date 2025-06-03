@@ -3,8 +3,7 @@
 import sys
 from functools import reduce
 
-from pyspark import SparkSession
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.ae.diagnoses import get_ae_diagnoses
 from inputs_data.helpers import get_spark

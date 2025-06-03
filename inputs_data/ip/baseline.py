@@ -1,8 +1,7 @@
 """Inpatients Baseline Data"""
 
 import pyspark.sql.functions as F
-from pyspark import SparkSession
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.ip import get_ip_df
 

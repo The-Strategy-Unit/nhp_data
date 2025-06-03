@@ -3,8 +3,7 @@
 from functools import cache, reduce
 
 import pyspark.sql.functions as F
-from pyspark import SparkSession
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.acute_providers import filter_acute_providers
 from inputs_data.helpers import age_group

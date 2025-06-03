@@ -2,8 +2,7 @@
 
 from functools import cache
 
-from pyspark import SparkSession
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
 from inputs_data.op import get_op_df
