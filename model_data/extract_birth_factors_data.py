@@ -6,6 +6,7 @@ from pyspark.sql import DataFrame, SparkSession
 from model_data.helpers import get_spark, create_population_projections
 
 
+# TODO: REDO USING CORRECTED METHODOLOGY
 # pylint: disable=invalid-name
 def create_custom_birth_factors_R0A66(
     birth_factors: DataFrame, spark: SparkSession = get_spark()
@@ -22,6 +23,7 @@ def create_custom_birth_factors_R0A66(
     return custom_R0A
 
 
+# TODO: REDO USING CORRECTED METHODOLOGY
 # pylint: disable=invalid-name
 def create_custom_birth_factors_RD8(
     birth_factors: DataFrame, spark: SparkSession = get_spark()
