@@ -1,13 +1,15 @@
 """Extract demographic factors data for model"""
 
 import sys
+
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession, Window
-from model_data.helpers import get_spark, create_population_projections
+
+from model_data.helpers import create_population_projections, get_spark
 
 
 # pylint: disable=invalid-name
-def create_custom_demographic_factors_RD8(
+def _create_custom_demographic_factors_RD8(
     spark: SparkSession = get_spark(),
 ) -> DataFrame:
     """Create custom demographic factors file for RD8 using agreed methodology
@@ -32,7 +34,7 @@ def create_custom_demographic_factors_RD8(
 
 
 # pylint: disable=invalid-name
-def create_custom_demographic_factors_R0A66(
+def _create_custom_demographic_factors_R0A66(
     spark: SparkSession = get_spark(),
 ) -> DataFrame:
     """Create custom demographic factors file for R0A66 using agreed methodology
@@ -98,9 +100,7 @@ def create_custom_demographic_factors_R0A66(
     return df
 
 
-def extract_demographic_factors_data(
-    save_path: str, fyear: int, spark: SparkSession = get_spark()
-) -> None:
+def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> None:
     """Extract Demographic Factors data
 
     :param spark: the spark context to use
@@ -113,8 +113,8 @@ def extract_demographic_factors_data(
 
     demographics = spark.read.table("nhp.population_projections.demographics")
 
-    custom_R0A = create_custom_demographic_factors_R0A66(spark)
-    custom_RD8 = create_custom_demographic_factors_RD8(spark)
+    custom_R0A = _create_custom_demographic_factors_R0A66(spark)
+    custom_RD8 = _create_custom_demographic_factors_RD8(spark)
 
     (
         # using a fixed year of 2018/19 to match prior logic
@@ -128,8 +128,12 @@ def extract_demographic_factors_data(
     )
 
 
-if __name__ == "__main__":
+def main():
     path = sys.argv[1]
     fyear = int(sys.argv[2])
 
-    extract_demographic_factors_data(path, fyear)
+    extract(path, fyear)
+
+
+if __name__ == "__main__":
+    main()

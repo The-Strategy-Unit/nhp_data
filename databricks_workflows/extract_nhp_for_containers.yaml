@@ -14,10 +14,9 @@ resources:
             task:
               task_key: extract_apc_data
               spark_python_task:
-                python_file: model_data/extract_apc_data.py
+                python_file: model_data/apc.py
                 parameters:
-                  - "{{job.parameters.save_path}}/{{job.parameters.data_version\
-                    }}"
+                  - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
                 source: GIT
               job_cluster_key: run_nhp_extracts_cluster
@@ -29,10 +28,9 @@ resources:
             task:
               task_key: extract_opa_data
               spark_python_task:
-                python_file: model_data/extract_opa_data.py
+                python_file: model_data/opa.py
                 parameters:
-                  - "{{job.parameters.save_path}}/{{job.parameters.data_version\
-                    }}"
+                  - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
                 source: GIT
               job_cluster_key: run_nhp_extracts_cluster
@@ -44,7 +42,7 @@ resources:
             task:
               task_key: extract_ecds_data
               spark_python_task:
-                python_file: model_data/extract_ecds_data.py
+                python_file: model_data/ecds.py
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version\
                     }}"
@@ -59,7 +57,7 @@ resources:
             task:
               task_key: extract_demographic_factors_data
               spark_python_task:
-                python_file: model_data/extract_demographic_factors_data.py
+                python_file: model_data/demographic_factors.py
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version\
                     }}"
@@ -74,7 +72,7 @@ resources:
             task:
               task_key: extract_birth_factors_data
               spark_python_task:
-                python_file: model_data/extract_birth_factors_data.py
+                python_file: model_data/birth_factors.py
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version\
                     }}"

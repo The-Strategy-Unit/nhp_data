@@ -1,4 +1,4 @@
-"""Extract OPA data for model"""
+"""Extract OP data for model"""
 
 import sys
 
@@ -8,10 +8,8 @@ from pyspark.sql import DataFrame, SparkSession
 from model_data.helpers import get_spark
 
 
-def extract_opa_data(
-    save_path: str, fyear: int, spark: SparkSession = get_spark()
-) -> None:
-    """Extract OPA data
+def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> None:
+    """Extract OP data
 
     :param spark: the spark context to use
     :type spark: SparkSession
@@ -64,8 +62,12 @@ def extract_opa_data(
     )
 
 
-if __name__ == "__main__":
+def main():
     path = sys.argv[1]
     fyear = int(sys.argv[2])
 
-    extract_opa_data(path, fyear)
+    extract(path, fyear)
+
+
+if __name__ == "__main__":
+    main()
