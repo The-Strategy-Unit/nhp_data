@@ -1,43 +1,66 @@
 """Extract birth factors data for model"""
 
 import sys
+from functools import partial
+
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
-from model_data.helpers import get_spark, create_population_projections
+
+from model_data.helpers import create_population_projections, get_spark
 
 
-# TODO: REDO USING CORRECTED METHODOLOGY
-# pylint: disable=invalid-name
-def create_custom_birth_factors_R0A66(
-    birth_factors: DataFrame, spark: SparkSession = get_spark()
+def _create_custom_birth_factors(
+    fyear: int, spark: SparkSession, dataset: str, custom_projection_name: str
 ) -> DataFrame:
     """Create custom birth factors file for R0A66, using principal projection
 
+    :param fyear: what year to extract
+    :type fyear: int
     :param spark: the spark context to use
     :type spark: SparkSession
+    :param dataset: the dataset to extract
+    :type dataset: str
+    :param custom_projection_name: the name of the custom projection
+    :type custom_projection_name: str
+    :return: dataframe containing the custom birth factors
+    :rtype: DataFrame
     """
-    custom_R0A = birth_factors.filter(
-        (F.col("dataset") == "R0A") & (F.col("variant") == "principal_proj")
-    ).withColumn("variant", F.lit("custom_projection_R0A66"))
 
-    return custom_R0A
+    demographics = (
+        spark.read.parquet(
+            f"/Volumes/nhp/model_data/files/dev/demographic_factors/fyear={fyear//100}/dataset={dataset}"
+        )
+        .filter(F.col("age").between(15, 44))
+        .filter(F.col("sex") == 2)
+        .filter(F.col("variant").isin("principal_proj", custom_projection_name))
+        .drop("sex", "2018")
+        .toPandas()
+        .set_index("variant", "age")
+    )
 
+    principal_projection = demographics.loc[("principal_proj", slice(None))]
 
-# TODO: REDO USING CORRECTED METHODOLOGY
-# pylint: disable=invalid-name
-def create_custom_birth_factors_RD8(
-    birth_factors: DataFrame, spark: SparkSession = get_spark()
-) -> DataFrame:
-    """Create custom birth factors file for RD8, using principal projection
+    custom_projection = demographics.loc[(custom_projection_name, slice(None))]
 
-    :param spark: the spark context to use
-    :type spark: SparkSession
-    """
-    custom_RD8 = birth_factors.filter(
-        (F.col("dataset") == "RD8") & (F.col("variant") == "principal_proj")
-    ).withColumn("variant", F.lit("custom_projection_RD8"))
+    multipliers = custom_projection / principal_projection
 
-    return custom_RD8
+    df = (
+        spark.read.parquet(
+            f"/Volumes/nhp/model_data/files/dev/birth_factors/fyear={fyear//100}/dataset={dataset}"
+        )
+        .filter(F.col("variant") == "principal_proj")
+        .drop("variant", "sex")
+        .toPandas()
+        .set_index("age")
+    ) * multipliers
+
+    df = (
+        spark.createDataFrame(df.reset_index())
+        .withColumn("sex", F.lit(2))
+        .withColumn("variant", F.lit(custom_projection_name))
+    )
+
+    return df
 
 
 def extract_birth_factors_data(
@@ -56,15 +79,13 @@ def extract_birth_factors_data(
         "sex", F.lit(2)
     )
 
-    birth_factors = create_population_projections(spark, births, 201819)
-
-    custom_R0A = create_custom_birth_factors_R0A66(spark, birth_factors)
-    custom_RD8 = create_custom_birth_factors_RD8(spark, birth_factors)
+    fn = partial(_create_custom_birth_factors, fyear, spark)
 
     (
         # using a fixed year of 2018/19 to match prior logic
-        birth_factors.unionByName(custom_R0A)
-        .unionByName(custom_RD8)
+        create_population_projections(spark, births, 201819)
+        .unionByName(fn("R0A", "custom_projection_R0A66"))
+        .unionByName(fn("RD8", "custom_projection_RD8"))
         .repartition(1)
         .write.mode("overwrite")
         .partitionBy("dataset")
