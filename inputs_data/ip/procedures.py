@@ -27,7 +27,7 @@ def get_ip_procedures(spark: SparkSession) -> DataFrame:
     return (
         get_ip_df(spark)
         .join(procs, ["epikey", "fyear"])
-        .join(mitigators, ["epikey"])
+        .join(mitigators, ["fyear", "provider", "epikey"])
         .groupBy("fyear", "provider", "strategy", "procedure_code")
         .agg(F.sum("sample_rate").alias("n"))
         .withColumn("total", F.sum("n").over(procs_w))

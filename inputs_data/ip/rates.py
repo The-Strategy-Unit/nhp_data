@@ -104,7 +104,7 @@ def get_ip_mean_los(spark: SparkSession) -> DataFrame:
     w = Window.partitionBy("fyear", "strategy")
 
     return (
-        df.join(df_mitigators, "epikey", "inner")
+        df.join(df_mitigators, ["fyear", "provider", "epikey"], "inner")
         .filter(F.col("strategy").isin(mean_los_reduction_mitigators))
         .groupBy("fyear", "strategy", "provider")
         .agg(
@@ -139,7 +139,7 @@ def get_ip_preop_rates(spark: SparkSession) -> DataFrame:
     w = Window.partitionBy("fyear", "strategy")
 
     return (
-        df.join(df_mitigators, "epikey", "inner")
+        df.join(df_mitigators, ["fyear", "provider", "epikey"], "inner")
         .filter(F.col("strategy").startswith("pre-op_los_"))
         .groupBy("fyear", "strategy", "provider")
         .agg(F.count("strategy").alias("numerator"))
@@ -238,7 +238,7 @@ def get_ip_day_procedures(spark: SparkSession) -> DataFrame:
     w = Window.partitionBy("fyear", "strategy")
 
     return (
-        df.join(df_mitigators, "epikey", "inner")
+        df.join(df_mitigators, ["fyear", "provider", "epikey"], "inner")
         .groupBy("fyear", "strategy", "provider")
         .agg(F.count("strategy").alias("numerator"))
         .join(denominator, ["fyear", "strategy", "provider"])
