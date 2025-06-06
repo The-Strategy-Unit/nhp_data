@@ -42,7 +42,7 @@ from hes_datasets import any_diagnosis, diagnoses, nhp_apc
 from raw_data.mitigators import activity_avoidance_mitigator
 
 spark = DatabricksSession.builder.getOrCreate()
-sc = spark.SparkSession
+sc = spark.sparkContext
 
 
 @activity_avoidance_mitigator()
