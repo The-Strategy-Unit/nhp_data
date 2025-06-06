@@ -8,21 +8,73 @@ resources:
         on_failure:
           - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
       tasks:
-        - task_key: just_generate_gams
-          condition_task:
-            op: EQUAL_TO
-            left: "{{job.parameters.just_generate_gams}}"
-            right: "true"
-        - task_key: run_nhp_extracts
-          depends_on:
-            - task_key: just_generate_gams
-              outcome: "false"
+        - task_key: run_extract_apc_data
           for_each_task:
-            inputs: "[201920, 202223, 202324]"
+            inputs: "{{job.parameters.years}}"
             task:
-              task_key: run_nhp_extracts_iteration
+              task_key: extract_apc_data
               spark_python_task:
-                python_file: model_data/model_data_extract.py
+                python_file: model_data/extract_apc_data.py
+                parameters:
+                  - "{{job.parameters.save_path}}/{{job.parameters.data_version\
+                    }}"
+                  - "{{input}}"
+                source: GIT
+              job_cluster_key: run_nhp_extracts_cluster
+        - task_key: run_extract_opa_data
+          depends_on:
+            - task_key: run_extract_apc_data
+          for_each_task:
+            inputs: "{{job.parameters.years}}"
+            task:
+              task_key: extract_opa_data
+              spark_python_task:
+                python_file: model_data/extract_opa_data.py
+                parameters:
+                  - "{{job.parameters.save_path}}/{{job.parameters.data_version\
+                    }}"
+                  - "{{input}}"
+                source: GIT
+              job_cluster_key: run_nhp_extracts_cluster
+        - task_key: run_extract_ecds_data
+          depends_on:
+            - task_key: run_extract_opa_data
+          for_each_task:
+            inputs: "{{job.parameters.years}}"
+            task:
+              task_key: extract_ecds_data
+              spark_python_task:
+                python_file: model_data/extract_ecds_data.py
+                parameters:
+                  - "{{job.parameters.save_path}}/{{job.parameters.data_version\
+                    }}"
+                  - "{{input}}"
+                source: GIT
+              job_cluster_key: run_nhp_extracts_cluster
+        - task_key: run_extract_demographic_factors_data
+          depends_on:
+            - task_key: run_extract_ecds_data
+          for_each_task:
+            inputs: "{{job.parameters.years}}"
+            task:
+              task_key: extract_demographic_factors_data
+              spark_python_task:
+                python_file: model_data/extract_demographic_factors_data.py
+                parameters:
+                  - "{{job.parameters.save_path}}/{{job.parameters.data_version\
+                    }}"
+                  - "{{input}}"
+                source: GIT
+              job_cluster_key: run_nhp_extracts_cluster
+        - task_key: run_extract_birth_factors_data
+          depends_on:
+            - task_key: run_extract_demographic_factors_data
+          for_each_task:
+            inputs: "{{job.parameters.years}}"
+            task:
+              task_key: extract_birth_factors_data
+              spark_python_task:
+                python_file: model_data/extract_birth_factors_data.py
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version\
                     }}"
@@ -31,10 +83,7 @@ resources:
               job_cluster_key: run_nhp_extracts_cluster
         - task_key: generate_gams
           depends_on:
-            - task_key: just_generate_gams
-              outcome: "true"
-            - task_key: run_nhp_extracts
-          run_if: NONE_FAILED
+            - task_key: run_extract_birth_factors_data
           spark_python_task:
             python_file: model_data/health_status_adjustment/generate_gams.py
             parameters:
@@ -47,7 +96,6 @@ resources:
         - task_key: generate_national_gams
           depends_on:
             - task_key: generate_gams
-          run_if: NONE_FAILED
           spark_python_task:
             python_file: model_data/health_status_adjustment/generate_national_gams.py
             parameters:
@@ -89,7 +137,7 @@ resources:
       parameters:
         - name: data_version
           default: dev
-        - name: just_generate_gams
-          default: "false"
         - name: save_path
           default: /Volumes/nhp/model_data/files
+        - name: years
+          default: "[201920, 202223, 202324]"
