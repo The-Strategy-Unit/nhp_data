@@ -35,7 +35,7 @@ def _create_custom_birth_factors(
         .filter(F.col("variant").isin("principal_proj", custom_projection_name))
         .drop("sex", "2018")
         .toPandas()
-        .set_index("variant", "age")
+        .set_index(["variant", "age"])
     )
 
     principal_projection = demographics.loc[("principal_proj", slice(None))]
@@ -54,13 +54,12 @@ def _create_custom_birth_factors(
         .set_index("age")
     ) * multipliers
 
-    df = (
+    return (
         spark.createDataFrame(df.reset_index())
         .withColumn("sex", F.lit(2))
         .withColumn("variant", F.lit(custom_projection_name))
+        .withColumn("dataset", F.lit(dataset))
     )
-
-    return df
 
 
 def extract_birth_factors_data(
