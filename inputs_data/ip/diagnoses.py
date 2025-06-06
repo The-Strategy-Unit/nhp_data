@@ -27,7 +27,7 @@ def get_ip_diagnoses(spark: SparkSession) -> DataFrame:
     return (
         get_ip_df(spark)
         .join(diags, ["epikey", "fyear"])
-        .join(mitigators, ["epikey"])
+        .join(mitigators, ["fyear", "provider", "epikey"])
         .groupBy("fyear", "provider", "strategy", "diagnosis")
         .agg(F.sum("sample_rate").alias("n"))
         .withColumn("total", F.sum("n").over(diags_w))
