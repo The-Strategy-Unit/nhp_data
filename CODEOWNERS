@@ -1,5 +1,1 @@
-# These owners will be the default owners for everything in
-# the repo. Unless a later match takes precedence,
-# @primary-owner and @secondary-owner will be requested for
-# review when someone opens a pull request.
-*       @tomjemmett @statsrhian
+*       @tomjemmett @The-Strategy-Unit/nhp_data_devs
