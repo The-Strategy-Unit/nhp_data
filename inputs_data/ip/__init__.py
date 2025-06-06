@@ -43,6 +43,8 @@ def get_ip_mitigators(spark: SparkSession) -> DataFrame:
         .filter(F.col("admimeth").rlike("^[12]"))
         # only include ordinary admissions, ignore daycases etc.
         .filter(F.col("classpat") == "1").select(
+            F.col("fyear"),
+            F.col("provider"),
             F.col("epikey"),
             F.lit("efficiency").alias("type"),
             F.concat(
