@@ -43,6 +43,8 @@ def get_ip_mitigators(spark: SparkSession) -> DataFrame:
         .filter(F.col("admimeth").rlike("^[12]"))
         # only include ordinary admissions, ignore daycases etc.
         .filter(F.col("classpat") == "1").select(
+            F.col("fyear"),
+            F.col("provider"),
             F.col("epikey"),
             F.lit("efficiency").alias("type"),
             F.concat(
@@ -68,7 +70,7 @@ def get_ip_age_sex_data(spark: SparkSession) -> DataFrame:
     """
     return (
         get_ip_df(spark)
-        .join(get_ip_mitigators(spark), "epikey", "inner")
+        .join(get_ip_mitigators(spark), ["fyear", "provider", "epikey"], "inner")
         .groupBy("fyear", "age_group", "sex", "provider", "strategy")
         .agg(
             F.sum("sample_rate").alias("n"),
