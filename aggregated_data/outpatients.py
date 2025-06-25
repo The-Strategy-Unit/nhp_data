@@ -17,6 +17,7 @@ def generate_outpatients_data(spark: SparkSession) -> None:
             F.col("sex"),
             F.col("imd_quintile"),
             F.col("tretspef"),
+            F.col("tretspef_grouped"),
             F.col("sitetret"),
             F.col("type"),
             F.col("group"),

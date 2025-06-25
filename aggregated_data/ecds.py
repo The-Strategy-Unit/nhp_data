@@ -20,6 +20,7 @@ def generate_ecds_data(spark: SparkSession) -> None:
             F.col("attendance_category"),
             F.col("acuity"),
             F.col("tretspef"),
+            F.col("tretspef_grouped"),
             F.col("group"),
             F.col("type"),
             F.col("hsagrp"),
