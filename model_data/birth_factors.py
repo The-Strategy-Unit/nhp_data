@@ -62,9 +62,7 @@ def _create_custom_birth_factors(
     )
 
 
-def extract_birth_factors_data(
-    save_path: str, fyear: int, spark: SparkSession = get_spark()
-) -> None:
+def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> None:
     """Extract Birth Factors data
 
     :param spark: the spark context to use
@@ -92,8 +90,12 @@ def extract_birth_factors_data(
     )
 
 
-if __name__ == "__main__":
+def main():
     path = sys.argv[1]
     fyear = int(sys.argv[2])
 
-    extract_birth_factors_data(path, fyear)
+    extract(path, fyear)
+
+
+if __name__ == "__main__":
+    main()

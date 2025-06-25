@@ -1,15 +1,15 @@
-"""Extract ECDS data for model"""
+"""Extract A&E data for model"""
 
 import sys
+
 import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
+
 from model_data.helpers import get_spark
 
 
-def extract_ecds_data(
-    save_path: str, fyear: int, spark: SparkSession = get_spark()
-) -> None:
-    """Extract ECDS data
+def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> None:
+    """Extract A&E data
 
     :param spark: the spark context to use
     :type spark: SparkSession
@@ -34,8 +34,12 @@ def extract_ecds_data(
     )
 
 
-if __name__ == "__main__":
+def main():
     path = sys.argv[1]
     fyear = int(sys.argv[2])
 
-    extract_ecds_data(path, fyear)
+    extract(path, fyear)
+
+
+if __name__ == "__main__":
+    main()

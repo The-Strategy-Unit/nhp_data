@@ -1,4 +1,4 @@
-"""Extract APC data for model"""
+"""Extract IP data for model"""
 
 import sys
 
@@ -8,10 +8,8 @@ from pyspark.sql import SparkSession
 from model_data.helpers import get_spark
 
 
-def extract_apc_data(
-    save_path: str, fyear: int, spark: SparkSession = get_spark()
-) -> None:
-    """Extract APC (+mitigators) data
+def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> None:
+    """Extract IP (+mitigators) data
 
     :param spark: the spark context to use
     :type spark: SparkSession
@@ -55,8 +53,12 @@ def extract_apc_data(
         )
 
 
-if __name__ == "__main__":
+def main():
     path = sys.argv[1]
     fyear = int(sys.argv[2])
 
-    extract_apc_data(path, fyear)
+    extract(path, fyear)
+
+
+if __name__ == "__main__":
+    main()
