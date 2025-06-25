@@ -42,6 +42,13 @@ resources:
             python_file: aggregated_data/ecds.py
             source: GIT
           job_cluster_key: generate_nhp_apc
+        - task_key: nhp-default-ecds
+          depends_on:
+            - task_key: nhp-aggregated_data-ecds
+          spark_python_task:
+            python_file: default/ecds.py
+            source: GIT
+          job_cluster_key: generate_nhp_apc
       job_clusters:
         - job_cluster_key: generate_nhp_apc
           new_cluster:

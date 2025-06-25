@@ -26,6 +26,13 @@ resources:
             python_file: raw_data/inpatients.py
             source: GIT
           job_cluster_key: generate_nhp_apc
+        - task_key: nhp-default-apc
+          depends_on:
+            - task_key: nhp-raw_data-apc_mitigators
+          spark_python_task:
+            python_file: default/apc.py
+            source: GIT
+          job_cluster_key: generate_nhp_apc
         - task_key: nhp-raw_data-apc_mitigators
           depends_on:
             - task_key: nhp-raw_data-apc
