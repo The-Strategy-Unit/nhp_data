@@ -145,6 +145,10 @@ def get_inpatients_data(spark: SparkSession) -> None:
 
 def generate_inpatients_data(spark: SparkSession) -> None:
     """Generate Inpatients Data"""
+
+    # allow schema evolution for the Delta table
+    spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", "true")
+
     hes_apc_processed = get_inpatients_data(spark)
 
     target = (
@@ -157,6 +161,7 @@ def generate_inpatients_data(spark: SparkSession) -> None:
     (
         target.alias("t")
         .merge(hes_apc_processed.alias("s"), "t.epikey = s.epikey")
+        .withSchemaEvolution()
         .whenMatchedUpdateAll(
             condition=" or ".join(f"t.{i} != s.{i}" for i in hes_apc_processed.columns)
         )
