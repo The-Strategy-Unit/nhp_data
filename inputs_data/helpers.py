@@ -36,53 +36,6 @@ def age_group(spark: SparkSession) -> DataFrame:
     )
 
 
-def create_tretspef_grouping(spark: SparkSession = get_spark()) -> None:
-    """Create Treatment Functrion Groupings
-
-    :param spark: The spark context to use
-    :type spark: SparkSession
-    """
-    df = spark.read.table("apc").select("tretspef").distinct().orderBy("tretspef")
-
-    rtt_specialties = [
-        "100",
-        "101",
-        "110",
-        "120",
-        "130",
-        "140",
-        "150",
-        "160",
-        "170",
-        "300",
-        "301",
-        "320",
-        "330",
-        "340",
-        "400",
-        "410",
-        "430",
-        "502",
-    ]
-
-    tretspef = F.col("tretspef")
-
-    (
-        df.withColumn(
-            "tretspef_grouped",
-            F.when(tretspef.isin(rtt_specialties), F.col("tretspef"))
-            .when(tretspef.rlike("^1(?!80|9[02])"), "Other (Surgical)")
-            .when(
-                tretspef.rlike("^(1(80|9[02])|[2346]|5(?!60)|83[134])"),
-                "Other (Medical)",
-            )
-            .otherwise("Other"),
-        )
-        .write.mode("overwrite")
-        .saveAsTable("nhp.reference.tretspef_grouping")
-    )
-
-
 def treatment_function_grouping(spark: SparkSession) -> DataFrame:
     """Get Treatment Function Groupings
 
@@ -160,11 +113,3 @@ def complete_age_sex_data(
         )
         .fillna(0, ["n"])
     )
-
-
-if __name__ == "__main__":
-
-    spark = get_spark()
-
-    if not spark.catalog.tableExists("nhp.reference.tretspef_grouping"):
-        create_tretspef_grouping(spark)

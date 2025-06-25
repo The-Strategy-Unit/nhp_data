@@ -1,9 +1,11 @@
 """Extract APC data for model"""
 
 import sys
+
 import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
-from model_data.helpers import add_tretspef_column, get_spark
+
+from model_data.helpers import get_spark
 
 
 def extract_apc_data(
@@ -23,13 +25,10 @@ def extract_apc_data(
         .filter(F.col("fyear") == fyear)
         .withColumnRenamed("epikey", "rn")
         .withColumnRenamed("provider", "dataset")
-        .withColumn("tretspef_raw", F.col("tretspef"))
         .withColumn("fyear", F.floor(F.col("fyear") / 100))
         .withColumn("sex", F.col("sex").cast("int"))
         .withColumn("sushrg_trimmed", F.expr("substring(sushrg, 1, 4)"))
     )
-
-    apc = add_tretspef_column(apc)
 
     (
         apc.repartition(1)

@@ -1,9 +1,11 @@
 """Extract OPA data for model"""
 
 import sys
+
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
-from model_data.helpers import add_tretspef_column, get_spark
+
+from model_data.helpers import get_spark
 
 
 def extract_opa_data(
@@ -24,7 +26,6 @@ def extract_opa_data(
         .filter(F.col("fyear") == fyear)
         .withColumnRenamed("provider", "dataset")
         .withColumn("fyear", F.floor(F.col("fyear") / 100))
-        .withColumn("tretspef_raw", F.col("tretspef"))
         .withColumn("is_wla", F.lit(True))
     )
 
@@ -54,8 +55,6 @@ def extract_opa_data(
     )
 
     opa = DataFrame.unionByName(opa_collapse, opa_dont_collapse)
-
-    opa = add_tretspef_column(opa)
 
     (
         opa.repartition(1)

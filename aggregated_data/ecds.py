@@ -1,14 +1,14 @@
 """Generate ECDS Data"""
 
 from databricks.connect import DatabricksSession
-from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
 
-def generate_ecds_data(spark: SparkSession) -> None:
-    """Generate ECDS Data"""
-    hes_ecds_processed = (
+def get_ecds_data(spark: SparkSession) -> DataFrame:
+    """Get ECDS Data"""
+    return (
         spark.read.table("nhp.raw_data.ecds")
         .groupBy(
             F.col("fyear"),
@@ -20,6 +20,7 @@ def generate_ecds_data(spark: SparkSession) -> None:
             F.col("attendance_category"),
             F.col("acuity"),
             F.col("tretspef"),
+            F.col("tretspef_grouped"),
             F.col("group"),
             F.col("type"),
             F.col("hsagrp"),
@@ -35,10 +36,15 @@ def generate_ecds_data(spark: SparkSession) -> None:
         .repartition("fyear", "provider")
     )
 
+
+def generate_ecds_data(spark: SparkSession, ecds: DataFrame) -> None:
+    """Generate ECDS Data"""
+    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
     (
-        hes_ecds_processed.withColumn("index", F.expr("uuid()"))
+        ecds.withColumn("index", F.expr("uuid()"))
         .write.partitionBy("fyear", "provider")
         .mode("overwrite")
+        .option("mergeSchema", "true")
         .saveAsTable("nhp.aggregated_data.ecds")
     )
 
@@ -46,7 +52,8 @@ def generate_ecds_data(spark: SparkSession) -> None:
 def main() -> None:
     """main method"""
     spark = DatabricksSession.builder.getOrCreate()
-    generate_ecds_data(spark)
+    ecds = get_ecds_data(spark)
+    generate_ecds_data(spark, ecds)
 
 
 if __name__ == "__main__":

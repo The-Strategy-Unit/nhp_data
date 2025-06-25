@@ -6,7 +6,7 @@ import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.acute_providers import filter_acute_providers
-from inputs_data.helpers import age_group, treatment_function_grouping
+from inputs_data.helpers import age_group
 
 
 def get_op_df(spark: SparkSession) -> DataFrame:
@@ -21,7 +21,6 @@ def get_op_df(spark: SparkSession) -> DataFrame:
         filter_acute_providers(spark, "opa")
         .filter(F.col("age").isNotNull())
         .join(age_group(spark), "age")
-        .join(treatment_function_grouping(spark), "tretspef")
         .drop("tretspef")
         .withColumnRenamed("tretspef_grouped", "tretspef")
     )

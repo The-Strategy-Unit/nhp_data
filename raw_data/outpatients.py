@@ -7,6 +7,7 @@ from pyspark.sql.types import *  # noqa: F403
 
 from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.providers import read_data_with_provider
+from raw_data.helpers import add_tretspef_grouped_column
 
 
 def get_outpatients_data(spark: SparkSession) -> None:
@@ -25,6 +26,7 @@ def get_outpatients_data(spark: SparkSession) -> None:
 
     # add main icb column
     df = add_main_icb(spark, df)
+    df = add_tretspef_grouped_column(df)
 
     df_primary_diagnosis = spark.read.table("hes.silver.opa_diagnoses").filter(
         F.col("diag_order") == 1
@@ -87,6 +89,7 @@ def get_outpatients_data(spark: SparkSession) -> None:
             F.col("imd_quintile"),
             F.col("ethnos"),
             F.col("tretspef"),
+            F.col("tretspef_grouped"),
             F.col("sitetret"),
             F.col("has_procedures"),
             F.col("sushrg"),
@@ -137,9 +140,11 @@ def generate_outpatients_data(spark: SparkSession) -> None:
     """Generate Outpatients Data"""
     hes_opa_ungrouped = get_outpatients_data(spark)
 
+    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
     (
         hes_opa_ungrouped.write.partitionBy("fyear", "provider")
         .mode("overwrite")
+        .option("mergeSchema", "true")
         .saveAsTable("nhp.raw_data.opa")
     )
 
