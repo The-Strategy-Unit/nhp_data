@@ -42,9 +42,11 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
         (
             spark.read.table("apc_mitigators")
             .filter(F.col("type") == v)
-            .drop("type")
+            .filter(F.col("fyear") == fyear)
+            .drop("type", "fyear")
             .withColumnRenamed("epikey", "rn")
-            .join(apc, "rn", "inner")
+            .withColumnRenamed("provider", "dataset")
+            .join(apc, ["dataset", "rn"], "inner")
             .select("dataset", "fyear", "rn", "strategy", "sample_rate")
             .repartition(1)
             .write.mode("overwrite")
