@@ -12,9 +12,9 @@ resources:
           for_each_task:
             inputs: "{{job.parameters.years}}"
             task:
-              task_key: extract_apc_data
+              task_key: extract_ip_data
               spark_python_task:
-                python_file: model_data/apc.py
+                python_file: model_data/ip.py
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
@@ -26,9 +26,9 @@ resources:
           for_each_task:
             inputs: "{{job.parameters.years}}"
             task:
-              task_key: extract_opa_data
+              task_key: extract_op_data
               spark_python_task:
-                python_file: model_data/opa.py
+                python_file: model_data/op.py
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
@@ -40,12 +40,11 @@ resources:
           for_each_task:
             inputs: "{{job.parameters.years}}"
             task:
-              task_key: extract_ecds_data
+              task_key: extract_aae_data
               spark_python_task:
-                python_file: model_data/ecds.py
+                python_file: model_data/aae.py
                 parameters:
-                  - "{{job.parameters.save_path}}/{{job.parameters.data_version\
-                    }}"
+                  - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
                 source: GIT
               job_cluster_key: run_nhp_extracts_cluster
@@ -59,8 +58,7 @@ resources:
               spark_python_task:
                 python_file: model_data/demographic_factors.py
                 parameters:
-                  - "{{job.parameters.save_path}}/{{job.parameters.data_version\
-                    }}"
+                  - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
                 source: GIT
               job_cluster_key: run_nhp_extracts_cluster
@@ -74,8 +72,7 @@ resources:
               spark_python_task:
                 python_file: model_data/birth_factors.py
                 parameters:
-                  - "{{job.parameters.save_path}}/{{job.parameters.data_version\
-                    }}"
+                  - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
                 source: GIT
               job_cluster_key: run_nhp_extracts_cluster
