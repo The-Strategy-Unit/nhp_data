@@ -96,7 +96,7 @@ def process_npp_variant(
     )
     df = df.rename(columns={"Age": "age", "Sex": "sex"})
     df["age"] = [
-        min(90, int(re.sub(r"\s*(\d+).*", r"\1", i))) for i in df["age"].to_list()
+        min(90, int(re.sub(r"\s*(\d+).*", r"\1", str(i)))) for i in df["age"].to_list()
     ]
     df = df.groupby(["sex", "age"], as_index=False).sum()
     df = df.melt(id_vars=["age", "sex"], var_name="year", value_name="pop")
