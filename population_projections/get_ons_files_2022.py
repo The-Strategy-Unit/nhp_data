@@ -8,9 +8,11 @@ import io
 import os
 import re
 import shutil
+import time
 from urllib.parse import urljoin
 from zipfile import ZipFile
 
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
@@ -108,8 +110,13 @@ def extract_snpp_zip(uri: str, output_dir: str) -> str:
     else:
         raise Exception("Unexpected uri")
 
-    response = requests.get(uri)
-    response.raise_for_status()
+    while True:
+        response = requests.get(uri)
+        if response.status_code == 429:
+            time.sleep(30)
+        else:
+            response.raise_for_status()
+            break
 
     path = os.path.join(output_dir, dir_name, variant)
     os.makedirs(output_dir, exist_ok=True)
