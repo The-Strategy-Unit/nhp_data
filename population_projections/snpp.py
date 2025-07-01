@@ -17,7 +17,7 @@ def _processs_demographics_file(
         )
     ]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
-    path = f"{path}/{projection_year}-projections/raw/demographics"
+    path = f"{path}/{projection_year}-projections/demographics"
     for sex_int, sex_string in [(1, "males"), (2, "females")]:
         (
             spark.read.csv(
@@ -61,7 +61,7 @@ def _process_births_file(
         )
     ]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
-    path = f"{path}/{projection_year}-projections/raw/births"
+    path = f"{path}/{projection_year}-projections/births"
     (
         spark.read.csv(
             f"{path}/{projection_name}/persons.csv",

@@ -89,7 +89,7 @@ def process_npp_variant(
     projection_name = projection_names[file]
 
     df = pd.read_excel(
-        f"{path}/{projection_year}-projections/raw/demographics/npp/{file}.xls",
+        f"{path}/{projection_year}-projections/demographics/npp/{file}.xls",
         sheet_name="Population",
     )
     df = df.rename(columns={"Age": "age", "Sex": "sex"})
