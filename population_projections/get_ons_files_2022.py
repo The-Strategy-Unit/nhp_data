@@ -221,8 +221,8 @@ def main():
     """main method"""
     import sys
 
-    path = sys.argv[0]
-    projection_year = sys.argv[1]
+    path = sys.argv[1]
+    projection_year = sys.argv[2]
 
     output_dir = os.path.join(path, f"{projection_year}-projections")
 
