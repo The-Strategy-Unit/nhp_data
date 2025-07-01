@@ -10,7 +10,12 @@ from pyspark.sql import functions as F
 def _processs_demographics_file(
     spark: SparkSession, path: str, projection_year: int, projection_name: str
 ) -> None:
-    years = [str(y) for y in range(2018, 2044)]
+    years = [
+        str(y)
+        for y in range(
+            projection_year, projection_year + (26 if projection_year == 2022 else 27)
+        )
+    ]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
     path = f"{path}/{projection_year}-projections/raw/demographics"
     for sex_int, sex_string in [(1, "males"), (2, "females")]:
@@ -47,7 +52,14 @@ def _processs_demographics_file(
 def _process_births_file(
     spark: SparkSession, path: str, projection_year: int, projection_name: str
 ) -> None:
-    years = [str(y) for y in range(2019, 2044)]
+    # births starts 1 year after demographics, so we need to adjust the years accordingly
+    years = [
+        str(y)
+        for y in range(
+            projection_year + 1,
+            projection_year + (25 if projection_year == 2022 else 26),
+        )
+    ]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
     path = f"{path}/{projection_year}-projections/raw/births"
     (

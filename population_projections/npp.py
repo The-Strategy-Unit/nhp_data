@@ -101,7 +101,9 @@ def process_npp_variant(
     df["year"] = df["year"].astype("int")
     df.set_index(["year", "sex", "age"], inplace=True)
 
-    df = df.loc[(slice(2018, 2043), slice(None), slice(None))].reset_index()
+    df = df.loc[
+        (slice(projection_year, projection_year + 25), slice(None), slice(None))
+    ].reset_index()
 
     df = spark.createDataFrame(df)
 
