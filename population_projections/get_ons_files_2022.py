@@ -221,7 +221,12 @@ def main():
     """main method"""
     import sys
 
-    get_2022_population_files(sys.argv[0])
+    path = sys.argv[0]
+    projection_year = sys.argv[1]
+
+    output_dir = os.path.join(path, f"{projection_year}-projections")
+
+    get_2022_population_files(output_dir)
 
 
 if __name__ == "__main__":
