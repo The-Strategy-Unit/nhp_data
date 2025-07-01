@@ -128,6 +128,23 @@ def extract_snpp_zip(uri: str, output_dir: str) -> str:
                 os.path.join(path, f"2022 SNPP {name} {s}.csv"),
                 os.path.join(path, f"{s}.csv"),
             )
+
+    # for births, combinbe into a single "persons.csv" file
+    if dir_name == "births":
+        files = [os.path.join(path, f"{i}.csv") for i in ["females", "males"]]
+
+        (
+            pd.concat([pd.read_csv(i) for i in files])
+            .drop(columns=["AREA_NAME", "COMPONENT", "SEX"])
+            .groupby(["AREA_CODE", "AGE_GROUP"], as_index=False)
+            .sum()
+            .query("AGE_GROUP != 'All ages'")
+            .to_csv(os.path.join(path, "persons.csv"), index=False)
+        )
+
+        for i in files:
+            os.remove(i)
+
     return path
 
 
