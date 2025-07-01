@@ -74,13 +74,13 @@ def snpp_uri_variant_match(uri: str) -> str | None:
             return "migration_category"
         case "migcat":
             return None
-        case "5yr":
+        case "5y" | "5year":
             return "var_proj_5_year_migration"
         case "lowmig":
             return "var_proj_low_intl_migration"
         case "highmig":
             return "var_proj_high_intl_migration"
-        case "10yr":
+        case "10yr" | "10year":
             return "var_proj_10_year_migration"
         case "zeronet":
             return "var_proj_zero_net_migration"
