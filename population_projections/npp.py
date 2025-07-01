@@ -68,21 +68,22 @@ def process_npp_variant(
     :type file: str
     """
     projection_names = {
+        "hhh": "high_population",
+        "hlh": "young_age_structure",
         "hpp": "high_fertility",
+        "lhl": "old_age_structure",
+        "lll": "low_population",
         "lpp": "low_fertility",
         "php": "high_life_expectancy",
         "plp": "low_life_expectancy",
+        "pnp": "no_mortality_improvement",
         "pph": "high_intl_migration",
         "ppl": "low_intl_migration",
-        "hhh": "high_population",
-        "lll": "low_population",
-        "lhl": "old_age_structure",
-        "hlh": "young_age_structure",
         "ppz": "zero_net_migration",
-        "pnp": "no_mortality_improvement",
+        "rpp": "replacement_fertility",
+        # not in 2022 npp extract
         "cnp": "const_fertility_no_mortality_improvement",
         "cpp": "const_fertility",
-        "rpp": "replacement_fertility",
         "ppr": "half_eu_migration",
         "ppq": "zero_eu_migration",
     }
