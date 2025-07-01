@@ -118,6 +118,9 @@ def extract_snpp_zip(uri: str, output_dir: str) -> str:
             response.raise_for_status()
             break
 
+    # add a back off to any future http calls
+    time.sleep(1)
+
     path = os.path.join(output_dir, dir_name, variant)
     os.makedirs(output_dir, exist_ok=True)
 
@@ -182,8 +185,13 @@ def extract_npp_zip(uri: str, output_dir: str) -> str:
     :rtype: str
     """
 
-    response = requests.get(uri)
-    response.raise_for_status()
+    while True:
+        response = requests.get(uri)
+        if response.status_code == 429:
+            time.sleep(30)
+        else:
+            response.raise_for_status()
+            break
 
     output_dir = os.path.join(output_dir, "demographics")
     with ZipFile(io.BytesIO(response.content)) as z:
