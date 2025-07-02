@@ -234,7 +234,8 @@ def main():
 
     output_dir = os.path.join(path, f"{projection_year}-projections")
 
-    get_2022_population_files(output_dir)
+    if not os.path.exists(output_dir):
+        get_2022_population_files(output_dir)
 
 
 if __name__ == "__main__":
