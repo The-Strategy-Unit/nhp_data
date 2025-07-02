@@ -18,13 +18,26 @@ resources:
             op: EQUAL_TO
             left: "{{job.parameters.run_population_data}}"
             right: "True"
-        - task_key: subnational_population_projections
+        - task_key: download_and_extract_ons_files
           depends_on:
             - task_key: run_population_data
               outcome: "true"
+          spark_python_task:
+            python_file: population_projections/get_ons_files_2022.py
+            parameters:
+              - "{{job.parameters.path}}"
+              - "{{job.parameters.projection_year}}"
+            source: GIT
+          job_cluster_key: generate_nhp_population
+          libraries:
+            - pypi:
+                package: beautifulsoup4
+        - task_key: subnational_population_projections
+          depends_on:
+            - task_key: download_and_extract_ons_files
           for_each_task:
-            inputs: '["principal_proj", "var_proj_10_year_migration",
-              "var_proj_alt_internal_migration", "var_proj_high_intl_migration",
+            inputs: '["migration_category", "var_proj_5_year_migration",
+              "var_proj_10_year_migration", "var_proj_high_intl_migration",
               "var_proj_low_intl_migration"]'
             task:
               task_key: subnational_population_projections_iteration
@@ -40,9 +53,7 @@ resources:
           depends_on:
             - task_key: subnational_population_projections
           for_each_task:
-            inputs:
-              '["hpp", "lpp", "php", "plp", "pph", "ppl", "hhh", "lll", "lhl", "hlh",
-              "ppz", "pnp", "cnp", "cpp", "rpp", "ppr", "ppq"]'
+            inputs: '["hhh","hlh","hpp","lhl","lll","lpp","php","plp","pnp","pph","ppl","ppz","rpp"]'
             task:
               task_key: national_population_projections_iteration
               spark_python_task:
@@ -56,6 +67,8 @@ resources:
               libraries:
                 - pypi:
                     package: xlrd
+                - pypi:
+                    package: openpyxl
         - task_key: create_provider_catchments
           depends_on:
             - task_key: national_population_projections
@@ -90,6 +103,6 @@ resources:
         - name: path
           default: /Volumes/nhp/population_projections/files
         - name: projection_year
-          default: "2018"
+          default: "2022"
         - name: run_population_data
           default: "True"
