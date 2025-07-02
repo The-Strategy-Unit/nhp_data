@@ -125,6 +125,9 @@ def process_npp_variant(
 
     df = spark.createDataFrame(df)
 
+    if projection_year >= 2022:
+        df = df.withColumn("sex", F.when(F.col("sex") == "Males", 1).otherwise(2))
+
     _process_npp_demographics(spark, df, projection_name, projection_year)
     _process_npp_births(spark, df, projection_name, projection_year)
 
