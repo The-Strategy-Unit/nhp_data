@@ -14,9 +14,17 @@ def _process_npp_demographics(
 ):
     w = Window.partitionBy("year", "sex", "age")
 
+    match projection_year:
+        case 2018:
+            projection = "principal_proj"
+        case 2022:
+            projection = "migration_category"
+        case _:
+            raise ValueError(f"Invalid f{projection_year=}")
+
     (
         spark.read.table("nhp.population_projections.demographics")
-        .filter(F.col("projection") == "principal_proj")
+        .filter(F.col("projection") == projection)
         .filter(F.col("projection_year") == projection_year)
         .join(df, ["year", "sex", "age"])
         .withColumn("value", F.col("value") * F.col("pop") / F.sum("value").over(w))
