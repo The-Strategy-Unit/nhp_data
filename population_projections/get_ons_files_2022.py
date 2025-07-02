@@ -174,11 +174,13 @@ def get_npp_uri(path: str) -> str:
     return urljoin(ONS_URL, match["href"])
 
 
-def extract_npp_zip(uri: str, output_dir: str) -> str:
+def extract_npp_zip(uri: str, dir_in_zip: str, output_dir: str) -> str:
     """Download and extract the NPP zip file
 
     :param uri: the URI to the NPP zip file
     :type uri: str
+    :param dir_in_zip: the directory in the zip that contains the files
+    :type dir_in_zip: str
     :param output_dir: the path where we want to save the files to
     :type output_dir: str
     :return: _description_
@@ -193,12 +195,14 @@ def extract_npp_zip(uri: str, output_dir: str) -> str:
             response.raise_for_status()
             break
 
-    output_dir = os.path.join(output_dir, "demographics")
     with ZipFile(io.BytesIO(response.content)) as z:
         z.extractall(output_dir)
 
     npp_path = os.path.join(output_dir, "npp")
-    shutil.move(os.path.join(output_dir, "uk"), npp_path)
+    # if the npp_path already exists, overwrite it
+    if os.path.exists(npp_path):
+        shutil.rmtree(npp_path)
+    shutil.move(os.path.join(output_dir, dir_in_zip), npp_path)
 
     for i in os.listdir(npp_path):
         j = i.replace("uk_", "").replace("_machine_readable", "")
@@ -222,7 +226,7 @@ def get_2022_population_files(output_dir: str) -> None:
         extract_snpp_zip(uri, output_dir)
 
     npp_uri = get_npp_uri("z1zippedpopulationprojectionsdatafilesuk")
-    extract_npp_zip(npp_uri, output_dir)
+    extract_npp_zip(npp_uri, "uk", output_dir)
 
 
 def main():
