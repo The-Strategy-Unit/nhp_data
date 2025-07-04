@@ -14,9 +14,17 @@ def _process_npp_demographics(
 ):
     w = Window.partitionBy("year", "sex", "age")
 
+    match projection_year:
+        case 2018:
+            projection = "principal_proj"
+        case 2022:
+            projection = "migration_category"
+        case _:
+            raise ValueError(f"Invalid f{projection_year=}")
+
     (
         spark.read.table("nhp.population_projections.demographics")
-        .filter(F.col("projection") == "principal_proj")
+        .filter(F.col("projection") == projection)
         .filter(F.col("projection_year") == projection_year)
         .join(df, ["year", "sex", "age"])
         .withColumn("value", F.col("value") * F.col("pop") / F.sum("value").over(w))
@@ -35,9 +43,17 @@ def _process_npp_births(
 ):
     w = Window.partitionBy("year", "sex", "age")
 
+    match projection_year:
+        case 2018:
+            projection = "principal_proj"
+        case 2022:
+            projection = "migration_category"
+        case _:
+            raise ValueError(f"Invalid f{projection_year=}")
+
     (
         spark.read.table("nhp.population_projections.births")
-        .filter(F.col("projection") == "principal_proj")
+        .filter(F.col("projection") == projection)
         .filter(F.col("projection_year") == projection_year)
         .join(df.filter(F.col("sex") == 2), ["year", "age"])
         .withColumn("value", F.col("value") * F.col("pop") / F.sum("value").over(w))
@@ -68,42 +84,49 @@ def process_npp_variant(
     :type file: str
     """
     projection_names = {
+        "hhh": "high_population",
+        "hlh": "young_age_structure",
         "hpp": "high_fertility",
+        "lhl": "old_age_structure",
+        "lll": "low_population",
         "lpp": "low_fertility",
         "php": "high_life_expectancy",
         "plp": "low_life_expectancy",
+        "pnp": "no_mortality_improvement",
         "pph": "high_intl_migration",
         "ppl": "low_intl_migration",
-        "hhh": "high_population",
-        "lll": "low_population",
-        "lhl": "old_age_structure",
-        "hlh": "young_age_structure",
         "ppz": "zero_net_migration",
-        "pnp": "no_mortality_improvement",
+        "rpp": "replacement_fertility",
+        # not in 2022 npp extract
         "cnp": "const_fertility_no_mortality_improvement",
         "cpp": "const_fertility",
-        "rpp": "replacement_fertility",
         "ppr": "half_eu_migration",
         "ppq": "zero_eu_migration",
     }
     projection_name = projection_names[file]
 
+    file_type = "xlsx" if projection_year >= 2022 else "xls"
     df = pd.read_excel(
-        f"{path}/{projection_year}-projections/raw/demographics/npp/{file}.xls",
+        f"{path}/{projection_year}-projections/npp/{file}.{file_type}",
         sheet_name="Population",
     )
     df = df.rename(columns={"Age": "age", "Sex": "sex"})
     df["age"] = [
-        min(90, int(re.sub(r"\s*(\d+).*", r"\1", i))) for i in df["age"].to_list()
+        min(90, int(re.sub(r"\s*(\d+).*", r"\1", str(i)))) for i in df["age"].to_list()
     ]
     df = df.groupby(["sex", "age"], as_index=False).sum()
     df = df.melt(id_vars=["age", "sex"], var_name="year", value_name="pop")
     df["year"] = df["year"].astype("int")
     df.set_index(["year", "sex", "age"], inplace=True)
 
-    df = df.loc[(slice(2018, 2043), slice(None), slice(None))].reset_index()
+    df = df.loc[
+        (slice(projection_year, projection_year + 25), slice(None), slice(None))
+    ].reset_index()
 
     df = spark.createDataFrame(df)
+
+    if projection_year >= 2022:
+        df = df.withColumn("sex", F.when(F.col("sex") == "Males", 1).otherwise(2))
 
     _process_npp_demographics(spark, df, projection_name, projection_year)
     _process_npp_births(spark, df, projection_name, projection_year)

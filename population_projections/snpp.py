@@ -7,12 +7,17 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
 
-def _processs_demographics_file(
+def _process_demographics_file(
     spark: SparkSession, path: str, projection_year: int, projection_name: str
 ) -> None:
-    years = [str(y) for y in range(2018, 2044)]
+    years = [
+        str(y)
+        for y in range(
+            projection_year, projection_year + (26 if projection_year == 2022 else 27)
+        )
+    ]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
-    path = f"{path}/{projection_year}-projections/raw/demographics"
+    path = f"{path}/{projection_year}-projections/demographics"
     for sex_int, sex_string in [(1, "males"), (2, "females")]:
         (
             spark.read.csv(
@@ -47,9 +52,16 @@ def _processs_demographics_file(
 def _process_births_file(
     spark: SparkSession, path: str, projection_year: int, projection_name: str
 ) -> None:
-    years = [str(y) for y in range(2019, 2044)]
+    # births starts 1 year after demographics, so we need to adjust the years accordingly
+    years = [
+        str(y)
+        for y in range(
+            projection_year + 1,
+            projection_year + (25 if projection_year == 2022 else 26),
+        )
+    ]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
-    path = f"{path}/{projection_year}-projections/raw/births"
+    path = f"{path}/{projection_year}-projections/births"
     (
         spark.read.csv(
             f"{path}/{projection_name}/persons.csv",
@@ -93,7 +105,7 @@ def process_snpp_variant(
     :param projection_name: The name of the projection
     :type projection_name: str
     """
-    _processs_demographics_file(spark, path, projection_year, projection_name)
+    _process_demographics_file(spark, path, projection_year, projection_name)
     _process_births_file(spark, path, projection_year, projection_name)
 
 
