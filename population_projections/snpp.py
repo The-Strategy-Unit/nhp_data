@@ -7,7 +7,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
 
-def _processs_demographics_file(
+def _process_demographics_file(
     spark: SparkSession, path: str, projection_year: int, projection_name: str
 ) -> None:
     years = [
@@ -105,7 +105,7 @@ def process_snpp_variant(
     :param projection_name: The name of the projection
     :type projection_name: str
     """
-    _processs_demographics_file(spark, path, projection_year, projection_name)
+    _process_demographics_file(spark, path, projection_year, projection_name)
     _process_births_file(spark, path, projection_year, projection_name)
 
 
