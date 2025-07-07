@@ -137,6 +137,6 @@ resources:
         - name: save_path
           default: /Volumes/nhp/model_data/files
         - name: years
-          default: "[201920, 202223, 202324]"
+          default: "[202324]"
         - name: projection_year
           default: "2022"
