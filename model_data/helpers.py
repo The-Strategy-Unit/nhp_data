@@ -19,7 +19,7 @@ def get_spark() -> SparkSession:
 
 
 def create_population_projections(
-    spark: SparkSession, df: DataFrame, fyear: int
+    spark: SparkSession, df: DataFrame, fyear: int, projection_year: int = 2022
 ) -> DataFrame:
     providers = (
         spark.read.table("strategyunit.reference.ods_trusts")
@@ -36,7 +36,7 @@ def create_population_projections(
     )
 
     return (
-        df.filter(F.col("projection_year") == 2018)
+        df.filter(F.col("projection_year") == projection_year)
         .join(catchments, ["area_code", "age", "sex"])
         .withColumnRenamed("projection", "variant")
         .withColumnRenamed("provider", "dataset")
