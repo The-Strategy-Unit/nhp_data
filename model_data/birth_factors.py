@@ -62,7 +62,9 @@ def _create_custom_birth_factors(
     )
 
 
-def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> None:
+def extract(
+    save_path: str, fyear: int, projection_year: int, spark: SparkSession = get_spark()
+) -> None:
     """Extract Birth Factors data
 
     :param spark: the spark context to use
@@ -79,8 +81,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
     fn = partial(_create_custom_birth_factors, fyear, spark)
 
     (
-        # using a fixed year of 2018/19 to match prior logic
-        create_population_projections(spark, births, 201819)
+        create_population_projections(spark, births, fyear, projection_year)
         .unionByName(fn("R0A", "custom_projection_R0A66"))
         .unionByName(fn("RD8", "custom_projection_RD8"))
         .repartition(1)
@@ -93,8 +94,9 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
 def main():
     path = sys.argv[1]
     fyear = int(sys.argv[2])
+    projection_year = int(sys.argv[3])
 
-    extract(path, fyear)
+    extract(path, fyear, projection_year)
 
 
 if __name__ == "__main__":

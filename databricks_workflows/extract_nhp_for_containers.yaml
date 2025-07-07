@@ -60,6 +60,7 @@ resources:
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
+                  - "{{job.parameters.projection_year}}"
                 source: GIT
               job_cluster_key: run_nhp_extracts_cluster
         - task_key: run_extract_birth_factors_data
@@ -74,6 +75,7 @@ resources:
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
+                  - "{{job.parameters.projection_year}}"
                 source: GIT
               job_cluster_key: run_nhp_extracts_cluster
         - task_key: generate_gams
@@ -136,3 +138,5 @@ resources:
           default: /Volumes/nhp/model_data/files
         - name: years
           default: "[201920, 202223, 202324]"
+        - name: projection_year
+          default: "2022"
