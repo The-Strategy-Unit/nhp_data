@@ -1,44 +1,38 @@
 """Create Provider Catchments"""
 
 from databricks.connect import DatabricksSession
-from pyspark.sql import SparkSession, Window
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
 
-def get_provider_catchments(spark: SparkSession, min_pcnt: float = 0.05) -> None:
+def get_provider_catchments(spark: SparkSession) -> DataFrame:
     """get Provider Catchments
 
     :param spark: The Spark context
     :type spark: SparkSession
-    :param min_pcnt: the minimum percentage of patients in a catchment area (default: 0.05)
-    :type min_pcnt: float
     """
 
-    total_window = Window.partitionBy("fyear", "provider")
+    total_window = Window.partitionBy("fyear", "resladst_ons")
 
     return (
         spark.read.table("nhp.raw_data.apc")
         .filter(F.col("fyear") >= 201819)
         .filter(F.col("resladst_ons").rlike("^E0[6-9]"))
-        .groupBy("fyear", "provider", "resladst_ons")
+        .groupBy("fyear", "provider", "resladst_ons", "age", "sex")
         .count()
-        .withColumn("pcnt", F.col("count") / F.sum("count").over(total_window))
-        .filter(F.col("pcnt") > min_pcnt)
         .withColumn("pcnt", F.col("count") / F.sum("count").over(total_window))
         .withColumnRenamed("resladst_ons", "area_code")
     )
 
 
-def create_provider_catchments(spark: SparkSession, min_pcnt: float = 0.05) -> None:
+def create_provider_catchments(spark: SparkSession) -> None:
     """Create Provider Catchments
 
     :param spark: The Spark context
     :type spark: SparkSession
-    :param min_pcnt: the minimum percentage of patients in a catchment area (default: 0.05)
-    :type min_pcnt: float
     """
 
-    df = get_provider_catchments(spark, min_pcnt)
+    df = get_provider_catchments(spark)
     df.write.mode("overwrite").saveAsTable(
         "nhp.population_projections.provider_catchments"
     )

@@ -19,7 +19,7 @@ def get_spark() -> SparkSession:
 
 
 def create_population_projections(
-    spark: SparkSession, df: DataFrame, fyear: int
+    spark: SparkSession, df: DataFrame, fyear: int, projection_year: int = 2022
 ) -> DataFrame:
     providers = (
         spark.read.table("strategyunit.reference.ods_trusts")
@@ -35,10 +35,19 @@ def create_population_projections(
         .join(providers, "provider", how="semi")
     )
 
-    # currently fixed to use the 2018 projection year: awaiting new data from ONS to be published
+    projections_to_include = [
+        "migration_category",
+        "var_proj_5_year_migration",
+        "var_proj_10_year_migration",
+        "var_proj_high_intl_migration",
+        "var_proj_low_intl_migration",
+        "var_proj_zero_net_migration",
+    ]
+
     return (
-        df.filter(F.col("projection_year") == 2018)
-        .join(catchments, "area_code")
+        df.filter(F.col("projection_year") == projection_year)
+        .filter(F.col("projection").isin(projections_to_include))
+        .join(catchments, ["area_code", "age", "sex"])
         .withColumnRenamed("projection", "variant")
         .withColumnRenamed("provider", "dataset")
         .groupBy("dataset", "variant", "age", "sex")

@@ -25,23 +25,30 @@ resources:
           spark_python_task:
             python_file: reference/ods_trusts.py
             source: GIT
-          job_cluster_key: generate_nhp_apc
+          job_cluster_key: generate_nhp_reference
         - task_key: provider_main_icb
           depends_on:
             - task_key: ods_trusts
           spark_python_task:
             python_file: reference/provider_main_icb.py
             source: GIT
-          job_cluster_key: generate_nhp_apc
+          job_cluster_key: generate_nhp_reference
         - task_key: population_by_imd_decile
           depends_on:
             - task_key: provider_main_icb
           spark_python_task:
             python_file: reference/population_by_imd_decile.py
             source: GIT
-          job_cluster_key: generate_nhp_apc
+          job_cluster_key: generate_nhp_reference
+        - task_key: create_provider_catchments
+          depends_on:
+            - task_key: population_by_imd_decile
+          spark_python_task:
+            python_file: reference/provider_catchments.py
+            source: GIT
+          job_cluster_key: generate_nhp_reference
       job_clusters:
-        - job_cluster_key: generate_nhp_apc
+        - job_cluster_key: generate_nhp_reference
           new_cluster:
             cluster_name: ""
             spark_version: 15.4.x-scala2.12

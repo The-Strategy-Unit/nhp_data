@@ -69,13 +69,6 @@ resources:
                     package: xlrd
                 - pypi:
                     package: openpyxl
-        - task_key: create_provider_catchments
-          depends_on:
-            - task_key: national_population_projections
-          spark_python_task:
-            python_file: population_projections/provider_catchments.py
-            source: GIT
-          job_cluster_key: generate_nhp_population
       job_clusters:
         - job_cluster_key: generate_nhp_population
           new_cluster:
