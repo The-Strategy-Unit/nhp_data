@@ -35,10 +35,9 @@ def create_population_projections(
         .join(providers, "provider", how="semi")
     )
 
-    # currently fixed to use the 2018 projection year: awaiting new data from ONS to be published
     return (
         df.filter(F.col("projection_year") == 2018)
-        .join(catchments, "area_code")
+        .join(catchments, ["area_code", "age", "sex"])
         .withColumnRenamed("projection", "variant")
         .withColumnRenamed("provider", "dataset")
         .groupBy("dataset", "variant", "age", "sex")

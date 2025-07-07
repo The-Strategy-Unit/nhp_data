@@ -18,7 +18,7 @@ def get_provider_catchments(spark: SparkSession) -> DataFrame:
         spark.read.table("nhp.raw_data.apc")
         .filter(F.col("fyear") >= 201819)
         .filter(F.col("resladst_ons").rlike("^E0[6-9]"))
-        .groupBy("fyear", "provider", "resladst_ons")
+        .groupBy("fyear", "provider", "resladst_ons", "age", "sex")
         .count()
         .withColumn("pcnt", F.col("count") / F.sum("count").over(total_window))
         .withColumnRenamed("resladst_ons", "area_code")
