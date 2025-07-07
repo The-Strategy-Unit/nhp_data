@@ -35,8 +35,18 @@ def create_population_projections(
         .join(providers, "provider", how="semi")
     )
 
+    projections_to_include = [
+        "migration_category",
+        "var_proj_5_year_migration",
+        "var_proj_10_year_migration",
+        "var_proj_high_intl_migration",
+        "var_proj_low_intl_migration",
+        "var_proj_zero_net_migration",
+    ]
+
     return (
         df.filter(F.col("projection_year") == projection_year)
+        .filter(F.col("projection").isin(projections_to_include))
         .join(catchments, ["area_code", "age", "sex"])
         .withColumnRenamed("projection", "variant")
         .withColumnRenamed("provider", "dataset")
