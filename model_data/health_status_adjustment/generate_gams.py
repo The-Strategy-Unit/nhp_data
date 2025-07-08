@@ -28,17 +28,17 @@ def _get_data(spark: SparkSession, save_path: str) -> DataFrame:
             ],
         )
         .filter(~F.col("hsagrp").isin(["birth", "maternity", "paeds"]))
-        .filter(F.col("fyear").isin([2019, 2022, 2023]))
+        .filter(F.col("fyear").isin([2023]))
         .filter(F.col("age") >= 18)
     )
 
     # load the demographics data
     demog = (
-        spark.read.parquet(f"{save_path}/demographic_factors/fyear=2019/")
-        .filter(F.col("variant") == "principal_proj")
+        spark.read.parquet(f"{save_path}/demographic_factors/fyear=2023/")
+        .filter(F.col("variant") == "migration_category")
         .filter(F.col("age") >= 18)
         .select(
-            F.col("age"), F.col("sex"), F.col("dataset"), F.col("2019").alias("pop")
+            F.col("age"), F.col("sex"), F.col("dataset"), F.col("2023").alias("pop")
         )
         # join back to the unique combination of dataset/sex/fyear/hsagrp, we
         # will use this below to ensure we have a 0-count row of activity
@@ -137,7 +137,7 @@ def _generate_activity_tables(
 
     (
         spark.read.table("hsa_activity_tables")
-        .filter(F.col("fyear").isin([201920, 202223, 202324]))
+        .filter(F.col("fyear").isin([202324]))
         .withColumn("fyear", F.udf(from_fyear)("fyear"))
         .withColumnRenamed("provider", "dataset")
         .repartition(1)

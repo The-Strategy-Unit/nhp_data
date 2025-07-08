@@ -25,7 +25,7 @@ def _get_data(spark: SparkSession, save_path: str) -> pd.DataFrame:
             ],
         )
         .filter(~F.col("hsagrp").isin(["birth", "maternity", "paeds"]))
-        .filter(F.col("fyear").isin([2019, 2022, 2023]))
+        .filter(F.col("fyear").isin([2023]))
     )
 
     # load the demographics data, then cross join to the distinct HSA groups
@@ -33,9 +33,9 @@ def _get_data(spark: SparkSession, save_path: str) -> pd.DataFrame:
     demog = (
         spark.read.table("nhp.population_projections.demographics")
         .filter(F.col("area_code").rlike("^E0[6-9]"))
-        .filter(F.col("projection") == "principal_proj")
+        .filter(F.col("projection") == "migration_category")
         .filter(F.col("age") >= 18)
-        .filter(F.col("year") == 2019)
+        .filter(F.col("year") == 2023)
         .groupBy("age", "sex")
         .agg(F.sum("value").alias("pop"))
         .crossJoin(dfr.select("hsagrp").distinct())
