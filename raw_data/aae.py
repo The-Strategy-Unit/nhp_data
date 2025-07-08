@@ -104,7 +104,7 @@ def get_aae_data(spark: SparkSession) -> None:
 
     # add main icb column
     df = add_main_icb(spark, df)
-    df = local_authority_successors(df, "resladst_ons")
+    df = local_authority_successors(spark, df, "resladst_ons")
 
     hes_aae_ungrouped = (
         df.filter(F.col("sex").isin(["1", "2"]))

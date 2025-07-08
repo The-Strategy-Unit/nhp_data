@@ -127,7 +127,7 @@ def get_ecds_data(spark: SparkSession) -> None:
     # add main icb column
     df = add_main_icb(spark, df)
 
-    df = local_authority_successors(df, "local_authority_district")
+    df = local_authority_successors(spark, df, "local_authority_district")
 
     hes_ecds_ungrouped = (
         df.join(freq_attenders, "ec_ident")

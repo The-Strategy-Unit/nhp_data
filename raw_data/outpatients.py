@@ -28,7 +28,7 @@ def get_outpatients_data(spark: SparkSession) -> None:
     # add main icb column
     df = add_main_icb(spark, df)
     df = add_tretspef_grouped_column(df)
-    df = local_authority_successors(df, "resladst_ons")
+    df = local_authority_successors(spark, df, "resladst_ons")
 
     df_primary_diagnosis = spark.read.table("hes.silver.opa_diagnoses").filter(
         F.col("diag_order") == 1
