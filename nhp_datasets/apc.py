@@ -13,6 +13,14 @@ hes_apc = (
         spark, read_data_with_provider(spark, "hes.silver.apc"), "resladst_ons"
     )
     .filter(F.col("last_episode_in_spell"))
+    .withColumn(
+        "age",
+        F.when(
+            (F.col("admiage") == 999) | F.col("admiage").isNull(),
+            F.when(F.col("startage") > 7000, 0).otherwise(F.col("startage")),
+        ).otherwise(F.col("admiage")),
+    )
+    .withColumn("age", F.when(F.col("age") > 90, 90).otherwise(F.col("age")))
     # remove well babies
     .filter(F.col("well_baby_ind") == "N")
     .filter((F.col("sushrg") != "PB03Z") | F.col("sushrg").isNull())

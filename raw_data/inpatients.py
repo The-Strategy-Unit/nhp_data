@@ -36,14 +36,6 @@ def get_inpatients_data(spark: SparkSession) -> None:
 
     hes_apc_processed = (
         df.withColumn(
-            "age",
-            F.when(
-                (F.col("admiage") == 999) | F.col("admiage").isNull(),
-                F.when(F.col("startage") > 7000, 0).otherwise(F.col("startage")),
-            ).otherwise(F.col("admiage")),
-        )
-        .withColumn("age", F.when(F.col("age") > 90, 90).otherwise(F.col("age")))
-        .withColumn(
             "hsagrp",
             F.when(F.col("classpat").isin(["3", "4"]), "reg")
             .when(F.col("admimeth").isin(["82", "83"]), "birth")
