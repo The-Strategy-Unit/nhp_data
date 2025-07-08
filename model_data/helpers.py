@@ -29,7 +29,7 @@ def create_population_projections(
     )
 
     catchments = (
-        spark.read.table("nhp.population_projections.provider_catchments")
+        spark.read.table("nhp.reference.provider_catchments")
         .filter(F.col("fyear") == fyear)
         .drop("fyear")
         .join(providers, "provider", how="semi")

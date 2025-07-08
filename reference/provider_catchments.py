@@ -33,9 +33,7 @@ def create_provider_catchments(spark: SparkSession) -> None:
     """
 
     df = get_provider_catchments(spark)
-    df.write.mode("overwrite").saveAsTable(
-        "nhp.population_projections.provider_catchments"
-    )
+    df.write.mode("overwrite").saveAsTable("nhp.reference.provider_catchments")
 
 
 def _init():
