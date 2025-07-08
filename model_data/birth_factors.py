@@ -6,15 +6,25 @@ from functools import partial
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
-from model_data.helpers import create_population_projections, get_spark
+from model_data.helpers import (
+    DEMOGRAPHICS_MAX_YEAR,
+    DEMOGRAPHICS_MIN_YEAR,
+    create_population_projections,
+    get_spark,
+)
 
 
 def _create_custom_birth_factors(
-    fyear: int, spark: SparkSession, dataset: str, custom_projection_name: str
+    path: str,
+    fyear: int,
+    spark: SparkSession,
+    dataset: str,
+    custom_projection_name: str,
 ) -> DataFrame:
-    """Create custom birth factors file for R0A66, using principal projection
+    """Create custom birth factors file for R0A66, using migration category variant
 
-    :param fyear: what year to extract
+    :param path: where to read the demographics from
+    :type path: str
     :type fyear: int
     :param spark: the spark context to use
     :type spark: SparkSession
@@ -28,27 +38,25 @@ def _create_custom_birth_factors(
 
     demographics = (
         spark.read.parquet(
-            f"/Volumes/nhp/model_data/files/dev/demographic_factors/fyear={fyear//100}/dataset={dataset}"
+            f"{path}/demographic_factors/fyear={fyear//100}/dataset={dataset}"
         )
         .filter(F.col("age").between(15, 44))
         .filter(F.col("sex") == 2)
-        .filter(F.col("variant").isin("principal_proj", custom_projection_name))
-        .drop("sex", "2018")
+        .filter(F.col("variant").isin("migration_category", custom_projection_name))
+        .drop("sex")
         .toPandas()
         .set_index(["variant", "age"])
     )
 
-    principal_projection = demographics.loc[("principal_proj", slice(None))]
+    principal_projection = demographics.loc[("migration_category", slice(None))]
 
     custom_projection = demographics.loc[(custom_projection_name, slice(None))]
 
     multipliers = custom_projection / principal_projection
 
     df = (
-        spark.read.parquet(
-            f"/Volumes/nhp/model_data/files/dev/birth_factors/fyear={fyear//100}/dataset={dataset}"
-        )
-        .filter(F.col("variant") == "principal_proj")
+        spark.read.parquet(f"{path}/birth_factors/fyear={fyear//100}/dataset={dataset}")
+        .filter(F.col("variant") == "migration_category")
         .drop("variant", "sex")
         .toPandas()
         .set_index("age")
@@ -74,11 +82,13 @@ def extract(
     :param fyear: what year to extract
     :type fyear: int
     """
-    births = spark.read.table("nhp.population_projections.births").withColumn(
-        "sex", F.lit(2)
+    births = (
+        spark.read.table("nhp.population_projections.births")
+        .withColumn("sex", F.lit(2))
+        .filter(F.col("year").between(DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR))
     )
 
-    fn = partial(_create_custom_birth_factors, fyear, spark)
+    fn = partial(_create_custom_birth_factors, save_path, fyear, spark)
 
     (
         create_population_projections(spark, births, fyear, projection_year)
