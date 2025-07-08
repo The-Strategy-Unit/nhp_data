@@ -15,11 +15,16 @@ from model_data.helpers import (
 
 
 def _create_custom_birth_factors(
-    fyear: int, spark: SparkSession, dataset: str, custom_projection_name: str
+    path: str,
+    fyear: int,
+    spark: SparkSession,
+    dataset: str,
+    custom_projection_name: str,
 ) -> DataFrame:
     """Create custom birth factors file for R0A66, using migration category variant
 
-    :param fyear: what year to extract
+    :param path: where to read the demographics from
+    :type path: str
     :type fyear: int
     :param spark: the spark context to use
     :type spark: SparkSession
@@ -33,7 +38,7 @@ def _create_custom_birth_factors(
 
     demographics = (
         spark.read.parquet(
-            f"/Volumes/nhp/model_data/files/dev/demographic_factors/fyear={fyear//100}/dataset={dataset}"
+            f"{path}/demographic_factors/fyear={fyear//100}/dataset={dataset}"
         )
         .filter(F.col("age").between(15, 44))
         .filter(F.col("sex") == 2)
@@ -50,9 +55,7 @@ def _create_custom_birth_factors(
     multipliers = custom_projection / principal_projection
 
     df = (
-        spark.read.parquet(
-            f"/Volumes/nhp/model_data/files/dev/birth_factors/fyear={fyear//100}/dataset={dataset}"
-        )
+        spark.read.parquet(f"{path}/birth_factors/fyear={fyear//100}/dataset={dataset}")
         .filter(F.col("variant") == "migration_category")
         .drop("variant", "sex")
         .toPandas()
@@ -85,7 +88,7 @@ def extract(
         .filter(F.col("year").between(DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR))
     )
 
-    fn = partial(_create_custom_birth_factors, fyear, spark)
+    fn = partial(_create_custom_birth_factors, save_path, fyear, spark)
 
     (
         create_population_projections(spark, births, fyear, projection_year)
