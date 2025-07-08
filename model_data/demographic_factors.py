@@ -5,7 +5,12 @@ import sys
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession, Window
 
-from model_data.helpers import create_population_projections, get_spark
+from model_data.helpers import (
+    DEMOGRAPHICS_MAX_YEAR,
+    DEMOGRAPHICS_MIN_YEAR,
+    create_population_projections,
+    get_spark,
+)
 
 
 # pylint: disable=invalid-name
@@ -27,6 +32,11 @@ def _create_custom_demographic_factors_RD8(
         .withColumnRenamed("Sex", "sex")
         .withColumnRenamed("Age", "age")
         .drop("Type")
+        .select(
+            "age",
+            "sex",
+            *[str(i) for i in range(DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR + 1)],
+        )
         .withColumn("dataset", F.lit("RD8"))
         .withColumn("variant", F.lit("custom_projection_RD8"))
     )
@@ -48,11 +58,12 @@ def _create_custom_demographic_factors_R0A66(
         .filter(F.col("projection") == "principal_proj")
         .filter(F.col("projection_year") == 2018)
         .filter(F.col("area_code") != "E08000003")
+        .filter(F.col("year").between(DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR))
         .drop("projection", "projection_year")
     )
     # Load custom file
     # TODO: this should be moved into population_projections scope
-    years = [str(y) for y in range(2018, 2044)]
+    years = [str(y) for y in range(DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR + 1)]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
     custom_file = (
         spark.read.csv(
@@ -113,7 +124,9 @@ def extract(
     :type fyear: int
     """
 
-    demographics = spark.read.table("nhp.population_projections.demographics")
+    demographics = spark.read.table("nhp.population_projections.demographics").filter(
+        F.col("year").between(DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR)
+    )
 
     custom_R0A = _create_custom_demographic_factors_R0A66(spark)
     custom_RD8 = _create_custom_demographic_factors_RD8(spark)
