@@ -10,7 +10,7 @@ spark = DatabricksSession.builder.getOrCreate()
 
 hes_apc = (
     local_authority_successors(
-        read_data_with_provider(spark, "hes.silver.apc"), "resladst_ons"
+        spark, read_data_with_provider(spark, "hes.silver.apc"), "resladst_ons"
     )
     .filter(F.col("last_episode_in_spell"))
     # remove well babies
