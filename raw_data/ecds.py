@@ -8,6 +8,7 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
 from nhp_datasets.icbs import add_main_icb, icb_mapping
+from nhp_datasets.local_authorities import local_authority_successors
 from nhp_datasets.providers import add_provider
 
 
@@ -125,6 +126,8 @@ def get_ecds_data(spark: SparkSession) -> None:
 
     # add main icb column
     df = add_main_icb(spark, df)
+
+    df = local_authority_successors(df, "local_authority_district")
 
     hes_ecds_ungrouped = (
         df.join(freq_attenders, "ec_ident")

@@ -6,6 +6,7 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
 from nhp_datasets.icbs import add_main_icb, icb_mapping
+from nhp_datasets.local_authorities import local_authority_successors
 from nhp_datasets.providers import read_data_with_provider
 from raw_data.helpers import add_tretspef_grouped_column
 
@@ -27,6 +28,7 @@ def get_outpatients_data(spark: SparkSession) -> None:
     # add main icb column
     df = add_main_icb(spark, df)
     df = add_tretspef_grouped_column(df)
+    df = local_authority_successors(df, "resladst_ons")
 
     df_primary_diagnosis = spark.read.table("hes.silver.opa_diagnoses").filter(
         F.col("diag_order") == 1

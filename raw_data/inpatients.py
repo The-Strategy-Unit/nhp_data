@@ -8,6 +8,7 @@ from pyspark.sql.types import *  # noqa: F403
 
 from nhp_datasets.apc import apc_primary_procedures, hes_apc
 from nhp_datasets.icbs import add_main_icb
+from nhp_datasets.local_authorities import local_authority_successors
 from raw_data.helpers import add_tretspef_grouped_column
 
 
@@ -25,6 +26,7 @@ def get_inpatients_data(spark: SparkSession) -> None:
 
     df = add_main_icb(spark, hes_apc)
     df = add_tretspef_grouped_column(df)
+    df = local_authority_successors(df, "resladst_ons")
 
     df_primary_diagnosis = spark.read.table("hes.silver.apc_diagnoses").filter(
         F.col("diag_order") == 1
