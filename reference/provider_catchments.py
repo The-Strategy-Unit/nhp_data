@@ -4,7 +4,7 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
-from nhp_datasets import hes_apc
+from nhp_datasets.apc import hes_apc
 
 
 def get_provider_catchments(spark: SparkSession) -> DataFrame:
