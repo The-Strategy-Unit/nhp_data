@@ -4,6 +4,8 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
+from nhp_datasets.apc import hes_apc
+
 
 def get_provider_catchments(spark: SparkSession) -> DataFrame:
     """get Provider Catchments
@@ -15,8 +17,7 @@ def get_provider_catchments(spark: SparkSession) -> DataFrame:
     total_window = Window.partitionBy("fyear", "resladst_ons")
 
     return (
-        spark.read.table("nhp.raw_data.apc")
-        .filter(F.col("fyear") >= 201819)
+        hes_apc.filter(F.col("fyear") >= 201819)
         .filter(F.col("resladst_ons").rlike("^E0[6-9]"))
         .groupBy("fyear", "provider", "resladst_ons", "age", "sex")
         .count()
