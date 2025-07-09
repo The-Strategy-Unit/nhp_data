@@ -90,9 +90,10 @@ def extract(
         .filter(F.col("year").between(DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR))
     )
 
+    birth_factors = create_population_projections(spark, births, fyear, projection_year)
+
     (
-        create_population_projections(spark, births, fyear, projection_year)
-        .repartition(1)
+        birth_factors.repartition(1)
         .write.mode("overwrite")
         .partitionBy("dataset")
         .parquet(f"{save_path}/birth_factors/fyear={fyear // 100}")
@@ -107,10 +108,10 @@ def extract(
         custom_birth_factors = create_custom_birth_factors(
             save_path, fyear, spark, dataset, projection_name
         )
-        births = births.unionByName(custom_birth_factors)
-    births.repartition(1).write.mode("overwrite").partitionBy(
-        "dataset"
-    ).parquet(f"{save_path}/birth_factors/fyear={fyear // 100}")
+        birth_factors = birth_factors.unionByName(custom_birth_factors)
+    birth_factors.repartition(1).write.mode("overwrite").partitionBy("dataset").parquet(
+        f"{save_path}/birth_factors/fyear={fyear // 100}"
+    )
 
 
 def main():
