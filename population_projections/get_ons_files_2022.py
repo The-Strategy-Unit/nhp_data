@@ -71,9 +71,9 @@ def snpp_uri_variant_match(uri: str) -> str | None:
 
     match file:
         case "migcat23":
-            return "migration_category"
-        case "migcat":
             return None
+        case "migcat":
+            return "migration_category"
         case "5yr" | "5year":
             return "var_proj_5_year_migration"
         case "lowmig":
