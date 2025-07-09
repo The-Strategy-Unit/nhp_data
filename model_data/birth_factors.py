@@ -69,33 +69,7 @@ def create_custom_birth_factors(
         .withColumn("sex", F.lit(2))
         .withColumn("variant", F.lit(custom_projection_name))
         .withColumn("dataset", F.lit(dataset))
-    ), births_path
-
-
-def extract_custom_birth_factors(
-    path: str,
-    fyear: int,
-    spark: SparkSession,
-    dataset: str,
-    custom_projection_name: str,
-) -> None:
-    """Create custom birth factors file for R0A66, using migration category variant
-
-    :param path: where to read the demographics from
-    :type path: str
-    :type fyear: int
-    :param spark: the spark context to use
-    :type spark: SparkSession
-    :param dataset: the dataset to extract
-    :type dataset: str
-    :param custom_projection_name: the name of the custom projection
-    :type custom_projection_name: str
-    """
-
-    df, births_path = create_custom_birth_factors(
-        path, fyear, spark, dataset, custom_projection_name
     )
-    (df.repartition(1).write.mode("overwrite").parquet(births_path))
 
 
 def extract(
@@ -130,7 +104,13 @@ def extract(
         ("R0A", "custom_projection_R0A66"),
         ("RD8", "custom_projection_RD8"),
     ]:
-        extract_custom_birth_factors(save_path, fyear, spark, dataset, projection_name)
+        custom_birth_factors = create_custom_birth_factors(
+            save_path, fyear, spark, dataset, projection_name
+        )
+        births = births.unionByName(custom_birth_factors)
+    births.repartition(1).write.mode("overwrite").partitionBy(
+        "dataset"
+    ).parquet(f"{save_path}/birth_factors/fyear={fyear // 100}")
 
 
 def main():
