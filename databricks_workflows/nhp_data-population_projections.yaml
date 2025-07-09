@@ -38,7 +38,7 @@ resources:
           for_each_task:
             inputs: '["migration_category", "var_proj_5_year_migration",
               "var_proj_10_year_migration", "var_proj_high_intl_migration",
-              "var_proj_low_intl_migration"]'
+              "var_proj_low_intl_migration", "var_proj_zero_net_migration"]'
             task:
               task_key: subnational_population_projections_iteration
               spark_python_task:
