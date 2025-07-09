@@ -95,12 +95,7 @@ def extract_custom_birth_factors(
     df, births_path = create_custom_birth_factors(
         path, fyear, spark, dataset, custom_projection_name
     )
-    (
-        df.repartition(1)
-        .write.mode("overwrite")
-        .partitionBy("dataset")
-        .parquet(births_path)
-    )
+    (df.repartition(1).write.mode("overwrite").parquet(births_path))
 
 
 def extract(
