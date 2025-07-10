@@ -56,20 +56,25 @@ def create_custom_birth_factors(
 
     multipliers = custom_projection / principal_projection
 
-    df = (
-        spark.read.parquet(births_path)
-        .filter(F.col("variant") == "migration_category")
-        .drop("variant", "sex")
-        .toPandas()
-        .set_index("age")
-    ) * multipliers
+    base_df = spark.read.parquet(births_path)
 
-    return (
-        spark.createDataFrame(df.reset_index())
+    custom_df = (
+        spark.createDataFrame(
+            (
+                (
+                    base_df.filter(F.col("variant") == "migration_category")
+                    .drop("variant", "sex")
+                    .toPandas()
+                    .set_index("age")
+                )
+                * multipliers
+            ).reset_index()
+        )
         .withColumn("sex", F.lit(2))
         .withColumn("variant", F.lit(custom_projection_name))
-        .withColumn("dataset", F.lit(dataset))
-    ), births_path
+    )
+
+    return base_df.unionByName(custom_df), births_path
 
 
 def extract_custom_birth_factors(

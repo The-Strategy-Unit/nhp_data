@@ -14,10 +14,18 @@ def get_provider_catchments(spark: SparkSession) -> DataFrame:
     :type spark: SparkSession
     """
 
-    total_window = Window.partitionBy("fyear", "resladst_ons")
+    total_window = Window.partitionBy("fyear", "resladst_ons", "age", "sex")
+
+    providers = (
+        spark.read.table("strategyunit.reference.ods_trusts")
+        .filter(F.col("org_type").startswith("ACUTE"))
+        .select("org_to")
+        .distinct()
+    )
 
     return (
         hes_apc.filter(F.col("fyear") >= 201819)
+        .join(providers, F.col("provider") == F.col("org_to"), "semi")
         .filter(F.col("resladst_ons").rlike("^E0[6-9]"))
         .groupBy("fyear", "provider", "resladst_ons", "age", "sex")
         .count()
