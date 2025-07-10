@@ -25,30 +25,30 @@ resources:
           spark_python_task:
             python_file: raw_data/outpatients.py
             source: GIT
-          job_cluster_key: generate_nhp_apc
+          job_cluster_key: generate_nhp_opa
         - task_key: nhp-raw_data-opa_mitigators
           depends_on:
             - task_key: nhp-raw_data-opa
           spark_python_task:
             python_file: raw_data/outpatients_mitigators.py
             source: GIT
-          job_cluster_key: generate_nhp_apc
+          job_cluster_key: generate_nhp_opa
         - task_key: nhp-aggregated_data-opa
           depends_on:
             - task_key: nhp-raw_data-opa_mitigators
           spark_python_task:
             python_file: aggregated_data/outpatients.py
             source: GIT
-          job_cluster_key: generate_nhp_apc
+          job_cluster_key: generate_nhp_opa
         - task_key: nhp-default-opa
           depends_on:
             - task_key: nhp-aggregated_data-opa
           spark_python_task:
             python_file: default/opa.py
             source: GIT
-          job_cluster_key: generate_nhp_apc
+          job_cluster_key: generate_nhp_opa
       job_clusters:
-        - job_cluster_key: generate_nhp_apc
+        - job_cluster_key: generate_nhp_opa
           new_cluster:
             cluster_name: ""
             spark_version: 15.4.x-scala2.12
