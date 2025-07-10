@@ -2,8 +2,6 @@ resources:
   jobs:
     Generate_NHP_Data_Population_Data:
       name: Generate NHP Data (Population Data)
-      email_notifications:
-        no_alert_for_skipped_runs: true
       webhook_notifications:
         on_success:
           - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
