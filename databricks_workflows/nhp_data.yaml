@@ -2,8 +2,6 @@ resources:
   jobs:
     Generate_NHP_Data:
       name: Generate NHP Data
-      email_notifications:
-        no_alert_for_skipped_runs: true
       webhook_notifications:
         on_success:
           - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
@@ -15,29 +13,29 @@ resources:
       tasks:
         - task_key: generate_nhp_reference_data
           run_job_task:
-            job_id: 1094888816214766
+            job_id: 742849916202449
         - task_key: generate_ecds
           depends_on:
             - task_key: generate_nhp_reference_data
           run_job_task:
-            job_id: 330193282510286
+            job_id: 1037185858597726
         - task_key: generate_ip
           depends_on:
             - task_key: generate_nhp_reference_data
           run_job_task:
-            job_id: 873083804005781
+            job_id: 1119977189116883
         - task_key: generate_op
           depends_on:
             - task_key: generate_nhp_reference_data
           run_job_task:
-            job_id: 899990430555125
+            job_id: 622855621345700
         - task_key: generate_inputs_data
           depends_on:
             - task_key: generate_ecds
             - task_key: generate_ip
             - task_key: generate_op
           run_job_task:
-            job_id: 215738885900384
+            job_id: 647489929110952
       git_source:
         git_url: https://github.com/The-Strategy-Unit/nhp_data
         git_provider: gitHub

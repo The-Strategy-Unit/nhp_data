@@ -2,8 +2,6 @@ resources:
   jobs:
     Generate_NHP_Data_AAE_ECDS:
       name: Generate NHP Data (AAE/ECDS)
-      email_notifications:
-        no_alert_for_skipped_runs: true
       webhook_notifications:
         on_success:
           - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
@@ -25,7 +23,7 @@ resources:
           spark_python_task:
             python_file: raw_data/aae.py
             source: GIT
-          job_cluster_key: generate_nhp_apc
+          job_cluster_key: generate_nhp_ecds
         - task_key: nhp-raw_data-ecds
           depends_on:
             - task_key: run_ecds
@@ -33,7 +31,7 @@ resources:
           spark_python_task:
             python_file: raw_data/ecds.py
             source: GIT
-          job_cluster_key: generate_nhp_apc
+          job_cluster_key: generate_nhp_ecds
         - task_key: nhp-aggregated_data-ecds
           depends_on:
             - task_key: nhp-raw_data-aae
@@ -41,16 +39,16 @@ resources:
           spark_python_task:
             python_file: aggregated_data/ecds.py
             source: GIT
-          job_cluster_key: generate_nhp_apc
+          job_cluster_key: generate_nhp_ecds
         - task_key: nhp-default-ecds
           depends_on:
             - task_key: nhp-aggregated_data-ecds
           spark_python_task:
             python_file: default/ecds.py
             source: GIT
-          job_cluster_key: generate_nhp_apc
+          job_cluster_key: generate_nhp_ecds
       job_clusters:
-        - job_cluster_key: generate_nhp_apc
+        - job_cluster_key: generate_nhp_ecds
           new_cluster:
             cluster_name: ""
             spark_version: 15.4.x-scala2.12

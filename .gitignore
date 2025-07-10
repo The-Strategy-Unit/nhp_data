@@ -86,4 +86,3 @@ venv.bak/
 
 # Databricks
 .databricks
-databricks.yml

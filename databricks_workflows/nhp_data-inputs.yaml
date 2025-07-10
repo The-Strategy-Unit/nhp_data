@@ -2,6 +2,11 @@ resources:
   jobs:
     Generate_NHP_Data_Inputs:
       name: Generate NHP Data (Inputs)
+      webhook_notifications:
+        on_success:
+          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
+        on_failure:
+          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
       tasks:
         - task_key: run_inputs_data
           condition_task:
