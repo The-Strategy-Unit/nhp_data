@@ -131,6 +131,13 @@ def get_inpatients_data(spark: SparkSession) -> None:
             F.col("diagnosis").alias("primary_diagnosis"),
             F.col("procedure_code").alias("primary_procedure"),
         )
+        .withColumn(
+            "pod",
+            F.when(F.col("classpat") == "2", "ip_elective_daycase")
+            .when(F.col("classpat") == "3", "ip_regular_day_attender")
+            .when(F.col("classpat") == "4", "ip_regular_night_attender")
+            .otherwise(F.concat(F.lit("ip_"), F.col("group"), F.lit("_admission"))),
+        )
         .repartition("fyear", "provider")
     )
 

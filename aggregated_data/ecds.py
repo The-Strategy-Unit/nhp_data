@@ -23,6 +23,7 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
             F.col("tretspef"),
             F.col("tretspef_grouped"),
             F.col("group"),
+            F.col("pod"),
             F.col("type"),
             F.col("hsagrp"),
             F.col("is_main_icb"),

@@ -236,6 +236,7 @@ def get_ecds_data(spark: SparkSession) -> None:
         .withColumn("hsagrp", F.concat(F.lit("aae_"), F.col("type")))
         .withColumn("tretspef", F.lit("Other"))
         .withColumn("tretspef_grouped", F.lit("Other"))
+        .withColumn("pod", F.concat(F.lit("aae_type-"), F.col("aedepttype")))
         .repartition("fyear", "provider")
     )
 
