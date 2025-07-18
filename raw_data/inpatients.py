@@ -8,7 +8,7 @@ from pyspark.sql.types import *  # noqa: F403
 
 from nhp_datasets.apc import apc_primary_procedures, hes_apc
 from nhp_datasets.icbs import add_main_icb
-from raw_data.helpers import add_tretspef_grouped_column
+from raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
 
 
 def get_inpatients_data(spark: SparkSession) -> None:
@@ -25,6 +25,7 @@ def get_inpatients_data(spark: SparkSession) -> None:
 
     df = add_main_icb(spark, hes_apc)
     df = add_tretspef_grouped_column(df)
+    df = add_age_group_column(df)
 
     df_primary_diagnosis = spark.read.table("hes.silver.apc_diagnoses").filter(
         F.col("diag_order") == 1
@@ -98,6 +99,7 @@ def get_inpatients_data(spark: SparkSession) -> None:
             F.col("person_id_deid").alias("person_id"),
             F.col("admiage"),
             F.col("age"),
+            F.col("age_group"),
             F.col("sex"),
             F.col("imd_decile"),
             F.col("imd_quintile"),

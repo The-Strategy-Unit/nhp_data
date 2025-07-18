@@ -14,6 +14,7 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
             F.col("fyear"),
             F.col("provider"),
             F.col("age"),
+            F.col("age_group"),
             F.col("sex"),
             F.col("sitetret"),
             F.col("aedepttype"),
