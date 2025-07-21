@@ -138,6 +138,12 @@ def get_inpatients_data(spark: SparkSession) -> None:
             .when(F.col("classpat") == "4", "ip_regular_night_attender")
             .otherwise(F.concat(F.lit("ip_"), F.col("group"), F.lit("_admission"))),
         )
+        .withColumn(
+            "ndggrp",
+            F.when(F.col("admimeth").isin("82", "83"), "maternity").otherwise(
+                F.col("group")
+            ),
+        )
         .repartition("fyear", "provider")
     )
 

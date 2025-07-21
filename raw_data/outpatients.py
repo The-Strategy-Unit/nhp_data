@@ -141,6 +141,7 @@ def get_outpatients_data(spark: SparkSession) -> None:
             .when(F.col("is_first"), "op_first")
             .otherwise("op_follow-up"),
         )
+        .withColumn("ndggrp", F.col("group"))
     )
 
     return hes_opa_ungrouped

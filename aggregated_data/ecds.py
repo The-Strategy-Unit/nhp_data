@@ -26,6 +26,7 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
             F.col("pod"),
             F.col("type"),
             F.col("hsagrp"),
+            F.col("ndggrp"),
             F.col("is_main_icb"),
             F.col("is_adult"),
             F.col("is_ambulance"),

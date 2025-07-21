@@ -189,6 +189,7 @@ def get_aae_data(spark: SparkSession) -> None:
         .withColumn("tretspef", F.lit("Other"))
         .withColumn("tretspef_grouped", F.lit("Other"))
         .withColumn("pod", F.concat(F.lit("aae_type-"), F.col("aedepttype")))
+        .withColumn("ndggrp", F.col("group"))
         .repartition("fyear", "provider")
     )
 
