@@ -107,14 +107,14 @@ def get_aae_data(spark: SparkSession) -> None:
     df = local_authority_successors(spark, df, "resladst_ons")
 
     hes_aae_ungrouped = (
-        df.filter(F.col("sex").isin(["1", "2"]))
-        .withColumn(
+        df.withColumn(
             "age",
             F.when(F.col("activage") >= 7000, 0)
             .when(F.col("activage") > 90, 90)
             .otherwise(F.col("activage")),
         )
-        .filter(F.col("age") <= 120)
+        .filter(F.col("sex").isin(["1", "2"]))
+        .filter(F.col("age").between(0, 90))
         .withColumn(
             "is_main_icb",
             F.when(F.col("icb") == F.col("main_icb"), True).otherwise(False),

@@ -39,15 +39,15 @@ def get_outpatients_data(spark: SparkSession) -> None:
     )
 
     hes_opa_ungrouped = (
-        df.filter(F.col("sex").isin(["1", "2"]))
-        .filter(F.col("atentype").isin(["1", "2", "21", "22"]))
+        df.filter(F.col("atentype").isin(["1", "2", "21", "22"]))
         .withColumn(
             "age",
             F.when(F.col("apptage") >= 7000, 0)
             .when(F.col("apptage") > 90, 90)
             .otherwise(F.col("apptage")),
         )
-        .filter(F.col("age") <= 120)
+        .filter(F.col("sex").isin(["1", "2"]))
+        .filter(F.col("age").between(0, 90))
         .withColumn(
             "is_main_icb",
             F.when(F.col("icb") == F.col("main_icb"), True).otherwise(False),
