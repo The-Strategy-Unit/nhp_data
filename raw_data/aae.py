@@ -105,17 +105,19 @@ def get_aae_data(spark: SparkSession) -> None:
 
     # add main icb column
     df = add_main_icb(spark, df)
+    # add age and age_group columns
+    df = df.withColumn(
+        "age",
+        F.when(F.col("activage") >= 7000, 0)
+        .when(F.col("activage") > 90, 90)
+        .otherwise(F.col("activage")),
+    )
     df = add_age_group_column(df)
+    # convert local authorities to current
     df = local_authority_successors(spark, df, "resladst_ons")
 
     hes_aae_ungrouped = (
-        df.withColumn(
-            "age",
-            F.when(F.col("activage") >= 7000, 0)
-            .when(F.col("activage") > 90, 90)
-            .otherwise(F.col("activage")),
-        )
-        .filter(F.col("sex").isin(["1", "2"]))
+        df.filter(F.col("sex").isin(["1", "2"]))
         .filter(F.col("age").between(0, 90))
         .withColumn(
             "is_main_icb",

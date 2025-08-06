@@ -124,17 +124,19 @@ def get_ecds_data(spark: SparkSession) -> None:
 
     # add main icb column
     df = add_main_icb(spark, df)
+    # add age and age_group columns
+    df = df.withColumn(
+        "age",
+        F.when(F.col("age_at_arrival") > 90, 90)
+        .otherwise(F.col("age_at_arrival"))
+        .cast("int"),
+    )
     df = add_age_group_column(df)
+    # convert local authorities to current
     df = local_authority_successors(spark, df, "local_authority_district")
 
     hes_ecds_ungrouped = (
         df.join(freq_attenders, "ec_ident")
-        .withColumn(
-            "age",
-            F.when(F.col("age_at_arrival") > 90, 90)
-            .otherwise(F.col("age_at_arrival"))
-            .cast("int"),
-        )
         .filter(F.col("sex").isin(["1", "2"]))
         .filter(F.col("age").between(0, 90))
         .withColumn("is_adult", F.col("age") >= 18)
