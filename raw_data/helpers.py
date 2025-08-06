@@ -50,7 +50,7 @@ def add_tretspef_grouped_column(self: DataFrame) -> DataFrame:
 def add_age_group_column(self: DataFrame) -> DataFrame:
     return self.withColumn(
         "age_group",
-        F.when(F.col("age").isnull(), "Unknown")
+        F.when(F.col("age").isNull(), "Unknown")
         .when(F.col("age") == 0, "0")
         .when(F.col("age") <= 4, "1-4")
         .when(F.col("age") <= 9, "5-9")
