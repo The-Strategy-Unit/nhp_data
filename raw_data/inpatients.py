@@ -8,7 +8,7 @@ from pyspark.sql.types import *  # noqa: F403
 
 from nhp_datasets.apc import apc_primary_procedures, hes_apc
 from nhp_datasets.icbs import add_main_icb
-from raw_data.helpers import add_tretspef_grouped_column
+from raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
 
 
 def get_inpatients_data(spark: SparkSession) -> None:
@@ -25,6 +25,7 @@ def get_inpatients_data(spark: SparkSession) -> None:
 
     df = add_main_icb(spark, hes_apc)
     df = add_tretspef_grouped_column(df)
+    df = add_age_group_column(df)
 
     df_primary_diagnosis = spark.read.table("hes.silver.apc_diagnoses").filter(
         F.col("diag_order") == 1
@@ -98,6 +99,7 @@ def get_inpatients_data(spark: SparkSession) -> None:
             F.col("person_id_deid").alias("person_id"),
             F.col("admiage"),
             F.col("age"),
+            F.col("age_group"),
             F.col("sex"),
             F.col("imd_decile"),
             F.col("imd_quintile"),
@@ -128,6 +130,19 @@ def get_inpatients_data(spark: SparkSession) -> None:
             F.col("maternity_delivery_in_spell"),
             F.col("diagnosis").alias("primary_diagnosis"),
             F.col("procedure_code").alias("primary_procedure"),
+        )
+        .withColumn(
+            "pod",
+            F.when(F.col("classpat") == "2", "ip_elective_daycase")
+            .when(F.col("classpat") == "3", "ip_regular_day_attender")
+            .when(F.col("classpat") == "4", "ip_regular_night_attender")
+            .otherwise(F.concat(F.lit("ip_"), F.col("group"), F.lit("_admission"))),
+        )
+        .withColumn(
+            "ndggrp",
+            F.when(F.col("admimeth").isin("82", "83"), "maternity").otherwise(
+                F.col("group")
+            ),
         )
         .repartition("fyear", "provider")
     )

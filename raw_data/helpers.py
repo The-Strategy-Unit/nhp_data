@@ -45,3 +45,21 @@ def add_tretspef_grouped_column(self: DataFrame) -> DataFrame:
     )
 
     return self.withColumn("tretspef_grouped", tretspef_column)
+
+
+def add_age_group_column(self: DataFrame) -> DataFrame:
+    return self.withColumn(
+        "age_group",
+        F.when(F.col("age").isnull(), "Unknown")
+        .when(F.col("age") == 0, "0")
+        .when(F.col("age") <= 4, "1-4")
+        .when(F.col("age") <= 9, "5-9")
+        .when(F.col("age") <= 15, "10-15")
+        .when(F.col("age") <= 17, "16-17")
+        .when(F.col("age") <= 34, "18-34")
+        .when(F.col("age") <= 49, "35-49")
+        .when(F.col("age") <= 64, "50-64")
+        .when(F.col("age") <= 74, "65-74")
+        .when(F.col("age") <= 84, "75-84")
+        .otherwise("85+"),
+    )

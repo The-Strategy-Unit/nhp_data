@@ -8,6 +8,7 @@ from pyspark.sql.types import *  # noqa: F403
 from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.local_authorities import local_authority_successors
 from nhp_datasets.providers import read_data_with_provider
+from raw_data.helpers import add_age_group_column
 
 
 def get_aae_data(spark: SparkSession) -> None:
@@ -104,6 +105,7 @@ def get_aae_data(spark: SparkSession) -> None:
 
     # add main icb column
     df = add_main_icb(spark, df)
+    df = add_age_group_column(df)
     df = local_authority_successors(spark, df, "resladst_ons")
 
     hes_aae_ungrouped = (
@@ -148,6 +150,7 @@ def get_aae_data(spark: SparkSession) -> None:
             F.col("procode3"),
             F.col("provider"),
             F.col("age"),
+            F.col("age_group"),
             F.col("sex").cast("int"),
             F.col("imd_decile"),
             F.col("imd_quintile"),
@@ -185,6 +188,8 @@ def get_aae_data(spark: SparkSession) -> None:
         .withColumn("hsagrp", F.concat(F.lit("aae_"), F.col("type")))
         .withColumn("tretspef", F.lit("Other"))
         .withColumn("tretspef_grouped", F.lit("Other"))
+        .withColumn("pod", F.concat(F.lit("aae_type-"), F.col("aedepttype")))
+        .withColumn("ndggrp", F.col("group"))
         .repartition("fyear", "provider")
     )
 

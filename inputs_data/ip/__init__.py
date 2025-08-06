@@ -4,7 +4,7 @@ import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.acute_providers import filter_acute_providers
-from inputs_data.helpers import age_group
+from inputs_data.helpers import inputs_age_group
 
 
 def get_ip_df(spark: SparkSession) -> DataFrame:
@@ -18,7 +18,8 @@ def get_ip_df(spark: SparkSession) -> DataFrame:
     return (
         filter_acute_providers(spark, "apc")
         .filter(F.col("age").isNotNull())
-        .join(age_group(spark), "age")
+        .drop("age_group")
+        .join(inputs_age_group(spark), "age")
         .drop("tretspef")
         .withColumnRenamed("tretspef_grouped", "tretspef")
     )
