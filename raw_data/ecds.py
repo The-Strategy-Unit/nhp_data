@@ -16,10 +16,7 @@ def get_ecds_data(spark: SparkSession) -> None:
     """Get ECDS data"""
     df = spark.read.table("hes.silver.ecds")
 
-    df = add_provider(spark, df, "der_provider_code", "der_provider_site_code").filter(
-        F.col("sex").isin(["1", "2"])
-    )
-
+    df = add_provider(spark, df, "der_provider_code", "der_provider_site_code")
     df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
 
     # Add IMD fields
@@ -137,6 +134,8 @@ def get_ecds_data(spark: SparkSession) -> None:
             .otherwise(F.col("age_at_arrival"))
             .cast("int"),
         )
+        .filter(F.col("sex").isin(["1", "2"]))
+        .filter(F.col("age").between(0, 90))
         .withColumn("is_adult", F.col("age") >= 18)
         .withColumn(
             "fyear", F.regexp_replace(F.col("der_financial_year"), "/", "").cast("int")

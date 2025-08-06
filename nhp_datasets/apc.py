@@ -27,6 +27,7 @@ hes_apc = (
     .filter(~((F.col("tretspef") == "424") & (F.col("epitype") == "3")))
     # ---
     .filter(F.col("sex").isin(["1", "2"]))
+    .filter(F.col("age").between(0, 90))
     .withColumn(
         "icb",
         # use the ccg of residence if available, otherwise use the ccg of responsibility
