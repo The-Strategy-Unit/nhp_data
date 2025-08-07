@@ -140,7 +140,7 @@ def get_outpatients_data(spark: SparkSession) -> None:
         )
         .withColumn(
             "pod",
-            F.when(F.col("has_procedure"), "op_procedure")
+            F.when(F.col("has_procedures"), "op_procedure")
             .when(F.col("is_first"), "op_first")
             .otherwise("op_follow-up"),
         )
