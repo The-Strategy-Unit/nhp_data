@@ -55,9 +55,11 @@ def get_day_procedure_code_list(
         .filter(F.col("apptage").isNotNull())
         # end of todo
         .filter(F.col("atentype").isin(["1", "2"]))  # only include F2F appointments
+        .filter(
+            ~F.col("sushrg").rlike("^(WF|U)")
+        )  # only include appointments with a procedure
         .join(providers, "provider", "semi")
         .filter(fyear_criteria)
-        .filter(F.col("has_procedures"))
     )
 
     df_op = (
