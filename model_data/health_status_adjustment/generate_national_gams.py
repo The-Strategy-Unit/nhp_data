@@ -24,7 +24,7 @@ def _get_data(spark: SparkSession, save_path: str) -> pd.DataFrame:
                 for ds in ["ip", "op", "aae"]
             ],
         )
-        .filter(~F.col("hsagrp").isin(["birth", "maternity", "paeds"]))
+        .filter(~F.col("hsagrp").isin(["birth", "maternity", "paeds", "unknown"]))
         .filter(F.col("fyear").isin([2023]))
     )
 

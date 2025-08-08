@@ -45,6 +45,15 @@ resources:
             python_file: reference/provider_catchments.py
             source: GIT
           job_cluster_key: generate_nhp_reference
+        - task_key: create_day_procedure_code_list
+          depends_on:
+            - task_key: create_provider_catchments
+          spark_python_task:
+            python_file: reference/day_procedures.py
+            parameters:
+              - "{{job.parameters.day_procedures_save_path}}"
+            source: GIT
+          job_cluster_key: generate_nhp_reference
       job_clusters:
         - job_cluster_key: generate_nhp_reference
           new_cluster:
@@ -71,3 +80,5 @@ resources:
       parameters:
         - name: run_reference_data
           default: "True"
+        - name: day_procedures_save_path
+          default: /Volumes/nhp/reference/files/day_procedures.json
