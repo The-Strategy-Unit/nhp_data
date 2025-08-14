@@ -52,6 +52,7 @@ resources:
             python_file: reference/day_procedures.py
             parameters:
               - "{{job.parameters.day_procedures_save_path}}"
+              - "{{job.parameters.day_procedures_base_year}}"
             source: GIT
           job_cluster_key: generate_nhp_reference
       job_clusters:
@@ -82,3 +83,5 @@ resources:
           default: "True"
         - name: day_procedures_save_path
           default: /Volumes/nhp/reference/files/day_procedures.json
+        - name: day_procedures_base_year
+          default: "202324"

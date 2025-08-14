@@ -23,12 +23,17 @@ def _get_procedures(spark: SparkSession, table_name: str) -> DataFrame:
 
 
 def get_day_procedure_code_list(
-    spark: SparkSession, minimum_total: int = 100, p_value: float = 0.001
+    spark: SparkSession,
+    base_year: int,
+    minimum_total: int = 100,
+    p_value: float = 0.001,
 ) -> dict[str, list[str]]:
     """_summary_
 
     :param spark: The spark session to use
     :type spark: SparkSession
+    :param base_year: Which year to filter the data to
+    :type base_year: int
     :param minimum_total: what is the minimum number of procedures in total that must be performed,
         defaults to 100
     :type minimum_total: int, optional
@@ -37,6 +42,9 @@ def get_day_procedure_code_list(
     :return: a dictionary containing the types and their code lists
     :rtype: dict[str, list[str]]
     """
+    P_USUALLY = 0.5
+    P_OCCASIONALLY = 0.05
+
     providers = (
         spark.read.table("strategyunit.reference.ods_trusts")
         .filter(F.col("org_type").startswith("ACUTE"))
@@ -45,9 +53,7 @@ def get_day_procedure_code_list(
         .persist()
     )
 
-    fyear_criteria = F.col("fyear") == 202324
-    P_USUALLY = 0.5
-    P_OCCASIONALLY = 0.05
+    fyear_criteria = F.col("fyear") == base_year
 
     op = (
         # TODO: replicating logic from outpatients. not DRY.
@@ -152,8 +158,10 @@ def get_day_procedure_code_list(
     }
 
 
-def create_day_procedure_code_list(spark: SparkSession, path: str) -> None:
-    day_procedure_code_list = get_day_procedure_code_list(spark)
+def create_day_procedure_code_list(
+    spark: SparkSession, path: str, base_year: int
+) -> None:
+    day_procedure_code_list = get_day_procedure_code_list(spark, base_year)
 
     with open(path, "w", encoding="UTF-8") as f:
         json.dump(day_procedure_code_list, f)
@@ -162,7 +170,8 @@ def create_day_procedure_code_list(spark: SparkSession, path: str) -> None:
 def init():
     spark = DatabricksSession.builder.getOrCreate()
     path = sys.argv[1]
-    create_day_procedure_code_list(spark, path)
+    base_year = int(sys.argv[2])
+    create_day_procedure_code_list(spark, path, base_year)
 
 
 if __name__ == "__main__":
