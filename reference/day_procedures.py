@@ -45,7 +45,7 @@ def get_day_procedure_code_list(
         .persist()
     )
 
-    fyear_criteria = F.col("fyear") == 201920
+    fyear_criteria = F.col("fyear") == 202324
     P_USUALLY = 0.5
     P_OCCASIONALLY = 0.05
 
