@@ -36,7 +36,9 @@ def get_op_mitigators(spark: SparkSession) -> DataFrame:
     :return: The outpatients mitigators data
     :rtype: DataFrame
     """
-    df = get_op_df(spark)
+    # get the op data, but immediately remove any maternity rows. they aren't intended to be used
+    # for these mitigators
+    df = get_op_df(spark).filter(F.col("group") != "maternity")
 
     op_strategies = [
         # Follow-up reduction
