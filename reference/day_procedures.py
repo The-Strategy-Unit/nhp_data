@@ -46,6 +46,8 @@ def get_day_procedure_code_list(
     )
 
     fyear_criteria = F.col("fyear") == 201920
+    P_USUALLY = 0.5
+    P_OCCASIONALLY = 0.05
 
     op = (
         # TODO: replicating logic from outpatients. not DRY.
@@ -93,42 +95,51 @@ def get_day_procedure_code_list(
         .withColumn("total", F.col("dc") + F.col("ip") + F.col("op"))
         .filter(F.col("total") >= minimum_total)
         .toPandas()
-    )
-
-    df2 = (
-        df.melt(
+        .melt(
             id_vars=["procedure_code", "total"],
             value_vars=["op", "dc"],
             var_name="type",
         )
         .assign(
-            pu=lambda x: x.apply(
+            prob_usually=lambda x: x.apply(
                 lambda y: binomtest(
-                    y.value, y.total, p=0.5, alternative="greater"
+                    y.value, y.total, p=P_USUALLY, alternative="greater"
                 ).pvalue,
                 axis=1,
             )
         )
         .assign(
-            po=lambda x: x.apply(
+            prob_occasionally=lambda x: x.apply(
                 lambda y: binomtest(
-                    y.value, y.total, p=0.05, alternative="greater"
+                    y.value, y.total, p=P_OCCASIONALLY, alternative="greater"
                 ).pvalue,
                 axis=1,
             )
         )
     )
 
-    usually_dc = set(df2.loc[(df2.pu < p_value) & (df2.type == "dc"), "procedure_code"])
-    usually_op = set(df2.loc[(df2.pu < p_value) & (df2.type == "op"), "procedure_code"])
+    usually_dc = set(
+        df.loc[(df.prob_usually < p_value) & (df.type == "dc"), "procedure_code"]
+    )
+    usually_op = set(
+        df.loc[(df.prob_usually < p_value) & (df.type == "op"), "procedure_code"]
+    )
 
     occasionally_dc = (
-        set(df2.loc[(df2.po < p_value) & (df2.type == "dc"), "procedure_code"])
+        set(
+            df.loc[
+                (df.prob_occasionally < p_value) & (df.type == "dc"), "procedure_code"
+            ]
+        )
         - usually_dc
         - usually_op
     )
     occasionally_op = (
-        set(df2.loc[(df2.po < p_value) & (df2.type == "op"), "procedure_code"])
+        set(
+            df.loc[
+                (df.prob_occasionally < p_value) & (df.type == "op"), "procedure_code"
+            ]
+        )
         - usually_dc
         - usually_op
     )
