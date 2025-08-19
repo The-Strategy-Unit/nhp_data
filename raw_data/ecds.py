@@ -10,16 +10,14 @@ from pyspark.sql.types import *  # noqa: F403
 from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.local_authorities import local_authority_successors
 from nhp_datasets.providers import add_provider
+from raw_data.helpers import add_age_group_column
 
 
 def get_ecds_data(spark: SparkSession) -> None:
     """Get ECDS data"""
     df = spark.read.table("hes.silver.ecds")
 
-    df = add_provider(spark, df, "der_provider_code", "der_provider_site_code").filter(
-        F.col("sex").isin(["1", "2"])
-    )
-
+    df = add_provider(spark, df, "der_provider_code", "der_provider_site_code")
     df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
 
     # Add IMD fields
@@ -126,17 +124,21 @@ def get_ecds_data(spark: SparkSession) -> None:
 
     # add main icb column
     df = add_main_icb(spark, df)
-
+    # add age and age_group columns
+    df = df.withColumn(
+        "age",
+        F.when(F.col("age_at_arrival") > 90, 90)
+        .otherwise(F.col("age_at_arrival"))
+        .cast("int"),
+    )
+    df = add_age_group_column(df)
+    # convert local authorities to current
     df = local_authority_successors(spark, df, "local_authority_district")
 
     hes_ecds_ungrouped = (
         df.join(freq_attenders, "ec_ident")
-        .withColumn(
-            "age",
-            F.when(F.col("age_at_arrival") > 90, 90)
-            .otherwise(F.col("age_at_arrival"))
-            .cast("int"),
-        )
+        .filter(F.col("sex").isin(["1", "2"]))
+        .filter(F.col("age").between(0, 90))
         .withColumn("is_adult", F.col("age") >= 18)
         .withColumn(
             "fyear", F.regexp_replace(F.col("der_financial_year"), "/", "").cast("int")
@@ -196,6 +198,7 @@ def get_ecds_data(spark: SparkSession) -> None:
             F.col("der_provider_code").alias("procode3"),
             F.col("provider"),
             F.col("age"),
+            F.col("age_group"),
             F.col("sex").cast("int"),
             F.col("imd_decile"),
             F.col("imd_quintile"),
@@ -234,6 +237,8 @@ def get_ecds_data(spark: SparkSession) -> None:
         .withColumn("hsagrp", F.concat(F.lit("aae_"), F.col("type")))
         .withColumn("tretspef", F.lit("Other"))
         .withColumn("tretspef_grouped", F.lit("Other"))
+        .withColumn("pod", F.concat(F.lit("aae_type-"), F.col("aedepttype")))
+        .withColumn("ndggrp", F.col("group"))
         .repartition("fyear", "provider")
     )
 

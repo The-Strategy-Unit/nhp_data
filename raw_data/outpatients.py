@@ -8,7 +8,7 @@ from pyspark.sql.types import *  # noqa: F403
 from nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp_datasets.local_authorities import local_authority_successors
 from nhp_datasets.providers import read_data_with_provider
-from raw_data.helpers import add_tretspef_grouped_column
+from raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
 
 
 def get_outpatients_data(spark: SparkSession) -> None:
@@ -27,7 +27,17 @@ def get_outpatients_data(spark: SparkSession) -> None:
 
     # add main icb column
     df = add_main_icb(spark, df)
+    # add the tretspef grouped column
     df = add_tretspef_grouped_column(df)
+    # add age and age_group columns
+    df = df.withColumn(
+        "age",
+        F.when(F.col("apptage") >= 7000, 0)
+        .when(F.col("apptage") > 90, 90)
+        .otherwise(F.col("apptage")),
+    )
+    df = add_age_group_column(df)
+    # convert local authorities to current
     df = local_authority_successors(spark, df, "resladst_ons")
 
     df_primary_diagnosis = spark.read.table("hes.silver.opa_diagnoses").filter(
@@ -39,15 +49,9 @@ def get_outpatients_data(spark: SparkSession) -> None:
     )
 
     hes_opa_ungrouped = (
-        df.filter(F.col("sex").isin(["1", "2"]))
-        .filter(F.col("atentype").isin(["1", "2", "21", "22"]))
-        .withColumn(
-            "age",
-            F.when(F.col("apptage") >= 7000, 0)
-            .when(F.col("apptage") > 90, 90)
-            .otherwise(F.col("apptage")),
-        )
-        .filter(F.col("age") <= 120)
+        df.filter(F.col("atentype").isin(["1", "2", "21", "22"]))
+        .filter(F.col("sex").isin(["1", "2"]))
+        .filter(F.col("age").between(0, 90))
         .withColumn(
             "is_main_icb",
             F.when(F.col("icb") == F.col("main_icb"), True).otherwise(False),
@@ -86,6 +90,7 @@ def get_outpatients_data(spark: SparkSession) -> None:
             F.col("procode3"),
             F.col("provider"),
             F.col("age"),
+            F.col("age_group"),
             F.col("sex").cast("int"),
             F.col("imd_decile"),
             F.col("imd_quintile"),
@@ -133,6 +138,13 @@ def get_outpatients_data(spark: SparkSession) -> None:
         .withColumn(
             "hsagrp", F.concat(F.lit("op_"), F.col("type"), F.lit("_"), F.col("group"))
         )
+        .withColumn(
+            "pod",
+            F.when(F.col("has_procedures"), "op_procedure")
+            .when(F.col("is_first"), "op_first")
+            .otherwise("op_follow-up"),
+        )
+        .withColumn("ndggrp", F.col("group"))
     )
 
     return hes_opa_ungrouped

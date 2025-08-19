@@ -31,7 +31,7 @@ def get_wli(path: str, spark: SparkSession = get_spark()) -> DataFrame:
     # TODO: this table is generated using a query on our Data Warehouse, but using publically available RTT files
     # ideally this should be made more reproducible
     wl_ac = (
-        spark.read.parquet(f"{path}/waiting_list_avg_change.parquet")
+        spark.read.parquet(f"{path}/rtt_year_end_incompletes.parquet")
         .withColumn("provider", provider_successors_mapping[F.col("procode3")])
         .groupBy("provider", "tretspef", "date")
         .agg(F.sum("n").alias("n"))

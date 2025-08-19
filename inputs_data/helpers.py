@@ -17,7 +17,7 @@ def get_spark() -> SparkSession:
     return spark
 
 
-def age_group(spark: SparkSession) -> DataFrame:
+def inputs_age_group(spark: SparkSession) -> DataFrame:
     """Get age groupings
 
     :param spark: The spark context to use
@@ -66,7 +66,7 @@ def complete_age_sex_data(
     :return: the completed DataFrame
     :rtype: DataFrame
     """
-    age_groups = age_group(spark).select("age_group").distinct()
+    age_groups = inputs_age_group(spark).select("age_group").distinct()
 
     # TODO: probably should decide on one of these methods (ether full or age_range) and remove
     # the other cases

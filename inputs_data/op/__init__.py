@@ -6,7 +6,7 @@ import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
 from inputs_data.acute_providers import filter_acute_providers
-from inputs_data.helpers import age_group
+from inputs_data.helpers import inputs_age_group
 
 
 def get_op_df(spark: SparkSession) -> DataFrame:
@@ -20,7 +20,8 @@ def get_op_df(spark: SparkSession) -> DataFrame:
     return (
         filter_acute_providers(spark, "opa")
         .filter(F.col("age").isNotNull())
-        .join(age_group(spark), "age")
+        .drop("age_group")
+        .join(inputs_age_group(spark), "age")
         .drop("tretspef")
         .withColumnRenamed("tretspef_grouped", "tretspef")
     )
@@ -35,7 +36,9 @@ def get_op_mitigators(spark: SparkSession) -> DataFrame:
     :return: The outpatients mitigators data
     :rtype: DataFrame
     """
-    df = get_op_df(spark)
+    # get the op data, but immediately remove any maternity rows. they aren't intended to be used
+    # for these mitigators
+    df = get_op_df(spark).filter(F.col("group") != "maternity")
 
     op_strategies = [
         # Follow-up reduction
