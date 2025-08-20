@@ -16,7 +16,7 @@ def create_population_by_imd_decile(
     :type base_year: int, optional
     """
 
-    df = spark.read.table("nhp.default.apc")
+    df = spark.read.table("nhp.default.apc").drop("age_group")
 
     # create age group lookups
     age_groups = spark.createDataFrame(
