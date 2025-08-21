@@ -26,15 +26,15 @@ def load_inequalities_data(spark: SparkSession, fyears: list) -> DataFrame:
         spark.read.table("nhp.reference.population_by_imd_decile")
         .withColumn("imd_quintile", F.floor((F.col("imd19") - 1) / 2) + 1)
         .drop("imd19")
-        .groupby("provider", "imd_quintile")
+        .groupby("icb", "provider", "imd_quintile")
         .agg(F.sum("pop").alias("pop"))
         .withColumn(
             "population_share",
-            F.col("pop") / F.sum("pop").over(Window.partitionBy("provider")),
+            F.col("pop") / F.sum("pop").over(Window.partitionBy(["icb", "provider"])),
         )
         .withColumn(
             "total_catchment_pop",
-            F.sum("pop").over(Window.partitionBy("provider")),
+            F.sum("pop").over(Window.partitionBy(["icb", "provider"])),
         )
     )
 
@@ -43,8 +43,8 @@ def load_inequalities_data(spark: SparkSession, fyears: list) -> DataFrame:
         .filter(F.col("fyear").isin(fyears))
         .withColumn("sushrg_trimmed", F.expr("substring(sushrg, 1, 4)"))
         .filter(F.col("admimeth").startswith("1"))
-        .select("provider", "imd_quintile", "sushrg_trimmed", "fyear")
-        .groupby("provider", "imd_quintile", "sushrg_trimmed", "fyear")
+        .select("icb", "provider", "imd_quintile", "sushrg_trimmed", "fyear")
+        .groupby("icb", "provider", "imd_quintile", "sushrg_trimmed", "fyear")
         .agg(F.count("*").alias("count"))
     )
 
@@ -52,16 +52,16 @@ def load_inequalities_data(spark: SparkSession, fyears: list) -> DataFrame:
         spark.read.table("nhp.default.opa")
         .filter(F.col("fyear").isin(fyears))
         .filter(F.col("has_procedures"))
-        .groupby("provider", "imd_quintile", "sushrg_trimmed", "fyear")
+        .groupby("icb", "provider", "imd_quintile", "sushrg_trimmed", "fyear")
         .agg(F.sum("attendances").alias("count"))
     )
 
     data = opa.unionByName(apc)
 
     data_hrg_count = (
-        data.groupby(["provider", "imd_quintile", "sushrg_trimmed", "fyear"])
+        data.groupby(["icb", "provider", "imd_quintile", "sushrg_trimmed", "fyear"])
         .agg(F.sum("count").alias("count"))
-        .join(imd_df, on=["provider", "imd_quintile"])
+        .join(imd_df, on=["icb", "provider", "imd_quintile"])
         .withColumn("activity_rate", F.col("count") / (F.col("pop")))
     )
 
@@ -86,17 +86,17 @@ def calculate_inequalities(
 
     results = []
     for fyear in fyears:
-        providers = (
+        groups = (
             data_hrg_count.filter(F.col("fyear") == fyear)
-            .select("provider")
+            .select("icb", "provider")
             .distinct()
-            .rdd.flatMap(lambda x: x)
-            .collect()
         )
-        for provider in providers:
+        groups = [tuple(row) for row in groups.collect()]
+        for group in groups:
             provider_df = (
                 data_hrg_count.filter(F.col("fyear") == fyear)
-                .filter(F.col("provider") == provider)
+                .filter(F.col("icb") == group[0])
+                .filter(F.col("provider") == group[1])
                 .toPandas()
             )
             # remove HRGs where fewer than 3 quintiles are represented for that HRG
@@ -127,7 +127,8 @@ def calculate_inequalities(
                 res = sm.WLS(y, x, weights=hrg_df["pop"]).fit()
                 results.append(
                     {
-                        "provider": provider,
+                        "icb": group[0],
+                        "provider": group[1],
                         "fyear": fyear,
                         "sushrg_trimmed": hrg,
                         "pvalue": res.pvalues.imd_quintile,
