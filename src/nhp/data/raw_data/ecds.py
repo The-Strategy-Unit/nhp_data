@@ -3,14 +3,25 @@
 from itertools import chain
 
 from databricks.connect import DatabricksSession
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.types import *  # noqa: F403
 
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp.data.nhp_datasets.local_authorities import local_authority_successors
 from nhp.data.nhp_datasets.providers import add_provider
 from nhp.data.raw_data.helpers import add_age_group_column
-from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql import functions as F
-from pyspark.sql.types import *  # noqa: F403
+
+
+def create_capacity_conversion_group():
+    is_child = F.col("age") <= 17
+
+    return (
+        F.when(F.col("acuity") == "immediate-resuscitation", "aae-resus")
+        .when(is_child, "aae-childrens")
+        .when(F.col("acuity").isin(["urgent", "very-urgent"]), "aae-majors")
+        .otherwise("aae-minors")
+    )
 
 
 def get_ecds_data(spark: SparkSession) -> DataFrame:
@@ -239,6 +250,7 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
         .withColumn("tretspef_grouped", F.lit("Other"))
         .withColumn("pod", F.concat(F.lit("aae_type-"), F.col("aedepttype")))
         .withColumn("ndggrp", F.col("group"))
+        .withColumn("capacity_conversion_group", create_capacity_conversion_group())
         .repartition("fyear", "provider")
     )
 

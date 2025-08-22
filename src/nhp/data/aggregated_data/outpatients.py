@@ -25,6 +25,7 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
             F.col("pod"),
             F.col("hsagrp"),
             F.col("ndggrp"),
+            F.col("capacity_conversion_group"),
             F.col("has_procedures"),
             F.col("sushrg").substr(1, 4).alias("sushrg_trimmed"),
             F.col("icb"),
