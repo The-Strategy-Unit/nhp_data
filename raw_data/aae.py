@@ -11,6 +11,11 @@ from nhp_datasets.providers import read_data_with_provider
 from raw_data.helpers import add_age_group_column
 
 
+def create_capacity_conversion_group():
+    # can't create capacity groups on AAE data
+    return F.lit("aae-unknown")
+
+
 def get_aae_data(spark: SparkSession) -> None:
     """Get AAE data
 
@@ -192,6 +197,7 @@ def get_aae_data(spark: SparkSession) -> None:
         .withColumn("tretspef_grouped", F.lit("Other"))
         .withColumn("pod", F.concat(F.lit("aae_type-"), F.col("aedepttype")))
         .withColumn("ndggrp", F.col("group"))
+        .withColumn("capacity_conversion_group", create_capacity_conversion_group())
         .repartition("fyear", "provider")
     )
 
