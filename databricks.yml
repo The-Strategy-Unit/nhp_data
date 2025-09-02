@@ -9,6 +9,10 @@ bundle:
 include:
   - databricks_workflows/*.yaml
 
+permissions:
+  - level: CAN_MANAGE
+    group_name: nhp_devs
+
 targets:
   dev:
     # The default target uses 'mode: development' to create a development copy.
@@ -24,8 +28,7 @@ targets:
     mode: production
     workspace:
       host: https://adb-4243551358552236.16.azuredatabricks.net
-      # We explicitly deploy to /Workspace/Users/thomas.jemmett@mlcsu.nhs.uk to make sure we only have a single copy.
-      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Workspace/Jobs/nhp_devs/${bundle.name}/${bundle.target}
     permissions:
-      - user_name: thomas.jemmett@mlcsu.nhs.uk
+      - group_name: nhp_devs
         level: CAN_MANAGE
