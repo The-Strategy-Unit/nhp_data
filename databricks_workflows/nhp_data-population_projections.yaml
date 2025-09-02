@@ -81,6 +81,7 @@ resources:
             num_workers: 0
       tags:
         group: nhp_data
+        env: ${bundle.target}
       queue:
         enabled: true
       parameters:

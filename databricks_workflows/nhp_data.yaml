@@ -42,6 +42,7 @@ resources:
         git_branch: main
       tags:
         group: nhp_data
+        env: ${bundle.target}
       queue:
         enabled: true
       parameters:

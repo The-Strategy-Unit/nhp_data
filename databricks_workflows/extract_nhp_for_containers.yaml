@@ -118,6 +118,9 @@ resources:
             data_security_mode: SINGLE_USER
             runtime_engine: STANDARD
             num_workers: 0
+      tags:
+        group: nhp_data_model
+        env: ${bundle.target}
       queue:
         enabled: true
       parameters:
