@@ -13,29 +13,29 @@ resources:
       tasks:
         - task_key: generate_nhp_reference_data
           run_job_task:
-            job_id: 742849916202449
+            job_id: ${resources.jobs.Generate_NHP_Data_Reference_Data.id}
         - task_key: generate_ecds
           depends_on:
             - task_key: generate_nhp_reference_data
           run_job_task:
-            job_id: 1037185858597726
+            job_id: ${resources.jobs.Generate_NHP_Data_AAE_ECDS.id}
         - task_key: generate_ip
           depends_on:
             - task_key: generate_nhp_reference_data
           run_job_task:
-            job_id: 1119977189116883
+            job_id: ${resources.jobs.Generate_NHP_Data_IP.id}
         - task_key: generate_op
           depends_on:
             - task_key: generate_nhp_reference_data
           run_job_task:
-            job_id: 622855621345700
+            job_id: ${resources.jobs.Generate_NHP_Data_OP.id}
         - task_key: generate_inputs_data
           depends_on:
             - task_key: generate_ecds
             - task_key: generate_ip
             - task_key: generate_op
           run_job_task:
-            job_id: 647489929110952
+            job_id: ${resources.jobs.Generate_NHP_Data_Inputs.id}
       git_source:
         git_url: https://github.com/The-Strategy-Unit/nhp_data
         git_provider: gitHub
