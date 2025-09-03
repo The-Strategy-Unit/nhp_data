@@ -1,0 +1,26 @@
+name: Deploy DataBricks Bundle
+on: push
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy_bundle:
+    name: Deploy Bundle
+    runs-on: ubuntu-latest
+    environment: prod
+    env:
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: ${{secrets.DATABRICKS_HOST}}
+      DATABRICKS_CLIENT_ID: ${{secrets.DATABRICKS_CLIENT_ID}}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Deploy
+        run: databricks bundle deploy -t prod

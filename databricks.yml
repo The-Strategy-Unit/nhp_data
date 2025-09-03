@@ -10,8 +10,8 @@ include:
   - databricks_workflows/*.yaml
 
 permissions:
-  - level: CAN_MANAGE
-    group_name: nhp_devs
+  - group_name: nhp_devs
+    level: CAN_MANAGE
 
 targets:
   dev:
@@ -26,6 +26,8 @@ targets:
 
   prod:
     mode: production
+    run_as:
+      service_principal_name: b61ef435-b155-42c7-8c9e-2a2442e280cd
     workspace:
       host: https://adb-4243551358552236.16.azuredatabricks.net
       root_path: /Workspace/Jobs/nhp_devs/${bundle.name}/${bundle.target}
