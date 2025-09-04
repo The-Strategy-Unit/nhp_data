@@ -83,8 +83,9 @@ def create_population_by_imd_decile(
 
 def main() -> None:
     """main method"""
+    fyear = int(sys.argv[1])
     spark = DatabricksSession.builder.getOrCreate()
-    create_population_by_imd_decile(spark, 202324)
+    create_population_by_imd_decile(spark, fyear)
 
 
 if __name__ == "__main__":

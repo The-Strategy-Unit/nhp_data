@@ -212,12 +212,14 @@ def process_calculated_inequalities(
     )
 
 
-def main(path, spark):
+def main(path, fyears, spark):
     """
     Loads data, calculates inequalities and saves the results to parquet
 
     :param path: The path to save the results to
     :type path: str
+    :param fyears: The years to calculate inequalities for, with each fyear as an int
+    :type fyears: list
     :param spark: The spark context to use
     :type spark: SparkSession
 
@@ -231,7 +233,6 @@ def main(path, spark):
         disable_for_unsupported_versions=True,
         silent=False,
     )
-    fyears = [202324]
 
     data_hrg_count = load_inequalities_data(spark, fyears=fyears)
     linreg_df = calculate_inequalities(data_hrg_count, fyears=fyears)
@@ -241,5 +242,6 @@ def main(path, spark):
 
 if __name__ == "__main__":
     path = sys.argv[1]
+    fyears = sys.argv[2]
     spark = get_spark()
-    main(path, spark)
+    main(path, fyears, spark)
