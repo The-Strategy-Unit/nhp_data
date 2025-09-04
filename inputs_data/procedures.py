@@ -1,5 +1,12 @@
 """Generate Procedures Dataframe"""
 
+# when running on databricks, we might need to change directory in order to
+# import things correctly
+import os
+
+if not os.path.exists("readme.md"):
+    os.chdir("..")
+
 import sys
 from functools import reduce
 

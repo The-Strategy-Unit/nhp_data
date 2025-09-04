@@ -1,5 +1,12 @@
 """Get Outpatients Rates Data"""
 
+# when running on databricks, we might need to change directory in order to
+# import things correctly
+import os
+
+if not os.path.exists("readme.md"):
+    os.chdir("..")
+
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 

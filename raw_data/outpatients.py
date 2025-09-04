@@ -1,5 +1,13 @@
 """Generate outpatients data"""
 
+# when running on databricks, we might need to change directory in order to
+# import things correctly
+import os
+
+if not os.path.exists("readme.md"):
+    os.chdir("..")
+
+
 from databricks.connect import DatabricksSession
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F

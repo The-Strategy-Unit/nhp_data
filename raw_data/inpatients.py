@@ -1,5 +1,13 @@
 """Generate inpatients data"""
 
+# when running on databricks, we might need to change directory in order to
+# import things correctly
+import os
+
+if not os.path.exists("readme.md"):
+    os.chdir("..")
+
+
 from databricks.connect import DatabricksSession
 from delta.tables import DeltaTable
 from pyspark.sql import SparkSession

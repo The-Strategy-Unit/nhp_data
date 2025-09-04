@@ -1,5 +1,12 @@
 """Inpatients Expat/Repat data"""
 
+# when running on databricks, we might need to change directory in order to
+# import things correctly
+import os
+
+if not os.path.exists("readme.md"):
+    os.chdir("..")
+
 from functools import cache
 
 from pyspark.sql import DataFrame, SparkSession, Window

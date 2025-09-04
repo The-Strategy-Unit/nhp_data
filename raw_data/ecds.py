@@ -1,5 +1,13 @@
 """Generate the ECDS data"""
 
+# when running on databricks, we might need to change directory in order to
+# import things correctly
+import os
+
+if not os.path.exists("readme.md"):
+    os.chdir("..")
+
+
 from itertools import chain
 
 from databricks.connect import DatabricksSession

@@ -1,5 +1,12 @@
 """Helper methods/tables"""
 
+# when running on databricks, we might need to change directory in order to
+# import things correctly
+import os
+
+if not os.path.exists("readme.md"):
+    os.chdir("..")
+
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession

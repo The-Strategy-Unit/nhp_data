@@ -1,7 +1,14 @@
 """Generate Provider Main ICB"""
 
+# when running on databricks, we might need to change directory in order to
+# import things correctly
+import os
+
 from pyspark.sql import Window
 from pyspark.sql import functions as F
+
+if not os.path.exists("readme.md"):
+    os.chdir("..")
 
 from nhp_datasets.apc import hes_apc
 
