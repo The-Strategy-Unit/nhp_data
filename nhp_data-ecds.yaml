@@ -1,7 +1,7 @@
 resources:
   jobs:
-    Generate_NHP_Data_IP:
-      name: Generate NHP Data (IP)
+    Generate_NHP_Data_AAE_ECDS:
+      name: Generate NHP Data (AAE/ECDS)
       webhook_notifications:
         on_success:
           - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
@@ -11,32 +11,40 @@ resources:
         no_alert_for_skipped_runs: true
         no_alert_for_canceled_runs: true
       tasks:
-        - task_key: run_ip
+        - task_key: run_ecds
           condition_task:
             op: EQUAL_TO
-            left: "{{job.parameters.run_ip}}"
+            left: "{{job.parameters.run_ecds}}"
             right: "True"
-        - task_key: nhp-raw_data-apc
+        - task_key: nhp-raw_data-aae
           depends_on:
-            - task_key: run_ip
+            - task_key: run_ecds
               outcome: "true"
           spark_python_task:
-            python_file: ../raw_data/inpatients.py
-          job_cluster_key: generate_nhp_apc
-        - task_key: nhp-default-apc
+            python_file: ./raw_data/aae.py
+          job_cluster_key: generate_nhp_ecds
+        - task_key: nhp-raw_data-ecds
           depends_on:
-            - task_key: nhp-raw_data-apc_mitigators
+            - task_key: run_ecds
+              outcome: "true"
           spark_python_task:
-            python_file: ../default/apc.py
-          job_cluster_key: generate_nhp_apc
-        - task_key: nhp-raw_data-apc_mitigators
+            python_file: ./raw_data/ecds.py
+          job_cluster_key: generate_nhp_ecds
+        - task_key: nhp-aggregated_data-ecds
           depends_on:
-            - task_key: nhp-raw_data-apc
+            - task_key: nhp-raw_data-aae
+            - task_key: nhp-raw_data-ecds
           spark_python_task:
-            python_file: ../raw_data/inpatients_mitigators.py
-          job_cluster_key: generate_nhp_apc
+            python_file: ./aggregated_data/ecds.py
+          job_cluster_key: generate_nhp_ecds
+        - task_key: nhp-default-ecds
+          depends_on:
+            - task_key: nhp-aggregated_data-ecds
+          spark_python_task:
+            python_file: ./default/ecds.py
+          job_cluster_key: generate_nhp_ecds
       job_clusters:
-        - job_cluster_key: generate_nhp_apc
+        - job_cluster_key: generate_nhp_ecds
           new_cluster:
             cluster_name: ""
             spark_version: 15.4.x-scala2.12
@@ -52,5 +60,5 @@ resources:
       queue:
         enabled: true
       parameters:
-        - name: run_ip
+        - name: run_ecds
           default: "True"

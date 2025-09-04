@@ -7,7 +7,7 @@ bundle:
   uuid: 6d4b9e0d-57e5-4452-97cb-8135da582dc5
 
 include:
-  - databricks_workflows/*.yaml
+  - nhp_data*.yaml
 
 permissions:
   - group_name: nhp_devs

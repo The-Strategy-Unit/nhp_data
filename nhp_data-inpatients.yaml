@@ -1,7 +1,7 @@
 resources:
   jobs:
-    Generate_NHP_Data_OP:
-      name: Generate NHP Data (OP)
+    Generate_NHP_Data_IP:
+      name: Generate NHP Data (IP)
       webhook_notifications:
         on_success:
           - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
@@ -11,38 +11,32 @@ resources:
         no_alert_for_skipped_runs: true
         no_alert_for_canceled_runs: true
       tasks:
-        - task_key: run_op
+        - task_key: run_ip
           condition_task:
             op: EQUAL_TO
-            left: "{{job.parameters.run_op}}"
+            left: "{{job.parameters.run_ip}}"
             right: "True"
-        - task_key: nhp-raw_data-opa
+        - task_key: nhp-raw_data-apc
           depends_on:
-            - task_key: run_op
+            - task_key: run_ip
               outcome: "true"
           spark_python_task:
-            python_file: ../raw_data/outpatients.py
-          job_cluster_key: generate_nhp_opa
-        - task_key: nhp-raw_data-opa_mitigators
+            python_file: ./raw_data/inpatients.py
+          job_cluster_key: generate_nhp_apc
+        - task_key: nhp-default-apc
           depends_on:
-            - task_key: nhp-raw_data-opa
+            - task_key: nhp-raw_data-apc_mitigators
           spark_python_task:
-            python_file: ../raw_data/outpatients_mitigators.py
-          job_cluster_key: generate_nhp_opa
-        - task_key: nhp-aggregated_data-opa
+            python_file: ./default/apc.py
+          job_cluster_key: generate_nhp_apc
+        - task_key: nhp-raw_data-apc_mitigators
           depends_on:
-            - task_key: nhp-raw_data-opa_mitigators
+            - task_key: nhp-raw_data-apc
           spark_python_task:
-            python_file: ../aggregated_data/outpatients.py
-          job_cluster_key: generate_nhp_opa
-        - task_key: nhp-default-opa
-          depends_on:
-            - task_key: nhp-aggregated_data-opa
-          spark_python_task:
-            python_file: ../default/opa.py
-          job_cluster_key: generate_nhp_opa
+            python_file: ./raw_data/inpatients_mitigators.py
+          job_cluster_key: generate_nhp_apc
       job_clusters:
-        - job_cluster_key: generate_nhp_opa
+        - job_cluster_key: generate_nhp_apc
           new_cluster:
             cluster_name: ""
             spark_version: 15.4.x-scala2.12
@@ -58,5 +52,5 @@ resources:
       queue:
         enabled: true
       parameters:
-        - name: run_op
+        - name: run_ip
           default: "True"

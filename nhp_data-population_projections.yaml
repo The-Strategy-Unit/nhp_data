@@ -21,7 +21,7 @@ resources:
             - task_key: run_population_data
               outcome: "true"
           spark_python_task:
-            python_file: ../population_projections/get_ons_files_2022.py
+            python_file: ./population_projections/get_ons_files_2022.py
             parameters:
               - "{{job.parameters.path}}"
               - "{{job.parameters.projection_year}}"
@@ -39,7 +39,7 @@ resources:
             task:
               task_key: subnational_population_projections_iteration
               spark_python_task:
-                python_file: ../population_projections/snpp.py
+                python_file: ./population_projections/snpp.py
                 parameters:
                   - "{{job.parameters.path}}"
                   - "{{job.parameters.projection_year}}"
@@ -53,7 +53,7 @@ resources:
             task:
               task_key: national_population_projections_iteration
               spark_python_task:
-                python_file: ../population_projections/npp.py
+                python_file: ./population_projections/npp.py
                 parameters:
                   - "{{job.parameters.path}}"
                   - "{{job.parameters.projection_year}}"

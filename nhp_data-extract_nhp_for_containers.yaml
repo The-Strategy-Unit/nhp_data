@@ -14,7 +14,7 @@ resources:
             task:
               task_key: extract_ip_data
               spark_python_task:
-                python_file: ../model_data/ip.py
+                python_file: ./model_data/ip.py
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
@@ -27,7 +27,7 @@ resources:
             task:
               task_key: extract_op_data
               spark_python_task:
-                python_file: ../model_data/op.py
+                python_file: ./model_data/op.py
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
@@ -40,7 +40,7 @@ resources:
             task:
               task_key: extract_aae_data
               spark_python_task:
-                python_file: ../model_data/aae.py
+                python_file: ./model_data/aae.py
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
@@ -53,7 +53,7 @@ resources:
             task:
               task_key: extract_demographic_factors_data
               spark_python_task:
-                python_file: ../model_data/demographic_factors.py
+                python_file: ./model_data/demographic_factors.py
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
@@ -67,7 +67,7 @@ resources:
             task:
               task_key: extract_birth_factors_data
               spark_python_task:
-                python_file: ../model_data/birth_factors.py
+                python_file: ./model_data/birth_factors.py
                 parameters:
                   - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
                   - "{{input}}"
@@ -77,7 +77,7 @@ resources:
           depends_on:
             - task_key: run_extract_birth_factors_data
           spark_python_task:
-            python_file: ../model_data/health_status_adjustment/generate_gams.py
+            python_file: ./model_data/health_status_adjustment/generate_gams.py
             parameters:
               - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
           job_cluster_key: run_nhp_extracts_cluster
@@ -88,7 +88,7 @@ resources:
           depends_on:
             - task_key: generate_gams
           spark_python_task:
-            python_file: ../model_data/health_status_adjustment/generate_national_gams.py
+            python_file: ./model_data/health_status_adjustment/generate_national_gams.py
             parameters:
               - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
           job_cluster_key: run_nhp_extracts_cluster
