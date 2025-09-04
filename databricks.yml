@@ -9,9 +9,11 @@ bundle:
 include:
   - databricks_workflows/*.yaml
 
-permissions:
-  - group_name: nhp_devs
-    level: CAN_MANAGE
+artifacts:
+  nhp_data:
+    type: whl
+    build: uv build
+    path: .
 
 targets:
   dev:

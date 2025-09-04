@@ -21,6 +21,13 @@ jobs:
 
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
+      
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Deploy
         run: databricks bundle deploy -t prod

@@ -3,10 +3,10 @@ resources:
     Generate_NHP_Data_Reference_Data:
       name: Generate NHP Data (Reference Data)
       webhook_notifications:
-        on_success:
-          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
-        on_failure:
-          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
+        # on_success:
+        #   - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
+        # on_failure:
+        #   - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
       notification_settings:
         no_alert_for_skipped_runs: true
         no_alert_for_canceled_runs: true
@@ -20,27 +20,39 @@ resources:
           depends_on:
             - task_key: run_reference_data
               outcome: "true"
-          spark_python_task:
-            python_file: ./reference/ods_trusts.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: reference-ods_trusts
           job_cluster_key: generate_nhp_reference
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: provider_main_icb
           depends_on:
             - task_key: ods_trusts
-          spark_python_task:
-            python_file: ./reference/provider_main_icb.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: reference-provider_main_icb
           job_cluster_key: generate_nhp_reference
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: population_by_imd_decile
           depends_on:
             - task_key: provider_main_icb
-          spark_python_task:
-            python_file: ./reference/population_by_imd_decile.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: reference-population_by_imd_decile
           job_cluster_key: generate_nhp_reference
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: create_provider_catchments
           depends_on:
             - task_key: population_by_imd_decile
-          spark_python_task:
-            python_file: ./reference/provider_catchments.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: reference-provider_catchments
           job_cluster_key: generate_nhp_reference
+          libraries:
+            - whl: ../dist/*.whl
       job_clusters:
         - job_cluster_key: generate_nhp_reference
           new_cluster:

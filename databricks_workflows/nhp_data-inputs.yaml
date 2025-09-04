@@ -13,92 +13,94 @@ resources:
             op: EQUAL_TO
             left: "{{job.parameters.run_inputs_data}}"
             right: "True"
-        - task_key: helpers
+        - task_key: catchments
           depends_on:
             - task_key: run_inputs_data
               outcome: "true"
-          spark_python_task:
-            python_file: ./inputs_data/helpers.py
-            parameters:
-              - "{{job.parameters.save_path}}"
-          job_cluster_key: nhp_inputs_data_extract
-        - task_key: catchments
-          depends_on:
-            - task_key: helpers
-          spark_python_task:
-            python_file: ./inputs_data/catchments.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-catchments
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_age_sex
           depends_on:
             - task_key: catchments
-          spark_python_task:
-            python_file: ./inputs_data/age_sex.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-age_sex
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_baseline
           depends_on:
             - task_key: extract_age_sex
-          spark_python_task:
-            python_file: ./inputs_data/baseline.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-baseline
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_covid_adjustment
           depends_on:
             - task_key: extract_baseline
-          spark_python_task:
-            python_file: ./inputs_data/covid_adjustment.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-covid_adjustment
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_diagnoses
           depends_on:
             - task_key: extract_covid_adjustment
-          spark_python_task:
-            python_file: ./inputs_data/diagnoses.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-diagnoses
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_expat_repat
           depends_on:
             - task_key: extract_diagnoses
-          spark_python_task:
-            python_file: ./inputs_data/expat_repat.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-expat_repat
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_procedures
           depends_on:
             - task_key: extract_expat_repat
-          spark_python_task:
-            python_file: ./inputs_data/procedures.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-procedures
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_rates
           depends_on:
             - task_key: extract_procedures
-          spark_python_task:
-            python_file: ./inputs_data/rates.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-rates
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_wli
           depends_on:
             - task_key: extract_rates
-          spark_python_task:
-            python_file: ./inputs_data/wli.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-wli
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
         - task_key: extract_inequalities
           depends_on:
             - task_key: extract_wli
-          spark_python_task:
-            python_file: ./inputs_data/inequalities.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-inequalities
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
@@ -108,7 +110,7 @@ resources:
             cluster_name: ""
             spark_version: 15.4.x-scala2.12
             spark_env_vars:
-              PYSPARK_PYTHON: /databricks/python3/bin/python3
+              PYPYTHON_wheel: /databricks/python3/bin/python3
             instance_pool_id: 0129-130615-maw351-pool-pss8mvfy
             data_security_mode: SINGLE_USER
             runtime_engine: PHOTON

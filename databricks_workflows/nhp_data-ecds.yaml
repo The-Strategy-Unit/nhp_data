@@ -20,28 +20,32 @@ resources:
           depends_on:
             - task_key: run_ecds
               outcome: "true"
-          spark_python_task:
-            python_file: ./raw_data/aae.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: raw_data-aae
           job_cluster_key: generate_nhp_ecds
         - task_key: nhp-raw_data-ecds
           depends_on:
             - task_key: run_ecds
               outcome: "true"
-          spark_python_task:
-            python_file: ./raw_data/ecds.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: raw_data-ecds
           job_cluster_key: generate_nhp_ecds
         - task_key: nhp-aggregated_data-ecds
           depends_on:
             - task_key: nhp-raw_data-aae
             - task_key: nhp-raw_data-ecds
-          spark_python_task:
-            python_file: ./aggregated_data/ecds.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: aggregated_data-ecds
           job_cluster_key: generate_nhp_ecds
         - task_key: nhp-default-ecds
           depends_on:
             - task_key: nhp-aggregated_data-ecds
-          spark_python_task:
-            python_file: ./default/ecds.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: default-ecds
           job_cluster_key: generate_nhp_ecds
       job_clusters:
         - job_cluster_key: generate_nhp_ecds

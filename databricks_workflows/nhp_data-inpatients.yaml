@@ -20,20 +20,23 @@ resources:
           depends_on:
             - task_key: run_ip
               outcome: "true"
-          spark_python_task:
-            python_file: ./raw_data/inpatients.py
-          job_cluster_key: generate_nhp_apc
-        - task_key: nhp-default-apc
-          depends_on:
-            - task_key: nhp-raw_data-apc_mitigators
-          spark_python_task:
-            python_file: ./default/apc.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: raw_data-inpatients
           job_cluster_key: generate_nhp_apc
         - task_key: nhp-raw_data-apc_mitigators
           depends_on:
             - task_key: nhp-raw_data-apc
-          spark_python_task:
-            python_file: ./raw_data/inpatients_mitigators.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: raw_data-inpatients_mitigators
+          job_cluster_key: generate_nhp_apc
+        - task_key: nhp-default-apc
+          depends_on:
+            - task_key: nhp-raw_data-apc_mitigators
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: default-apc
           job_cluster_key: generate_nhp_apc
       job_clusters:
         - job_cluster_key: generate_nhp_apc

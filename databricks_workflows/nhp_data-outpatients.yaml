@@ -20,26 +20,30 @@ resources:
           depends_on:
             - task_key: run_op
               outcome: "true"
-          spark_python_task:
-            python_file: ./raw_data/outpatients.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: raw_data-outpatients
           job_cluster_key: generate_nhp_opa
         - task_key: nhp-raw_data-opa_mitigators
           depends_on:
             - task_key: nhp-raw_data-opa
-          spark_python_task:
-            python_file: ./raw_data/outpatients_mitigators.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: raw_data-outpatients_mitigators
           job_cluster_key: generate_nhp_opa
         - task_key: nhp-aggregated_data-opa
           depends_on:
             - task_key: nhp-raw_data-opa_mitigators
-          spark_python_task:
-            python_file: ./aggregated_data/outpatients.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: aggregated_data-outpatients
           job_cluster_key: generate_nhp_opa
         - task_key: nhp-default-opa
           depends_on:
             - task_key: nhp-aggregated_data-opa
-          spark_python_task:
-            python_file: ./default/opa.py
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: default-opa
           job_cluster_key: generate_nhp_opa
       job_clusters:
         - job_cluster_key: generate_nhp_opa
