@@ -1,5 +1,8 @@
-name: Deploy DataBricks Bundle
-on: push
+name: Deploy Databricks Bundle
+on:
+  push:
+    branches:
+      - main
 
 permissions:
   id-token: write
