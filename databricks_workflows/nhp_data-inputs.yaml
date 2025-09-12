@@ -130,7 +130,7 @@ resources:
             cluster_name: ""
             spark_version: 15.4.x-scala2.12
             spark_env_vars:
-              PYPYTHON_wheel: /databricks/python3/bin/python3
+              PYSPARK_PYTHON: /databricks/python3/bin/python3
             instance_pool_id: 0129-130615-maw351-pool-pss8mvfy
             data_security_mode: SINGLE_USER
             runtime_engine: PHOTON
