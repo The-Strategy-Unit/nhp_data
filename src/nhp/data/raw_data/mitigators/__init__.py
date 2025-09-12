@@ -10,8 +10,6 @@ from pyspark.sql import functions as F
 from nhp.data.raw_data.mitigators.ip.activity_avoidance import *  # noqa: F403
 from nhp.data.raw_data.mitigators.ip.efficiency import *  # noqa: F403
 
-spark = DatabricksSession.builder.getOrCreate()
-
 __registered_mitigators = defaultdict(lambda: {})
 
 
@@ -31,6 +29,7 @@ class Mitigator:
         self.mitigator_type = mitigator_type
         self.mitigator_name = mitigator_name
         self._definition = definition
+        self.spark = DatabricksSession.builder.getOrCreate()
 
     def get(self) -> DataFrame:
         """Get the RDD for this mitigator"""
@@ -55,7 +54,7 @@ class Mitigator:
 
         # get the table to load the mitigators to
         target = (
-            DeltaTable.createIfNotExists(spark)
+            DeltaTable.createIfNotExists(self.spark)
             .tableName("nhp.raw_data.apc_mitigators")
             .addColumns(source.schema)
             .partitionedBy("fyear", "provider")

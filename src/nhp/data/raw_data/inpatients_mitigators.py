@@ -16,11 +16,11 @@ def generate_inpatients_mitigators() -> None:
         for _, name, _ in pkgutil.walk_packages([path]):
             try:
                 m = f"{mitigators.__name__}.ip.{i}.{name}"
-                importlib.import_module(name)
-                print(f"Imported: {name}")
+                importlib.import_module(m)
+                print(f"Imported: {m}")
             except ImportError:
                 import_errors = True
-                print(f"Error: {name}")
+                print(f"Error: {m}")
 
     if import_errors:
         raise ImportError("Error importing modules")
