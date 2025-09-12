@@ -53,6 +53,16 @@ resources:
           job_cluster_key: generate_nhp_reference
           libraries:
             - whl: ../dist/*.whl
+        - task_key: create_day_procedure_code_list
+          depends_on:
+            - task_key: create_provider_catchments
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: reference-day_procedures
+            parameters:
+              - "{{job.parameters.day_procedures_save_path}}"
+              - "{{job.parameters.day_procedures_base_year}}"
+          job_cluster_key: generate_nhp_reference
       job_clusters:
         - job_cluster_key: generate_nhp_reference
           new_cluster:
@@ -76,3 +86,7 @@ resources:
       parameters:
         - name: run_reference_data
           default: "True"
+        - name: day_procedures_save_path
+          default: /Volumes/nhp/reference/files/day_procedures.json
+        - name: day_procedures_base_year
+          default: "202324"

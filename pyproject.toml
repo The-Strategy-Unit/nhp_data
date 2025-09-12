@@ -68,7 +68,9 @@ model_data-demographic_factors = "nhp.data.model_data.demographic_factors:main"
 model_data-ip = "nhp.data.model_data.ip:main"
 model_data-op = "nhp.data.model_data.op:main"
 
+reference-day_procedures = "nhp.data.reference.day_procedures:main"
 reference-ods_trusts = "nhp.data.reference.ods_trusts:main"
 reference-provider_main_icb = "nhp.data.reference.provider_main_icb:main"
 reference-population_by_imd_decile = "nhp.data.reference.population_by_imd_decile:main"
 reference-provider_catchments = "nhp.data.reference.provider_catchments:main"
+
