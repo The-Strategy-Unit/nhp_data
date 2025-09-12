@@ -23,6 +23,8 @@ resources:
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: extract_age_sex
           depends_on:
             - task_key: catchments
@@ -32,6 +34,8 @@ resources:
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: extract_baseline
           depends_on:
             - task_key: extract_age_sex
@@ -41,6 +45,8 @@ resources:
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: extract_covid_adjustment
           depends_on:
             - task_key: extract_baseline
@@ -50,6 +56,8 @@ resources:
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: extract_diagnoses
           depends_on:
             - task_key: extract_covid_adjustment
@@ -59,6 +67,8 @@ resources:
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: extract_expat_repat
           depends_on:
             - task_key: extract_diagnoses
@@ -68,6 +78,8 @@ resources:
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: extract_procedures
           depends_on:
             - task_key: extract_expat_repat
@@ -77,6 +89,8 @@ resources:
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: extract_rates
           depends_on:
             - task_key: extract_procedures
@@ -86,6 +100,8 @@ resources:
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: extract_wli
           depends_on:
             - task_key: extract_rates
@@ -95,6 +111,8 @@ resources:
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: extract_inequalities
           depends_on:
             - task_key: extract_wli
@@ -104,6 +122,8 @@ resources:
             parameters:
               - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
       job_clusters:
         - job_cluster_key: nhp_inputs_data_extract
           new_cluster:

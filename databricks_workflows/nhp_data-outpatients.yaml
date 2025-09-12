@@ -24,6 +24,8 @@ resources:
             package_name: nhp_data
             entry_point: raw_data-outpatients
           job_cluster_key: generate_nhp_opa
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: nhp-raw_data-opa_mitigators
           depends_on:
             - task_key: nhp-raw_data-opa
@@ -31,6 +33,8 @@ resources:
             package_name: nhp_data
             entry_point: raw_data-outpatients_mitigators
           job_cluster_key: generate_nhp_opa
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: nhp-aggregated_data-opa
           depends_on:
             - task_key: nhp-raw_data-opa_mitigators
@@ -38,6 +42,8 @@ resources:
             package_name: nhp_data
             entry_point: aggregated_data-outpatients
           job_cluster_key: generate_nhp_opa
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: nhp-default-opa
           depends_on:
             - task_key: nhp-aggregated_data-opa
@@ -45,6 +51,8 @@ resources:
             package_name: nhp_data
             entry_point: default-opa
           job_cluster_key: generate_nhp_opa
+          libraries:
+            - whl: ../dist/*.whl
       job_clusters:
         - job_cluster_key: generate_nhp_opa
           new_cluster:

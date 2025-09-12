@@ -24,6 +24,8 @@ resources:
             package_name: nhp_data
             entry_point: raw_data-aae
           job_cluster_key: generate_nhp_ecds
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: nhp-raw_data-ecds
           depends_on:
             - task_key: run_ecds
@@ -32,6 +34,8 @@ resources:
             package_name: nhp_data
             entry_point: raw_data-ecds
           job_cluster_key: generate_nhp_ecds
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: nhp-aggregated_data-ecds
           depends_on:
             - task_key: nhp-raw_data-aae
@@ -40,6 +44,8 @@ resources:
             package_name: nhp_data
             entry_point: aggregated_data-ecds
           job_cluster_key: generate_nhp_ecds
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: nhp-default-ecds
           depends_on:
             - task_key: nhp-aggregated_data-ecds
@@ -47,6 +53,8 @@ resources:
             package_name: nhp_data
             entry_point: default-ecds
           job_cluster_key: generate_nhp_ecds
+          libraries:
+            - whl: ../dist/*.whl
       job_clusters:
         - job_cluster_key: generate_nhp_ecds
           new_cluster:

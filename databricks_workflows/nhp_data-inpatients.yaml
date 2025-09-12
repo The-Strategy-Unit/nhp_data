@@ -24,6 +24,8 @@ resources:
             package_name: nhp_data
             entry_point: raw_data-inpatients
           job_cluster_key: generate_nhp_apc
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: nhp-raw_data-apc_mitigators
           depends_on:
             - task_key: nhp-raw_data-apc
@@ -31,6 +33,8 @@ resources:
             package_name: nhp_data
             entry_point: raw_data-inpatients_mitigators
           job_cluster_key: generate_nhp_apc
+          libraries:
+            - whl: ../dist/*.whl
         - task_key: nhp-default-apc
           depends_on:
             - task_key: nhp-raw_data-apc_mitigators
@@ -38,6 +42,8 @@ resources:
             package_name: nhp_data
             entry_point: default-apc
           job_cluster_key: generate_nhp_apc
+          libraries:
+            - whl: ../dist/*.whl
       job_clusters:
         - job_cluster_key: generate_nhp_apc
           new_cluster:

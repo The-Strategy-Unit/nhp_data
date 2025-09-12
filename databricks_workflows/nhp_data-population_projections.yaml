@@ -30,6 +30,7 @@ resources:
           libraries:
             - pypi:
                 package: beautifulsoup4
+            - whl: ../dist/*.whl
         - task_key: subnational_population_projections
           depends_on:
             - task_key: download_and_extract_ons_files
@@ -47,6 +48,8 @@ resources:
                   - "{{job.parameters.projection_year}}"
                   - "{{input}}"
               job_cluster_key: generate_nhp_population
+              libraries:
+                - whl: ../dist/*.whl
         - task_key: national_population_projections
           depends_on:
             - task_key: subnational_population_projections
@@ -67,6 +70,7 @@ resources:
                     package: xlrd
                 - pypi:
                     package: openpyxl
+                - whl: ../dist/*.whl
       job_clusters:
         - job_cluster_key: generate_nhp_population
           new_cluster:
