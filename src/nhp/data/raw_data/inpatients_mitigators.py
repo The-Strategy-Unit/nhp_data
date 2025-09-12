@@ -2,25 +2,25 @@
 
 import importlib
 import os
+import pkgutil
 
 from nhp.data.raw_data import mitigators
 
 
 def generate_inpatients_mitigators() -> None:
     """Generrate Inpatients Mitigators"""
-    path = ["mitigators", "ip"]
-
     import_errors = False
+
     for i in ["activity_avoidance", "efficiency"]:
-        for j in sorted(os.listdir("/".join(path + [i]))):
-            if j == "__init__.py":
-                continue
-            module = ".".join(path + [i, j])[:-3]
+        path = os.path.join(mitigators.__path__[0], "ip", i)
+        for _, name, _ in pkgutil.walk_packages([path]):
             try:
-                importlib.import_module(module)
-            except:  # noqa: E722
+                m = f"{mitigators.__name__}.ip.{i}.{name}"
+                importlib.import_module(name)
+                print(f"Imported: {name}")
+            except ImportError:
                 import_errors = True
-                print(f"Error: {module}")
+                print(f"Error: {name}")
 
     if import_errors:
         raise ImportError("Error importing modules")
