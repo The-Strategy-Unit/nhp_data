@@ -142,5 +142,8 @@ def extract(
     )
 
 
-def main(path, fyear, projection_year):
-    extract(path, int(fyear), int(projection_year))
+def main():
+    path = sys.argv[1]
+    fyear = int(sys.argv[2])
+    projection_year = int(sys.argv[3])
+    extract(path, fyear, projection_year)

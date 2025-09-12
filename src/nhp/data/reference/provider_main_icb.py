@@ -22,3 +22,7 @@ def generate_provider_main_icb() -> None:
     )
 
     main_icbs.write.mode("overwrite").saveAsTable("nhp.reference.provider_main_icb")
+
+
+def main():
+    generate_provider_main_icb()

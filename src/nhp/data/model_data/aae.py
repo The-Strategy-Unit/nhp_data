@@ -34,5 +34,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
     )
 
 
-def main(path, fyear):
-    extract(path, int(fyear))
+def main():
+    path = sys.argv[1]
+    fyear = int(sys.argv[2])
+    extract(path, fyear)

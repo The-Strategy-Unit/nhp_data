@@ -109,8 +109,12 @@ def process_snpp_variant(
     _process_births_file(spark, path, projection_year, projection_name)
 
 
-def main(path, projection_year, projection_name):
+def main():
+    path = sys.argv[1]
+    projection_year = int(sys.argv[2])
+    projection_name = sys.argv[3]
+
     spark: SparkSession = DatabricksSession.builder.getOrCreate()
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
 
-    process_snpp_variant(spark, path, int(projection_year), projection_name)
+    process_snpp_variant(spark, path, projection_year, projection_name)

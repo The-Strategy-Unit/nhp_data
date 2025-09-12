@@ -147,12 +147,10 @@ def _generate_activity_tables(
     )
 
 
-def main(save_path: str) -> None:
-    """Generate GAMs and HSA activity tables
+def main() -> None:
+    """Generate GAMs and HSA activity tables"""
+    save_path = sys.argv[1]
 
-    :param save_path: where to save the gams
-    :type save_path: str
-    """
     spark: SparkSession = DatabricksSession.builder.getOrCreate()
     spark.catalog.setCurrentCatalog("nhp")
     spark.catalog.setCurrentDatabase("default")

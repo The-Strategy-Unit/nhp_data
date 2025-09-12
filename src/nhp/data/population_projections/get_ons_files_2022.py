@@ -8,6 +8,7 @@ import io
 import os
 import re
 import shutil
+import sys
 import time
 from urllib.parse import urljoin
 from zipfile import ZipFile
@@ -229,8 +230,11 @@ def get_2022_population_files(output_dir: str) -> None:
     extract_npp_zip(npp_uri, "uk", output_dir)
 
 
-def main(path, projection_year):
+def main():
     """main method"""
+    path = sys.argv[1]
+    projection_year = sys.argv[2]
+
     output_dir = os.path.join(path, f"{projection_year}-projections")
 
     if not os.path.exists(output_dir):

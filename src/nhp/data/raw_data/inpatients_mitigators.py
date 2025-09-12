@@ -33,3 +33,7 @@ def generate_inpatients_mitigators() -> None:
 
     for m in all_mitigators:
         m.save()
+
+
+def main():
+    generate_inpatients_mitigators()
