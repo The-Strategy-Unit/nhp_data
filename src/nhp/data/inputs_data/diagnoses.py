@@ -1,5 +1,6 @@
 """Generate Diagnoses Dataframe"""
 
+import sys
 from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
@@ -23,5 +24,7 @@ def get_diagnoses(spark: SparkSession = get_spark()) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def main(path):
+def main():
+    path = sys.argv[1]
+
     get_diagnoses().toPandas().to_parquet(f"{path}/diagnoses.parquet")

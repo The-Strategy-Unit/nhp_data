@@ -1,5 +1,6 @@
 """Covid Adjustment Data"""
 
+import sys
 from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession, Window
@@ -64,5 +65,7 @@ def get_covid_adjustment(spark: SparkSession = get_spark()) -> DataFrame:
     )
 
 
-def main(path):
+def main():
+    path = sys.argv[1]
+
     get_covid_adjustment().toPandas().to_parquet(f"{path}/covid_adjustment.parquet")

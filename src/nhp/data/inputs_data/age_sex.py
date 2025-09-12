@@ -1,5 +1,6 @@
 """Generate Age/Sex Dataframe"""
 
+import sys
 from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
@@ -28,7 +29,9 @@ def get_age_sex(spark: SparkSession = get_spark()) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def main(path):
+def main():
+    path = sys.argv[1]
+
     get_age_sex().filter(F.col("n") > 5).toPandas().to_parquet(
         f"{path}/age_sex.parquet"
     )

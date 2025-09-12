@@ -55,5 +55,7 @@ def get_wli(path: str, spark: SparkSession = get_spark()) -> DataFrame:
     )
 
 
-def main(path):
+def main():
+    path = sys.argv[1]
+
     get_wli(path).toPandas().to_parquet(f"{path}/wli.parquet")

@@ -1,5 +1,6 @@
 """Generate Rates Dataframe"""
 
+import sys
 from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
@@ -65,7 +66,9 @@ def get_repat_nonlocal_data(spark: SparkSession = get_spark()) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def main(path):
+def main():
+    path = sys.argv[1]
+
     get_expat_data().toPandas().to_parquet(f"{path}/expat.parquet")
     get_repat_local_data().toPandas().to_parquet(f"{path}/repat_local.parquet")
     get_repat_nonlocal_data().toPandas().to_parquet(f"{path}/repat_nonlocal.parquet")

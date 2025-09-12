@@ -1,5 +1,6 @@
 """Generate Rates Dataframe"""
 
+import sys
 from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
@@ -35,5 +36,7 @@ def get_rates(spark: SparkSession = get_spark()) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def main(path):
+def main():
+    path = sys.argv[1]
+
     get_rates().toPandas().to_parquet(f"{path}/rates.parquet")

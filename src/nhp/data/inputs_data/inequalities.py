@@ -1,5 +1,7 @@
 """Generate Inequalities Dataframe"""
 
+import sys
+
 import mlflow
 import pandas as pd
 import statsmodels.api as sm
@@ -207,14 +209,12 @@ def process_calculated_inequalities(
     return df
 
 
-def main(path):
+def main():
     """
     Loads data, calculates inequalities and saves the results to parquet
-
-    :param path: The path to save the results to
-    :type path: str
-
     """
+    path = sys.argv[1]
+
     spark = get_spark()
 
     mlflow.autolog(
@@ -231,4 +231,5 @@ def main(path):
     data_hrg_count = load_inequalities_data(spark, fyears=fyears)
     linreg_df = calculate_inequalities(data_hrg_count, fyears=fyears)
     inequalities = process_calculated_inequalities(linreg_df, data_hrg_count)
+    inequalities.to_parquet(f"{path}/inequalities.parquet")
     inequalities.to_parquet(f"{path}/inequalities.parquet")
