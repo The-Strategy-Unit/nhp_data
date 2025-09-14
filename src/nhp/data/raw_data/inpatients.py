@@ -61,7 +61,7 @@ def get_inpatients_data(spark: SparkSession) -> None:
                 & (F.col("classpat") == "2"),
                 "daycase",
             )
-            .otherwise(None),
+            .otherwise("unknown"),
         )
         .withColumn("is_wla", F.col("admimeth") == "11")
         .withColumn(
@@ -70,8 +70,6 @@ def get_inpatients_data(spark: SparkSession) -> None:
             .when(F.col("admimeth").startswith("3"), "maternity")
             .otherwise("non-elective"),
         )
-        .filter(F.col("speldur").isNotNull())
-        .filter(F.col("hsagrp").isNotNull())
         # add has_procedure column
         .join(
             apc_primary_procedures.select(
