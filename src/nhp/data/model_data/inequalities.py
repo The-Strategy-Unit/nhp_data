@@ -18,7 +18,11 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
     :param fyear: what year to extract
     :type fyear: int
     """
-    inequalities = spark.read.table("inequalities").filter(F.col("fyear") == fyear)
+    inequalities = (
+        spark.read.table("inequalities")
+        .filter(F.col("fyear") == fyear)
+        .withColumnRenamed("provider", "dataset")
+    )
 
     (
         inequalities.repartition(1)
