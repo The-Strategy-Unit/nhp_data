@@ -6,9 +6,7 @@ from pyspark.sql.types import *  # noqa: F403
 
 
 def get_provider_successors_mapping(spark: SparkSession):
-    provider_successors = spark.read.table(
-        "strategyunit.reference.ods_trusts"
-    ).collect()
+    provider_successors = spark.read.table("nhp.reference.ods_trusts").collect()
 
     provider_successors = {
         row["org_from"]: row["org_to"] for row in provider_successors

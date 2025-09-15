@@ -18,7 +18,7 @@ def get_acute_providers(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
     acute_df = (
-        spark.read.table("strategyunit.reference.ods_trusts")
+        spark.read.table("nhp.reference.ods_trusts")
         .filter(F.col("org_type").startswith("ACUTE"))
         .persist()
     )

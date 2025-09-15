@@ -28,8 +28,9 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 import requests
-from databricks.connect import DatabricksSession
 from pyspark.dbutils import DBUtils
+
+from nhp.data.get_spark import get_spark
 
 
 def download_ods_full_archive(api_key: str) -> ET.Element:
@@ -255,7 +256,7 @@ def get_ods_trusts_and_current_successors(api_key: str) -> pd.DataFrame:
 
 
 def main():
-    spark = DatabricksSession.builder.getOrCreate()
+    spark = get_spark("reference")
     dbutils = DBUtils(spark)
 
     API_KEY = dbutils.secrets.get(scope="nhp", key="trud_api_key")
@@ -267,4 +268,4 @@ def main():
 
     df = spark.createDataFrame(ods_df).join(trust_types, "org_to", "left")
 
-    df.write.mode("overwrite").saveAsTable("strategyunit.reference.ods_trusts")
+    df.write.mode("overwrite").saveAsTable("ods_trusts")
