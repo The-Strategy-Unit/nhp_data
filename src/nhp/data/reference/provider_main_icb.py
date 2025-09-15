@@ -11,8 +11,9 @@ def generate_provider_main_icb() -> None:
 
     w = Window.partitionBy("provider").orderBy(F.desc("count"))
 
+    F.isnotnull("icb")
     main_icbs = (
-        hes_apc.filter(F.col("icb").isNotNull())  # pylint: disable=undefined-variable
+        hes_apc.filter(F.isnotnull("icb"))
         .groupBy("provider", "icb")
         .count()
         .withColumn("row", F.row_number().over(w))

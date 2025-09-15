@@ -166,11 +166,11 @@ def get_ecds_data(spark: SparkSession) -> None:
             "is_discharged_no_treatment",
             (
                 (
-                    F.col("Der_EC_Investigation_All").isNull()
+                    F.isnull("Der_EC_Investigation_All")
                     | (F.col("Der_EC_Investigation_All") == "1088291000000101")
                 )
                 & (
-                    F.col("Der_EC_Treatment_All").isNull()
+                    F.isnull("Der_EC_Treatment_All")
                     | (F.col("Der_EC_Treatment_All") == "183964008")
                 )
             ),

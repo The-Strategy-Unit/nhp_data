@@ -16,14 +16,14 @@ hes_apc = (
     .withColumn(
         "age",
         F.when(
-            (F.col("admiage") == 999) | F.col("admiage").isNull(),
+            (F.isnull("admiage") == 999) | F.col("admiage"),
             F.when(F.col("startage") > 7000, 0).otherwise(F.col("startage")),
         ).otherwise(F.col("admiage")),
     )
     .withColumn("age", F.when(F.col("age") > 90, 90).otherwise(F.col("age")))
     # remove well babies
     .filter(F.col("well_baby_ind") == "N")
-    .filter((F.col("sushrg") != "PB03Z") | F.col("sushrg").isNull())
+    .filter((F.isnull("sushrg") != "PB03Z") | F.col("sushrg"))
     .filter(~((F.col("tretspef") == "424") & (F.col("epitype") == "3")))
     # ---
     .filter(F.col("sex").isin(["1", "2"]))
