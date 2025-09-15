@@ -41,6 +41,8 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: reference-population_by_imd_decile
+            parameters:
+              - "{{job.parameters.population_by_imd_decile_base_year}}"
           job_cluster_key: generate_nhp_reference
           libraries:
             - whl: ../dist/*.whl
@@ -89,4 +91,6 @@ resources:
         - name: day_procedures_save_path
           default: /Volumes/nhp/reference/files/day_procedures.json
         - name: day_procedures_base_year
+          default: "202324"
+        - name: population_by_imd_decile_base_year
           default: "202324"
