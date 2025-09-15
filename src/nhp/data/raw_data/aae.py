@@ -24,7 +24,7 @@ def get_aae_data(spark: SparkSession) -> None:
     # Frequent Attendners
     freq_attenders = (
         df.filter(F.col("aeattendcat") == "1")
-        .filter(F.col("person_id_deid").isNotNull())
+        .filter(F.isnotnull("person_id_deid"))
         .select("aekey", "person_id_deid", "arrivaldate")
     )
 

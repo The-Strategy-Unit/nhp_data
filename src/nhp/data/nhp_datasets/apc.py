@@ -28,7 +28,7 @@ hes_apc = (
     # ---
     .filter(F.col("sex").isin(["1", "2"]))
     .filter(F.col("age").between(0, 90))
-    .filter(F.col("speldur").isNotNull())
+    .filter(F.isnotnull("speldur"))
     .withColumn(
         "icb",
         # use the ccg of residence if available, otherwise use the ccg of responsibility

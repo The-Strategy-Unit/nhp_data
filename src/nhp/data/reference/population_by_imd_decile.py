@@ -53,9 +53,9 @@ def create_population_by_imd_decile(
 
     df_counts = (
         df.filter(F.col("fyear") == base_year)
-        .filter(F.col("age").isNotNull())
+        .filter(F.isnotnull("age"))
         .filter(F.col("sex").isin(["1", "2"]))
-        .filter(F.col("lsoa11").isNotNull())
+        .filter(F.isnotnull("lsoa11"))
         .filter(F.col("admimeth").startswith("1"))
         .join(age_groups, "age")
         .groupBy("lsoa11", "icb", "provider", "age_group", "sex")

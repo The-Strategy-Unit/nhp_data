@@ -60,7 +60,7 @@ def get_ecds_data(spark: SparkSession) -> None:
         spark.read.table("hes.silver.aae")
         .filter(F.col("fyear") == 201819)
         .filter(F.col("aeattendcat") == "1")
-        .filter(F.col("person_id_deid").isNotNull())
+        .filter(F.isnotnull("person_id_deid"))
         .select(
             F.col("person_id_deid").alias("token_person_id"),
             F.col("arrivaldate").alias("prior_arrival_date"),
@@ -69,7 +69,7 @@ def get_ecds_data(spark: SparkSession) -> None:
 
     freq_attenders = (
         df.filter(F.col("ec_attendancecategory") == "1")
-        .filter(F.col("token_person_id").isNotNull())
+        .filter(F.isnotnull("token_person_id"))
         .select("ec_ident", "token_person_id", "arrival_date")
     )
 
