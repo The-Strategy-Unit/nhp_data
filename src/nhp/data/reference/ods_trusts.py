@@ -61,6 +61,20 @@ def download_ods_full_archive(api_key: str) -> ET.Element:
                     return ET.fromstring(xml_file.read().decode("utf-8"))
 
 
+def _get_attrib(elem: ET.Element, path: str, attrib: str) -> str | None:
+    e = elem.find(path)
+    if e is None:
+        return None
+    return e.attrib[attrib]
+
+
+def _get_text(elem: ET.Element, path: str) -> str | None:
+    e = elem.find(path)
+    if e is None:
+        return None
+    return e.text
+
+
 def process_successor(x: ET.Element, org_code: str) -> dict:
     """Process successor records
 
@@ -71,13 +85,14 @@ def process_successor(x: ET.Element, org_code: str) -> dict:
     :return: A dictionary containing the successor record
     :rtype: dict
     """
-    successor = x.find("Target/OrgId").attrib["extension"]
-    if x.find("Type").text == "Predecessor":
+    successor = _get_attrib(x, "Target/OrgId", "extension")
+    assert successor is not None
+    if _get_text(x, "Type") == "Predecessor":
         org_code, successor = successor, org_code
     return {
         "from": org_code,
         "to": successor,
-        "date": x.find("Date/Start").attrib["value"],
+        "date": _get_attrib(x, "Date/Start", "value"),
     }
 
 
@@ -89,17 +104,20 @@ def process_organisation(org: ET.Element) -> dict:
     :return: a dictionary containing the data for the organisation
     :rtype: dict
     """
-    org_code = org.find("OrgId").attrib["extension"]
+    org_code = _get_attrib(org, "OrgId", "extension")
+    assert org_code is not None
 
     org_dict = {
         "org_code": org_code,
-        "org_name": org.find("Name").text,
-        "status": org.find("Status").attrib["value"],
-        "primary_role": org.find("Roles/Role[@primaryRole='true']").attrib["id"],
+        "org_name": _get_text(org, "Name"),
+        "status": _get_attrib(org, "Status", "value"),
+        "primary_role": _get_attrib(org, "Roles/Role[@primaryRole='true']", "id"),
     }
 
     operational_date = [
-        i for i in org.findall("Date") if i.find("Type").get("value") == "Operational"
+        i
+        for i in org.findall("Date")
+        if _get_attrib(i, "Type", "value") == "Operational"
     ][0]
     org_dict["start_date"] = operational_date.find("Start").get("value")
     end_date = operational_date.find("End")
@@ -197,7 +215,9 @@ def get_ods_trusts_and_current_successors(api_key: str) -> pd.DataFrame:
     :rtype: pd.DataFrame
     """
     root = download_ods_full_archive(api_key)
-    processed_orgs = list(map(process_organisation, root.find(".//Organisations")))
+    organisations = root.find(".//Organisations")
+    assert organisations is not None, "Unable to load XML: no organisations found"
+    processed_orgs = list(map(process_organisation, organisations))
 
     code_systems = {
         i.get("id"): i.get("displayName")
