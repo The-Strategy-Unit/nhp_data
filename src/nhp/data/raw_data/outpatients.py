@@ -1,17 +1,17 @@
 """Generate outpatients data"""
 
 from databricks.connect import DatabricksSession
-from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
-from pyspark.sql.types import *  # noqa: F403
 
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp.data.nhp_datasets.local_authorities import local_authority_successors
 from nhp.data.nhp_datasets.providers import read_data_with_provider
 from nhp.data.raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.types import *  # noqa: F403
 
 
-def get_outpatients_data(spark: SparkSession) -> None:
+def get_outpatients_data(spark: SparkSession) -> DataFrame:
     """Get Outpatients Data"""
     df = read_data_with_provider(spark, "hes.silver.opa")
 

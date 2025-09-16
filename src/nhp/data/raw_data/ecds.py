@@ -3,17 +3,17 @@
 from itertools import chain
 
 from databricks.connect import DatabricksSession
-from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql import functions as F
-from pyspark.sql.types import *  # noqa: F403
 
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp.data.nhp_datasets.local_authorities import local_authority_successors
 from nhp.data.nhp_datasets.providers import add_provider
 from nhp.data.raw_data.helpers import add_age_group_column
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.types import *  # noqa: F403
 
 
-def get_ecds_data(spark: SparkSession) -> None:
+def get_ecds_data(spark: SparkSession) -> DataFrame:
     """Get ECDS data"""
     df = spark.read.table("hes.silver.ecds")
 
