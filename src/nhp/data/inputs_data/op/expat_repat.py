@@ -29,7 +29,7 @@ def get_op_expat_data(spark: SparkSession) -> DataFrame:
 def _get_icb_df(spark: SparkSession) -> DataFrame:
     return (
         get_op_df(spark)
-        .filter(F.col("icb").isNotNull())
+        .filter(F.isnotnull("icb"))
         .withColumn("group", F.lit(""))
         .groupBy("fyear", "icb", "is_main_icb", "provider", "group", "tretspef")
         .agg(F.sum("attendance").alias("count"))

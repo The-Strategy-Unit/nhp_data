@@ -28,7 +28,7 @@ def get_ae_expat_data(spark: SparkSession) -> DataFrame:
 def _get_icb_df(spark: SparkSession) -> DataFrame:
     return (
         get_ae_df(spark)
-        .filter(F.col("icb").isNotNull())
+        .filter(F.isnotnull("icb"))
         .groupBy("fyear", "icb", "is_main_icb", "provider", "group", "tretspef")
         .agg(F.sum("arrival").alias("count"))
         .persist()

@@ -60,7 +60,7 @@ def get_day_procedure_code_list(
         # but, cannot use nhp.raw_data.opa as this table needs to created before
         read_data_with_provider(spark, "hes.silver.opa")
         .filter(F.col("sex").isin(["1", "2"]))
-        .filter(F.col("apptage").isNotNull())
+        .filter(F.isnotnull("apptage"))
         # end of todo
         .filter(F.col("atentype").isin(["1", "2"]))  # only include F2F appointments
         .filter(

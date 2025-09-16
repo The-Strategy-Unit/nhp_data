@@ -40,7 +40,7 @@ def _get_icb_df(spark: SparkSession) -> DataFrame:
                 F.col("tretspef")
             ),
         )
-        .filter(F.col("icb").isNotNull())
+        .filter(F.isnotnull("icb"))
         .groupBy("fyear", "icb", "is_main_icb", "provider", "group", "tretspef")
         .count()
         .persist()

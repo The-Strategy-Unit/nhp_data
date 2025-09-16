@@ -22,7 +22,7 @@ def get_ae_procedures(spark: SparkSession) -> DataFrame:
     return (
         get_ae_df(spark)
         .join(mitigators, ["fyear", "key"])
-        .filter(F.col("primary_treatment").isNotNull())
+        .filter(F.isnotnull("primary_treatment"))
         .filter(F.col("primary_treatment") != "")
         .withColumnRenamed("primary_treatment", "procedure_code")
         .groupBy("fyear", "provider", "strategy", "procedure_code")
