@@ -89,7 +89,7 @@ def snpp_uri_variant_match(uri: str) -> str | None:
             return None
 
 
-def extract_snpp_zip(uri: str, output_dir: str) -> str:
+def extract_snpp_zip(uri: str, output_dir: str) -> str | None:
     """Download and extract an SNPP zip file
 
     :param uri: the URI to the SNPP file
@@ -98,7 +98,7 @@ def extract_snpp_zip(uri: str, output_dir: str) -> str:
     :type output_dir: str
     :raises Exception: if the URI does not match to demographics/births files
     :return: path to where we have saved the files to
-    :rtype: str
+    :rtype: str | None
     """
     variant = snpp_uri_variant_match(uri)
     if not variant:
