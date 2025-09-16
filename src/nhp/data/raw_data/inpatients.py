@@ -2,16 +2,16 @@
 
 from databricks.connect import DatabricksSession
 from delta.tables import DeltaTable
-from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
-from pyspark.sql.types import *  # noqa: F403
 
 from nhp.data.nhp_datasets.apc import apc_primary_procedures, hes_apc
 from nhp.data.nhp_datasets.icbs import add_main_icb
 from nhp.data.raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.types import *  # noqa: F403
 
 
-def get_inpatients_data(spark: SparkSession) -> None:
+def get_inpatients_data(spark: SparkSession) -> DataFrame:
     """Get Inpatients Data"""
     # Spell has maternity delivery episode
     mat_delivery_spells = (

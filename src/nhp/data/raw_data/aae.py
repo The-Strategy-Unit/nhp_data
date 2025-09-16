@@ -1,17 +1,17 @@
 """Generate the AAE data"""
 
-import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
-from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.types import *  # noqa: F403
 
+import pyspark.sql.functions as F
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp.data.nhp_datasets.local_authorities import local_authority_successors
 from nhp.data.nhp_datasets.providers import read_data_with_provider
 from nhp.data.raw_data.helpers import add_age_group_column
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.types import *  # noqa: F403
 
 
-def get_aae_data(spark: SparkSession) -> None:
+def get_aae_data(spark: SparkSession) -> DataFrame:
     """Get AAE data
 
     inserts into the ECDS table, before ECDS dataset was available"""

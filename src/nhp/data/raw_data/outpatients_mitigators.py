@@ -3,12 +3,13 @@
 from functools import reduce
 
 from databricks.connect import DatabricksSession
+
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
 
-def get_outpatients_mitigators(spark: SparkSession) -> None:
+def get_outpatients_mitigators(spark: SparkSession) -> DataFrame:
     df = spark.read.table("nhp.raw_data.opa")
 
     op_strategies = [
