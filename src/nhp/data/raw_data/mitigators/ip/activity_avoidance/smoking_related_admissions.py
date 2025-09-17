@@ -21,8 +21,6 @@ sourced from the above referenced document.
 [1]: https://www.rcplondon.ac.uk/projects/outputs/hiding-plain-sight-treating-tobacco-dependency-nhs
 """
 
-import pathlib
-
 import pyspark.sql.types as T
 from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F

@@ -11,6 +11,7 @@ Provides variables for connecting to HES datasets, and methods for working with 
 from typing import Callable
 
 from databricks.connect import DatabricksSession
+
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
