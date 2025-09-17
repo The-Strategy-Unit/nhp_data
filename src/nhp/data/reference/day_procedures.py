@@ -46,7 +46,7 @@ def get_day_procedure_code_list(
     P_OCCASIONALLY = 0.05
 
     providers = (
-        spark.read.table("strategyunit.reference.ods_trusts")
+        spark.read.table("nhp.reference.ods_trusts")
         .filter(F.col("org_type").startswith("ACUTE"))
         .select(F.col("org_to").alias("provider"))
         .distinct()

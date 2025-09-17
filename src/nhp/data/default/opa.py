@@ -11,7 +11,7 @@ def create(spark: SparkSession) -> None:
     WHERE
       EXISTS (
         SELECT 1
-        FROM   strategyunit.reference.ods_trusts
+        FROM   nhp.reference.ods_trusts
         WHERE  a.provider = org_to
         AND    org_type LIKE 'ACUTE%'
       )

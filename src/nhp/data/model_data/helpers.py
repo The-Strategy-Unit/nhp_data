@@ -25,7 +25,7 @@ def create_population_projections(
     spark: SparkSession, df: DataFrame, fyear: int, projection_year: int = 2022
 ) -> DataFrame:
     providers = (
-        spark.read.table("strategyunit.reference.ods_trusts")
+        spark.read.table("nhp.reference.ods_trusts")
         .filter(F.col("org_type").startswith("ACUTE"))
         .select(F.col("org_to").alias("provider"))
         .distinct()

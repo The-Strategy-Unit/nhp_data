@@ -17,7 +17,7 @@ def get_provider_catchments(spark: SparkSession) -> DataFrame:
     total_window = Window.partitionBy("fyear", "resladst_ons", "age", "sex")
 
     providers = (
-        spark.read.table("strategyunit.reference.ods_trusts")
+        spark.read.table("nhp.reference.ods_trusts")
         .filter(F.col("org_type").startswith("ACUTE"))
         .select("org_to")
         .distinct()
