@@ -144,5 +144,5 @@ def _admission_not(
     return df.join(filter_function(regex), ["epikey", "fyear"], "anti")
 
 
-DataFrame.admission_has = _admission_has
-DataFrame.admission_not = _admission_not
+DataFrame.admission_has = _admission_has  # ty: ignore[unresolved-attribute]
+DataFrame.admission_not = _admission_not  # ty: ignore[unresolved-attribute]
