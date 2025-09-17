@@ -128,7 +128,7 @@ resources:
         - job_cluster_key: nhp_inputs_data_extract
           new_cluster:
             cluster_name: ""
-            spark_version: 15.4.x-scala2.12
+            spark_version: 16.4.x-scala2.13
             spark_env_vars:
               PYSPARK_PYTHON: /databricks/python3/bin/python3
             instance_pool_id: 0129-130615-maw351-pool-pss8mvfy
