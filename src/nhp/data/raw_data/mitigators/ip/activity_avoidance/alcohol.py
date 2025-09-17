@@ -35,14 +35,11 @@ The AAFs are also sourced from the above referenced document.
 
 
 from databricks.connect import DatabricksSession
-from pyspark.sql import functions as F
 
 from nhp.data.hes_datasets import any_diagnosis, diagnoses, nhp_apc
 from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
 from nhp.data.raw_data.mitigators.reference_data import load_json
-
-spark = DatabricksSession.builder.getOrCreate()
-sc = spark.sparkContext
+from pyspark.sql import functions as F
 
 
 @activity_avoidance_mitigator()
@@ -74,6 +71,12 @@ def _alcohol_wholly_attributable():
 
 
 def _alcohol_partially_attributable(condition_group):
+    spark = DatabricksSession.builder.getOrCreate()
+    assert hasattr(
+        spark, "sparkContext"
+    ), "sparkContext is not available on the SparkSession object."
+    sc = spark.sparkContext
+
     icd = spark.read.table("strategyunit.reference.icd10_codes")
 
     aaf = load_json("alcohol_fractions")
