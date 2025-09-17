@@ -11,6 +11,7 @@ import pandas as pd
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
 from pygam import GAM
+
 from pyspark.sql import DataFrame, SparkSession
 
 
@@ -67,11 +68,11 @@ def _generate_gam(data: pd.DataFrame, progress: bool = False) -> Any:
     return GAM().gridsearch(x, y, progress=progress)
 
 
-def _generate_gams(save_path: str, dfr: DataFrame) -> dict:
+def _generate_gams(save_path: str, spark_df: DataFrame) -> dict:
     # generate the GAMs as a nested dictionary by dataset/year/(HSA group, sex).
     # This may be amenable to some parallelisation? or other speed tricks possible with pygam?
 
-    dfr = dfr.toPandas()
+    dfr = spark_df.toPandas()
     print("Generating GAMs")
     all_gams = {}
     to_iterate = list(dfr.groupby("dataset"))
@@ -157,4 +158,5 @@ def main() -> None:
 
     dfr = _get_data(spark, save_path)
     all_gams = _generate_gams(save_path, dfr)
+    _generate_activity_tables(spark, save_path, all_gams)
     _generate_activity_tables(spark, save_path, all_gams)
