@@ -34,11 +34,11 @@ The AAFs are also sourced from the above referenced document.
 # pylint: enable=line-too-long
 
 from databricks.connect import DatabricksSession
+from pyspark.sql import functions as F
 
 from nhp.data.hes_datasets import any_diagnosis, diagnoses, nhp_apc
 from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
 from nhp.data.raw_data.mitigators.reference_data import load_json
-from pyspark.sql import functions as F
 
 
 @activity_avoidance_mitigator()
@@ -63,7 +63,7 @@ def _alcohol_wholly_attributable():
 
     return (
         nhp_apc.filter(F.col("age") >= 16)
-        .admission_has(any_diagnosis, *diag_codes)
+        .admission_has(any_diagnosis, *diag_codes)  # ty: ignore[call-non-callable]
         .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )

@@ -21,7 +21,7 @@ from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
 @activity_avoidance_mitigator()
 def _medically_unexplained_related_admissions():
     return (
-        nhp_apc.admission_has(
+        nhp_apc.admission_has(  # ty: ignore[call-non-callable]
             primary_diagnosis,
             "F510",
             "G(4(4[028]|70)|501)",
