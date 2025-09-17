@@ -92,7 +92,7 @@ class Mitigator:
         )
 
 
-def mitigator(mitigator_type: str, mitigator_name: str = None):
+def mitigator(mitigator_type: str, mitigator_name: str | None = None):
     """Mitigator Decorator
 
     A decorator to use for functions that generate a mitigator DataFrame
@@ -125,11 +125,11 @@ def mitigator(mitigator_type: str, mitigator_name: str = None):
     return decorator
 
 
-def activity_avoidance_mitigator(mitigator_name: str = None):
+def activity_avoidance_mitigator(mitigator_name: str | None = None):
     """Activity Avoidance Mitigator Decorator"""
     return mitigator("activity_avoidance", mitigator_name)
 
 
-def efficiency_mitigator(mitigator_name: str = None):
+def efficiency_mitigator(mitigator_name: str | None = None):
     """Efficiency Mitigator Decorator"""
     return mitigator("efficiency", mitigator_name)
