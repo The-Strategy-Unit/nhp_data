@@ -79,7 +79,7 @@ def _generate_gams(save_path: str, spark_df: DataFrame) -> dict:
     n = len(to_iterate)
     for i, (dataset, v1) in enumerate(to_iterate):
         all_gams[dataset] = {}
-        print(f"> {dataset} {i}/{n} ({i/n*100:.1f}%)")
+        print(f"> {dataset} {i}/{n} ({i / n * 100:.1f}%)")
         for fyear, v2 in list(v1.groupby("fyear")):
             g = {k: _generate_gam(v) for k, v in list(v2.groupby(["hsagrp", "sex"]))}
             all_gams[dataset][fyear] = g

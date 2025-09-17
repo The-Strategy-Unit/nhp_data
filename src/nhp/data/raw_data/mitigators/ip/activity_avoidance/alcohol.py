@@ -33,7 +33,6 @@ The AAFs are also sourced from the above referenced document.
 """
 # pylint: enable=line-too-long
 
-
 from databricks.connect import DatabricksSession
 
 from nhp.data.hes_datasets import any_diagnosis, diagnoses, nhp_apc
@@ -72,9 +71,9 @@ def _alcohol_wholly_attributable():
 
 def _alcohol_partially_attributable(condition_group):
     spark = DatabricksSession.builder.getOrCreate()
-    assert hasattr(
-        spark, "sparkContext"
-    ), "sparkContext is not available on the SparkSession object."
+    assert hasattr(spark, "sparkContext"), (
+        "sparkContext is not available on the SparkSession object."
+    )
     sc = spark.sparkContext
 
     icd = spark.read.table("strategyunit.reference.icd10_codes")

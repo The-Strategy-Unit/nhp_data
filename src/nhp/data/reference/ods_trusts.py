@@ -248,9 +248,9 @@ def get_ods_trusts_and_current_successors(api_key: str) -> pd.DataFrame:
 
     # we should see no records here, if we do there is an organisation mapped to two orgs
     check = df_orgs.value_counts("org_code") > 1
-    assert (
-        sum(check) == 0
-    ), "organisations have been duplicated when joining to successors"
+    assert sum(check) == 0, (
+        "organisations have been duplicated when joining to successors"
+    )
 
     return df_orgs
 
