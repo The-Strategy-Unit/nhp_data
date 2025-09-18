@@ -21,7 +21,7 @@ def get_spark() -> SparkSession:
     return spark
 
 
-def create_population_projections(
+def create_provider_population_projections(
     spark: SparkSession, df: DataFrame, fyear: int, projection_year: int = 2022
 ) -> DataFrame:
     providers = (
