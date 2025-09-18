@@ -41,13 +41,9 @@ def _colonoscopy():
     """
     # pylint: enable=line-too-long
     return (
-        nhp_apc.admission_has(
-            primary_procedure, "H(22[189]|68[2489])"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "H(22[189]|68[2489])")  # ty: ignore[call-non-callable]
         .admission_not(any_procedure, "H68[13]")  # ty: ignore[call-non-callable]
-        .admission_not(
-            any_diagnosis, "D126", "Q858", "Z(0[89][012789]|121)"
-        )  # ty: ignore[call-non-callable]
+        .admission_not(any_diagnosis, "D126", "Q858", "Z(0[89][012789]|121)")  # ty: ignore[call-non-callable]
     )
 
 

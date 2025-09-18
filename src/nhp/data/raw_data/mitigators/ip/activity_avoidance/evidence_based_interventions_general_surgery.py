@@ -43,9 +43,7 @@ def _appendectomy():
     """
     # pylint: enable=line-too-long
 
-    return nhp_apc.admission_has(
-        primary_procedure, "H01[12389]"
-    ).admission_not(  # ty: ignore[call-non-callable]
+    return nhp_apc.admission_has(primary_procedure, "H01[12389]").admission_not(  # ty: ignore[call-non-callable]
         any_diagnosis, "K3(5[238]|67)"
     )  # ty: ignore[call-non-callable]
 
@@ -58,9 +56,7 @@ def _cholecystectomy():
     """
     # pylint: enable=line-too-long
     return (
-        nhp_apc.admission_has(
-            primary_procedure, "J18[1234589]"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "J18[1234589]")  # ty: ignore[call-non-callable]
         .admission_has(primary_diagnosis, "K851")  # ty: ignore[call-non-callable]
         .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )

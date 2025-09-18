@@ -52,13 +52,9 @@ def _arthroscopic_meniscal_tear():
     # either the primary procedure is W82,
     # or it is W71[45] with Y767 and Z846 as secondary procedures
     procedures = [
-        lambda x: x.admission_has(
-            primary_procedure, "W82"
-        ),  # ty: ignore[call-non-callable]
+        lambda x: x.admission_has(primary_procedure, "W82"),  # ty: ignore[call-non-callable]
         lambda x: (
-            x.admission_has(
-                primary_procedure, "W71[45]"
-            )  # ty: ignore[call-non-callable]
+            x.admission_has(primary_procedure, "W71[45]")  # ty: ignore[call-non-callable]
             .admission_has(secondary_procedure, "Y767")  # ty: ignore[call-non-callable]
             .admission_has(secondary_procedure, "Z846")  # ty: ignore[call-non-callable]
         ),
@@ -66,13 +62,9 @@ def _arthroscopic_meniscal_tear():
 
     # either there is a diagnosis of M323, or they have both M233 and M238 diagnoses
     diags = [
-        lambda x: x.admission_has(
-            any_diagnosis, "M232"
-        ),  # ty: ignore[call-non-callable]
+        lambda x: x.admission_has(any_diagnosis, "M232"),  # ty: ignore[call-non-callable]
         lambda x: (
-            x.admission_has(
-                any_diagnosis, "M233"
-            ).admission_has(  # ty: ignore[call-non-callable]
+            x.admission_has(any_diagnosis, "M233").admission_has(  # ty: ignore[call-non-callable]
                 any_diagnosis, "M238"
             )  # ty: ignore[call-non-callable]
         ),
@@ -89,24 +81,18 @@ def _arthroscopic_shoulder_compression():
     source: https://ebi.aomrc.org.uk/interventions/arthroscopic-shoulder-decompression-for-subacromial-pain/
     """
     # pylint: enable=line-too-long
-    df = nhp_apc.admission_has(
-        any_diagnosis, "M754"
-    ).admission_not(  # ty: ignore[call-non-callable]
+    df = nhp_apc.admission_has(any_diagnosis, "M754").admission_not(  # ty: ignore[call-non-callable]
         any_diagnosis, "M751"
     )
 
     return DataFrame.unionByName(
         (
-            df.admission_has(
-                primary_procedure, "O291"
-            ).admission_has(  # ty: ignore[call-non-callable]
+            df.admission_has(primary_procedure, "O291").admission_has(  # ty: ignore[call-non-callable]
                 secondary_procedure, "Y767"
             )
         ),
         (
-            df.admission_has(
-                primary_procedure, "W(572|844)"
-            ).admission_has(  # ty: ignore[call-non-callable]
+            df.admission_has(primary_procedure, "W(572|844)").admission_has(  # ty: ignore[call-non-callable]
                 secondary_procedure, "Z812"
             )
         ),
@@ -135,9 +121,7 @@ def _dupuytrens():
     """
     # pylint: enable=line-too-long
     return (
-        nhp_apc.admission_has(
-            primary_procedure, "T5(2[1256]|4[13])"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "T5(2[1256]|4[13])")  # ty: ignore[call-non-callable]
         .admission_has(primary_diagnosis, "M720")  # ty: ignore[call-non-callable]
         .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
@@ -156,13 +140,9 @@ def _fusion_surgery():
     )
 
     return (
-        nhp_apc.admission_has(
-            primary_procedure, "V(3(8[23456]|9[34567])|404)"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "V(3(8[23456]|9[34567])|404)")  # ty: ignore[call-non-callable]
         .admission_has(primary_diagnosis, "M54[34589]")  # ty: ignore[call-non-callable]
-        .admission_not(
-            secondary_diagnosis, "M4(0[012]|[12]|3[01589]|45)"
-        )  # ty: ignore[call-non-callable]
+        .admission_not(secondary_diagnosis, "M4(0[012]|[12]|3[01589]|45)")  # ty: ignore[call-non-callable]
         .join(pregnancy_diagnoses, ["epikey", "fyear"], "anti")
         .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
@@ -177,9 +157,7 @@ def _ganglion_excision():
     # pylint: enable=line-too-long
 
     return (
-        nhp_apc.admission_has(
-            primary_procedure, "T(59[12]|60[12])"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "T(59[12]|60[12])")  # ty: ignore[call-non-callable]
         .admission_has(primary_diagnosis, "M(255|674)")  # ty: ignore[call-non-callable]
         .admission_has(secondary_diagnosis, "M258")  # ty: ignore[call-non-callable]
     )
@@ -194,20 +172,14 @@ def _knee_athroscopy_for_osteoarhritis():
     # pylint: enable=line-too-long
 
     procs = DataFrame.unionByName(
-        nhp_apc.admission_has(
-            primary_procedure, "W85[12]"
-        ),  # ty: ignore[call-non-callable]
-        nhp_apc.admission_has(
-            primary_procedure, "W802"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "W85[12]"),  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "W802")  # ty: ignore[call-non-callable]
         .admission_has(secondary_procedure, "Y767")  # ty: ignore[call-non-callable]
         .admission_has(secondary_procedure, "Z846"),  # ty: ignore[call-non-callable]
     )
 
     return (
-        procs.admission_has(
-            primary_diagnosis, "M1[57]"
-        )  # ty: ignore[call-non-callable]
+        procs.admission_has(primary_diagnosis, "M1[57]")  # ty: ignore[call-non-callable]
         .admission_not(secondary_diagnosis, "M238")  # ty: ignore[call-non-callable]
         .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
@@ -222,9 +194,7 @@ def _lumbar_disectomy():
     # pylint: enable=line-too-long
 
     procs = DataFrame.unionByName(
-        nhp_apc.admission_has(
-            primary_procedure, "V(33[1-9]|5(1[189]|83)|603)"
-        ),  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "V(33[1-9]|5(1[189]|83)|603)"),  # ty: ignore[call-non-callable]
         nhp_apc.admission_has(
             primary_procedure, "V(52[12589]|(58|60)[89])"
         ).admission_has(  # ty: ignore[call-non-callable]
@@ -232,9 +202,7 @@ def _lumbar_disectomy():
         ),
     )
 
-    return procs.admission_has(
-        primary_diagnosis, "M5(1[01]|4[134])"
-    ).filter(  # ty: ignore[call-non-callable]
+    return procs.admission_has(primary_diagnosis, "M5(1[01]|4[134])").filter(  # ty: ignore[call-non-callable]
         (F.col("age") >= 19) & (F.col("age") <= 120)
     )
 
@@ -248,12 +216,8 @@ def _lumbar_rf_facet_joint_denervation():
     # pylint: enable=line-too-long
 
     return (
-        nhp_apc.admission_has(
-            primary_procedure, "V48[57]"
-        )  # ty: ignore[call-non-callable]
-        .admission_has(
-            primary_diagnosis, "M5(1[289]|4[59])"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "V48[57]")  # ty: ignore[call-non-callable]
+        .admission_has(primary_diagnosis, "M5(1[289]|4[59])")  # ty: ignore[call-non-callable]
         .admission_has(any_diagnosis, "Z(67[567]|993)")  # ty: ignore[call-non-callable]
         .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
@@ -268,12 +232,8 @@ def _trigger_finger_release():
     # pylint: enable=line-too-long
 
     return (
-        nhp_apc.admission_has(
-            primary_procedure, "T(69[1289]|7(0[12]|1[189]|2[389]))"
-        )  # ty: ignore[call-non-callable]
-        .admission_has(
-            primary_diagnosis, "M65(3|[89]4)"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "T(69[1289]|7(0[12]|1[189]|2[389]))")  # ty: ignore[call-non-callable]
+        .admission_has(primary_diagnosis, "M65(3|[89]4)")  # ty: ignore[call-non-callable]
         .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
@@ -287,12 +247,8 @@ def _vertebral_augmentation():
     # pylint: enable=line-too-long
 
     return (
-        nhp_apc.admission_has(
-            primary_procedure, "V44[45]"
-        )  # ty: ignore[call-non-callable]
-        .admission_has(
-            primary_diagnosis, "M80[01234589]"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "V44[45]")  # ty: ignore[call-non-callable]
+        .admission_has(primary_diagnosis, "M80[01234589]")  # ty: ignore[call-non-callable]
         .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 

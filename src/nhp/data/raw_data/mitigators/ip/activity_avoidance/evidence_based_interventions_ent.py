@@ -46,9 +46,7 @@ def _adenoids():
     # pylint: enable=line-too-long
 
     return (
-        nhp_apc.admission_has(
-            any_procedure, "E20[1489]"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(any_procedure, "E20[1489]")  # ty: ignore[call-non-callable]
         .admission_has(any_procedure, "D151")  # ty: ignore[call-non-callable]
         .admission_has(primary_diagnosis, "H65[2349]")  # ty: ignore[call-non-callable]
         .admission_not(
@@ -68,13 +66,9 @@ def _grommets():
     """
     # pylint: enable=line-too-long
     return (
-        nhp_apc.admission_has(
-            primary_procedure, "D151"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "D151")  # ty: ignore[call-non-callable]
         .admission_has(any_procedure, "D151")  # ty: ignore[call-non-callable]
-        .admission_has(
-            primary_diagnosis, "H6(5[^01]|6)"
-        )  # ty: ignore[call-non-callable]
+        .admission_has(primary_diagnosis, "H6(5[^01]|6)")  # ty: ignore[call-non-callable]
         .filter(
             (F.col("age") <= 18) | ((F.col("age") >= 7001) & (F.col("age") <= 7007))
         )
@@ -89,9 +83,7 @@ def _snoring():
     """
     # pylint: enable=line-too-long
     return (
-        nhp_apc.admission_has(
-            primary_procedure, "F32[456]"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(primary_procedure, "F32[456]")  # ty: ignore[call-non-callable]
         .admission_has(primary_diagnosis, "R065")  # ty: ignore[call-non-callable]
         .admission_not(secondary_diagnosis, "G473")  # ty: ignore[call-non-callable]
         .filter((F.col("age") >= 19) & (F.col("age") <= 120))
@@ -108,9 +100,7 @@ def _rhinosinusitis():
             any_procedure, "E(081|1([257][123489]|[34][1-9]|4[1-9]|6[1289])|641)"
         )  # ty: ignore[call-non-callable]
         .admission_has(any_procedure, "Y76[12]")  # ty: ignore[call-non-callable]
-        .admission_has(
-            primary_diagnosis, "J3(10|3[23])"
-        )  # ty: ignore[call-non-callable]
+        .admission_has(primary_diagnosis, "J3(10|3[23])")  # ty: ignore[call-non-callable]
     )
 
 
@@ -120,13 +110,9 @@ def _tonsillectomy():
     source: https://ebi.aomrc.org.uk/interventions/tonsillectomy-for-recurrent-tonsillitis/
     """
     return (
-        nhp_apc.admission_has(
-            any_procedure, "F3(4[1-9]|61)"
-        )  # ty: ignore[call-non-callable]
+        nhp_apc.admission_has(any_procedure, "F3(4[1-9]|61)")  # ty: ignore[call-non-callable]
         .admission_has(any_diagnosis, "J(03|350)")  # ty: ignore[call-non-callable]
-        .admission_not(
-            any_diagnosis, "G473", "J3(6|90)"
-        )  # ty: ignore[call-non-callable]
+        .admission_not(any_diagnosis, "G473", "J3(6|90)")  # ty: ignore[call-non-callable]
     )
 
 

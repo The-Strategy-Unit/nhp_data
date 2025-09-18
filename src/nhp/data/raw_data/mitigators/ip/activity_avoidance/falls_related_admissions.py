@@ -41,9 +41,7 @@ from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
 
 
 def _explicit_fractures():
-    return nhp_apc.admission_has(
-        primary_diagnosis, "[ST]"
-    ).admission_has(  # ty: ignore[call-non-callable]
+    return nhp_apc.admission_has(primary_diagnosis, "[ST]").admission_has(  # ty: ignore[call-non-callable]
         secondary_diagnosis, "W[01]"
     )
 
@@ -60,9 +58,7 @@ def _implicit_fractures():
 
 
 def _implicit_tendency_to_fall():
-    return nhp_apc.admission_has(
-        primary_diagnosis, "R296"
-    )  # ty: ignore[call-non-callable]
+    return nhp_apc.admission_has(primary_diagnosis, "R296")  # ty: ignore[call-non-callable]
 
 
 @activity_avoidance_mitigator()
