@@ -8,7 +8,7 @@ from pyspark.sql import DataFrame, SparkSession, Window
 from nhp.data.model_data.helpers import (
     DEMOGRAPHICS_MAX_YEAR,
     DEMOGRAPHICS_MIN_YEAR,
-    create_population_projections,
+    create_provider_population_projections,
     get_spark,
 )
 
@@ -132,7 +132,9 @@ def extract(
     custom_RD8 = _create_custom_demographic_factors_RD8(spark)
 
     (
-        create_population_projections(spark, demographics, fyear, projection_year)
+        create_provider_population_projections(
+            spark, demographics, fyear, projection_year
+        )
         .unionByName(custom_R0A)
         .unionByName(custom_RD8)
         .repartition(1)
