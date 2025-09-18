@@ -45,7 +45,7 @@ def _enhanced_recovery(*args, sex="[12]"):
     return (
         nhp_apc.filter(F.col("admimeth").rlike("^1"))
         .filter(F.col("sex").rlike(f"^{sex}"))
-        .admission_has(primary_procedure, *args)
+        .admission_has(primary_procedure, *args)  # ty: ignore[call-non-callable]
         .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )

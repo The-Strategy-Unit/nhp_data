@@ -24,7 +24,7 @@ from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
 # base function for the two mitigators
 def _eol_care(min_speldur, max_speldur):
     return (
-        nhp_apc.admission_not(any_diagnosis, "[V-Y]")
+        nhp_apc.admission_not(any_diagnosis, "[V-Y]")  # ty: ignore[call-non-callable]
         .join(procedures, ["epikey", "fyear"], "anti")
         .filter(F.col("dismeth") == 4)
         .filter(F.col("speldur") >= min_speldur)

@@ -76,11 +76,13 @@ from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
 def _ambulatory_care_conditions_acute():
     cellulitis = nhp_apc.admission_has(
         primary_diagnosis, "L(0([34]|8[089])|88X|980)"
-    ).admission_not(any_procedure, "[A-HJ-RTVW]", "S([123]|4[1-589])", "X0[1245]")
+    ).admission_not(  # ty: ignore[call-non-callable]
+        any_procedure, "[A-HJ-RTVW]", "S([123]|4[1-589])", "X0[1245]"
+    )
 
-    gangrene = nhp_apc.admission_has(any_diagnosis, "R02X")
+    gangrene = nhp_apc.admission_has(any_diagnosis, "R02X")  # ty: ignore[call-non-callable]
 
-    other_conditions = nhp_apc.admission_has(
+    other_conditions = nhp_apc.admission_has(  # ty: ignore[call-non-callable]
         primary_diagnosis,
         # convulsions_and_epilepsy
         "G4[01]|O15|R56",
@@ -110,7 +112,7 @@ def _ambulatory_care_conditions_acute():
 @activity_avoidance_mitigator()
 def _ambulatory_care_conditions_chronic():
     def df(*args):
-        return nhp_apc.admission_has(primary_diagnosis, *args)
+        return nhp_apc.admission_has(primary_diagnosis, *args)  # ty: ignore[call-non-callable]
 
     conditions = [
         # angina
@@ -125,9 +127,9 @@ def _ambulatory_care_conditions_chronic():
         ),
         # copd
         df("J4[12347]"),
-        df("J20").admission_has(secondary_diagnosis, "J4[12347]"),
+        df("J20").admission_has(secondary_diagnosis, "J4[12347]"),  # ty: ignore[call-non-callable]
         # diabetes_complications
-        nhp_apc.admission_has(any_diagnosis, "E1[0-4][0-8]"),
+        nhp_apc.admission_has(any_diagnosis, "E1[0-4][0-8]"),  # ty: ignore[call-non-callable]
         # iron-deficiency_anaemia
         df("D50[189]"),
         # nutritional_deficiencies
@@ -146,11 +148,11 @@ def _ambulatory_care_conditions_chronic():
 @activity_avoidance_mitigator()
 def _ambulatory_care_conditions_vaccine_preventable():
     def df(*args):
-        return nhp_apc.admission_has(any_diagnosis, *args)
+        return nhp_apc.admission_has(any_diagnosis, *args)  # ty: ignore[call-non-callable]
 
     conditions = [
         # influenza_and_pneumonia
-        df("J1([0134]|5[3479]|68|8[18])").admission_not(secondary_diagnosis, "D57"),
+        df("J1([0134]|5[3479]|68|8[18])").admission_not(secondary_diagnosis, "D57"),  # ty: ignore[call-non-callable]
         # other
         df("A(3[567]|80)", "B(0[56]|1(6[19]|8[01])|26)", "G000", "M014"),
     ]
