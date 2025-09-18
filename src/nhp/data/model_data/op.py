@@ -28,16 +28,16 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
     )
 
     inequalities = (
-        spark.read.parquet("/Volumes/nhp/inputs_data/files/dev/inequalities.parquet")
+        spark.read.table("inequalities")
         .filter(F.col("fyear") == fyear)
-        .select("provider", "sushrg_trimmed")
+        .select("icb", "provider", "sushrg_trimmed")
         .withColumnRenamed("provider", "dataset")
         .distinct()
     )
 
-    # We don't want to keep sushrg_trimmed and imd_quintile if not in inequalities parquet file
+    # We don't want to keep sushrg_trimmed and imd_quintile if not in inequalities
     opa_collapse = (
-        opa.join(inequalities, how="anti", on=["dataset", "sushrg_trimmed"])
+        opa.join(inequalities, how="anti", on=["icb", "dataset", "sushrg_trimmed"])
         .withColumn("sushrg_trimmed", F.lit(None))
         .withColumn("imd_quintile", F.lit(None))
         .groupBy(opa.drop("index", "attendances", "tele_attendances").columns)
@@ -49,7 +49,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
     )
 
     opa_dont_collapse = opa.join(
-        inequalities, how="semi", on=["dataset", "sushrg_trimmed"]
+        inequalities, how="semi", on=["icb", "dataset", "sushrg_trimmed"]
     )
 
     opa = DataFrame.unionByName(opa_collapse, opa_dont_collapse)

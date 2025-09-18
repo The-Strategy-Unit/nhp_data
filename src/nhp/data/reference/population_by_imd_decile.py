@@ -3,6 +3,7 @@
 from databricks.connect import DatabricksSession
 from pyspark.sql import SparkSession, Window
 from pyspark.sql import functions as F
+import sys
 
 
 def create_population_by_imd_decile(
@@ -84,4 +85,5 @@ def create_population_by_imd_decile(
 def main() -> None:
     """main method"""
     spark = DatabricksSession.builder.getOrCreate()
-    create_population_by_imd_decile(spark)
+    base_year = int(sys.argv[3])
+    create_population_by_imd_decile(spark, base_year=base_year)

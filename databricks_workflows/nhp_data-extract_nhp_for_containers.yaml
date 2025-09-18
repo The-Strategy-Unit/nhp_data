@@ -88,9 +88,25 @@ resources:
               job_cluster_key: run_nhp_extracts_cluster
               libraries:
                 - whl: ../dist/*.whl
-        - task_key: generate_gams
+        - task_key: run_extract_inequalities_data
           depends_on:
             - task_key: run_extract_birth_factors_data
+          for_each_task:
+            inputs: "{{job.parameters.years}}"
+            task:
+              task_key: extract_inequalities_data
+              python_wheel_task:
+                package_name: nhp_data
+                entry_point: model_data-inequalities
+                parameters:
+                  - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+                  - "{{input}}"
+              job_cluster_key: run_nhp_extracts_cluster
+              libraries:
+                - whl: ../dist/*.whl
+        - task_key: generate_gams
+          depends_on:
+            - task_key: run_extract_inequalities_data
           python_wheel_task:
             package_name: nhp_data
             entry_point: model_data-health_status_adjustment-generate_gams
