@@ -109,7 +109,7 @@ resources:
             - task_key: run_extract_inequalities_data
           python_wheel_task:
             package_name: nhp_data
-            entry_point: model_data-health_status_adjustment-generate_gams
+            entry_point: model_data-health_status_adjustment-generate_provider_gams
             parameters:
               - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
           job_cluster_key: run_nhp_extracts_cluster
