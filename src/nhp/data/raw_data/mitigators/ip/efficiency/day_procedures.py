@@ -95,8 +95,6 @@ inpatient admission or daycase admission are converted to be performed in outpat
 are removed from the inpatients counts and are added to outpatients instead.
 """
 
-import json
-
 from pyspark.sql import functions as F
 
 from nhp.data.hes_datasets import nhp_apc, primary_procedure

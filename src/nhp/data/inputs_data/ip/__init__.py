@@ -42,7 +42,8 @@ def get_ip_mitigators(spark: SparkSession) -> DataFrame:
         # only include electives and emergencies (not all non-elective)
         .filter(F.col("admimeth").rlike("^[12]"))
         # only include ordinary admissions, ignore daycases etc.
-        .filter(F.col("classpat") == "1").select(
+        .filter(F.col("classpat") == "1")
+        .select(
             F.col("fyear"),
             F.col("provider"),
             F.col("epikey"),

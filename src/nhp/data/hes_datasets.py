@@ -11,6 +11,7 @@ Provides variables for connecting to HES datasets, and methods for working with 
 from typing import Callable
 
 from databricks.connect import DatabricksSession
+
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
@@ -144,5 +145,5 @@ def _admission_not(
     return df.join(filter_function(regex), ["epikey", "fyear"], "anti")
 
 
-DataFrame.admission_has = _admission_has
-DataFrame.admission_not = _admission_not
+DataFrame.admission_has = _admission_has  # ty: ignore[unresolved-attribute]
+DataFrame.admission_not = _admission_not  # ty: ignore[unresolved-attribute]

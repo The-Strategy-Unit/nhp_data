@@ -36,9 +36,9 @@ def create_custom_birth_factors(
     """
 
     demographics_path = (
-        f"{path}/demographic_factors/fyear={fyear//100}/dataset={dataset}"
+        f"{path}/demographic_factors/fyear={fyear // 100}/dataset={dataset}"
     )
-    births_path = f"{path}/birth_factors/fyear={fyear//100}/dataset={dataset}"
+    births_path = f"{path}/birth_factors/fyear={fyear // 100}/dataset={dataset}"
 
     demographics = (
         spark.read.parquet(demographics_path)

@@ -7,13 +7,15 @@ requires-python = ">=3.11"
 dependencies = [
   "beautifulsoup4>=4.13.4",
   "databricks-connect>=15.4",
-  "pandas>=2.2.3",
+  "mlflow>=3.3.2",
   "openpyxl>=3.1.5",
+  "pandas>=2.2.3",
   "pygam>=0.9.1",
   "pyjanitor>=0.31.0",
   "pyspark>=3.5.1",
+  "statsmodels>=0.14.5",
   "tqdm>=4.67.1",
-  "xlrd>=2.0.2"
+  "xlrd>=2.0.2",
 ]
 
 # Explicitly specify which packages to include
