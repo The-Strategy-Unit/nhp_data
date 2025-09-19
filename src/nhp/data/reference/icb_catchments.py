@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 import requests
-from pyspark.sql import DataFrame, SparkSession, Window
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
 from nhp.data.get_spark import get_spark
@@ -19,7 +19,7 @@ def get_icb_catchments(spark: SparkSession) -> DataFrame:
     :type spark: SparkSession
     """
 
-    url = ".".join(
+    url = "/".join(
         [
             "https://services1.arcgis.com",
             "ESMARspQHYMw9BZ9",
@@ -34,7 +34,7 @@ def get_icb_catchments(spark: SparkSession) -> DataFrame:
     )
 
     col_lsoa = "LSOA21CD"
-    col_icb = "ICB23CD"
+    col_icb = "ICB23CDH"
     col_lad = "LAD23CD"
 
     params = {
