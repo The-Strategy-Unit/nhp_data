@@ -104,7 +104,7 @@ resources:
               job_cluster_key: run_nhp_extracts_cluster
               libraries:
                 - whl: ../dist/*.whl
-        - task_key: generate_gams
+        - task_key: generate_provider_gams
           depends_on:
             - task_key: run_extract_inequalities_data
           python_wheel_task:
@@ -117,9 +117,22 @@ resources:
             - pypi:
                 package: pygam==0.9.1
             - whl: ../dist/*.whl
+        - task_key: generate_icb_gams
+          depends_on:
+            - task_key: generate_provider_gams
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: model_data-health_status_adjustment-generate_icb_gams
+            parameters:
+              - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+          job_cluster_key: run_nhp_extracts_cluster
+          libraries:
+            - pypi:
+                package: pygam==0.9.1
+            - whl: ../dist/*.whl
         - task_key: generate_national_gams
           depends_on:
-            - task_key: generate_gams
+            - task_key: generate_icb_gams
           python_wheel_task:
             package_name: nhp_data
             entry_point: model_data-health_status_adjustment-generate_national_gams
