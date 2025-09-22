@@ -48,7 +48,6 @@ def load_inequalities_data(spark: SparkSession) -> DataFrame:
         spark.read.table("nhp.default.apc")
         .withColumn("sushrg_trimmed", F.expr("substring(sushrg, 1, 4)"))
         .filter(F.col("admimeth").startswith("1"))
-        .select("icb", "provider", "imd_quintile", "sushrg_trimmed", "fyear")
         .groupby("icb", "provider", "imd_quintile", "sushrg_trimmed", "fyear")
         .agg(F.count("*").alias("count"))
     )
@@ -148,7 +147,6 @@ def process_calculated_inequalities(
     :type linreg_df: DataFrame
     :param data_hrg_count: The dataframe containing the counts of activity per IMD quintile and HRG for each provider and year
     :type data_hrg_count: DataFrame
-        @@ -155,66 +160,66 @@ def process_calculated_inequalities(
     :rtype: pd.DataFrame
     """
 
@@ -224,8 +222,12 @@ def main():
 
     data_hrg_count = load_inequalities_data(spark)
     linreg_df = calculate_inequalities(data_hrg_count)
-    inequalities = process_calculated_inequalities(linreg_df, data_hrg_count)
-    inequalities.orderBy("fyear", "icb", "provider", "sushrg_trimmed").write.option(
-        "mergeSchema", "true"
-    ).mode("overwrite").saveAsTable("nhp.default.inequalities")
+    inequalities = process_calculated_inequalities(linreg_df, data_hrg_count).orderBy(
+        "fyear", "icb", "provider", "sushrg_trimmed"
+    )
+    (
+        inequalities.write.option("mergeSchema", "true")
+        .mode("overwrite")
+        .saveAsTable("nhp.default.inequalities")
+    )
     inequalities.toPandas().to_parquet(f"{path}/inequalities.parquet")
