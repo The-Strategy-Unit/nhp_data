@@ -21,7 +21,7 @@ from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
 @activity_avoidance_mitigator()
 def _intentional_self_harm():
     return (
-        nhp_apc.admission_has(any_diagnosis, "X([67]|8[0-4])", "Y870")
+        nhp_apc.admission_has(any_diagnosis, "X([67]|8[0-4])", "Y870")  # ty: ignore[call-non-callable]
         .filter(F.col("admimeth").rlike("^2"))
         .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))

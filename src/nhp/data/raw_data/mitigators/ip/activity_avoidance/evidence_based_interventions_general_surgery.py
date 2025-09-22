@@ -43,9 +43,9 @@ def _appendectomy():
     """
     # pylint: enable=line-too-long
 
-    return nhp_apc.admission_has(primary_procedure, "H01[12389]").admission_not(
+    return nhp_apc.admission_has(primary_procedure, "H01[12389]").admission_not(  # ty: ignore[call-non-callable]
         any_diagnosis, "K3(5[238]|67)"
-    )
+    )  # ty: ignore[call-non-callable]
 
 
 def _cholecystectomy():
@@ -56,8 +56,8 @@ def _cholecystectomy():
     """
     # pylint: enable=line-too-long
     return (
-        nhp_apc.admission_has(primary_procedure, "J18[1234589]")
-        .admission_has(primary_diagnosis, "K851")
+        nhp_apc.admission_has(primary_procedure, "J18[1234589]")  # ty: ignore[call-non-callable]
+        .admission_has(primary_diagnosis, "K851")  # ty: ignore[call-non-callable]
         .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 
@@ -69,7 +69,9 @@ def _haemorrhoid():
     source: https://ebi.aomrc.org.uk/interventions/haemorrhoid-surgery/
     """
     # pylint: enable=line-too-long
-    return nhp_apc.admission_has(primary_procedure, "H51(12389)").admission_has(
+    return nhp_apc.admission_has(  # ty: ignore[call-non-callable]
+        primary_procedure, "H51(12389)"
+    ).admission_has(  # ty: ignore[call-non-callable]
         any_diagnosis, "K64", "O(224|872)"
     )
 
@@ -82,8 +84,8 @@ def _hernia():
     """
     # pylint: enable=line-too-long
     return (
-        nhp_apc.admission_has(primary_procedure, "T20")
-        .admission_has(primary_diagnosis, "K40[29]")
+        nhp_apc.admission_has(primary_procedure, "T20")  # ty: ignore[call-non-callable]
+        .admission_has(primary_diagnosis, "K40[29]")  # ty: ignore[call-non-callable]
         .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
 

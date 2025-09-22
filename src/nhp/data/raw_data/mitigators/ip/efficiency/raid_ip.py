@@ -20,7 +20,7 @@ from nhp.data.raw_data.mitigators import efficiency_mitigator
 @efficiency_mitigator()
 def _raid_ip():
     return (
-        nhp_apc.admission_has(any_diagnosis, "F")
+        nhp_apc.admission_has(any_diagnosis, "F")  # ty: ignore[call-non-callable]
         .filter(F.col("admimeth").rlike("^2"))
         .filter(F.col("dismeth") != "4")
         .select("fyear", "provider", "epikey")

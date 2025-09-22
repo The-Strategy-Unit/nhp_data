@@ -108,7 +108,7 @@ def _day_procedures(day_procedure_type):
     classpats = ["1"] if day_procedure_type.endswith("dc") else ["1", "2"]
 
     return (
-        nhp_apc.admission_has(primary_procedure, *codes)
+        nhp_apc.admission_has(primary_procedure, *codes)  # ty: ignore[call-non-callable]
         .filter(F.col("admimeth").startswith("1"))
         .filter(F.col("classpat").isin(classpats))
         .select("fyear", "provider", "epikey")

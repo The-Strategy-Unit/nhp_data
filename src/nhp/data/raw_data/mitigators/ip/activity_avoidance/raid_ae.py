@@ -23,7 +23,7 @@ from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
 @activity_avoidance_mitigator()
 def _raid_ae():
     return (
-        nhp_apc.admission_has(primary_diagnosis, "F")
+        nhp_apc.admission_has(primary_diagnosis, "F")  # ty: ignore[call-non-callable]
         .filter(F.col("admimeth") == "21")
         .filter(F.col("dismeth") != "4")
         .join(procedures, ["epikey", "fyear"], "anti")
