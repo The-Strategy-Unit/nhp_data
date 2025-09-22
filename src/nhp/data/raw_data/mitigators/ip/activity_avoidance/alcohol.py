@@ -78,10 +78,10 @@ def _alcohol_partially_attributable(condition_group):
 
     icd = spark.read.table("strategyunit.reference.icd10_codes")
 
-    aaf = load_json("alcohol_fractions")
+    aaf_json = load_json("alcohol_fractions")
 
-    ages = list(zip(aaf["ages"], aaf["ages"][1:] + [10000]))
-    aaf = [
+    ages = list(zip(aaf_json["ages"], aaf_json["ages"][1:] + [10000]))
+    aaf_list = [
         {
             "regex": v["regex"],
             "sex": s1,
@@ -92,7 +92,7 @@ def _alcohol_partially_attributable(condition_group):
         }
         for i in [
             j if "mortality" in j else {"mortality": j, "morbidity": j}
-            for i in aaf["data"][condition_group].values()
+            for i in aaf_json["data"][condition_group].values()
             for j in i.values()
         ]
         for k, v in i.items()
@@ -101,8 +101,9 @@ def _alcohol_partially_attributable(condition_group):
         for (min_age, max_age), age_value in zip(ages, v[s2])
         if 0 < age_value <= 1
     ]
+
     aaf = (
-        spark.read.json(sc.parallelize([aaf]))
+        spark.read.json(sc.parallelize(aaf_list))
         .join(icd.select("icd10"), F.expr("icd10 rlike regex"))
         .persist()
     )
