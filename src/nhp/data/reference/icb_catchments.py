@@ -4,7 +4,6 @@ from collections import defaultdict
 
 import requests
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql import functions as F
 
 from nhp.data.get_spark import get_spark
 
