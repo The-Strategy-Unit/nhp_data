@@ -8,11 +8,11 @@ import statsmodels.api as sm
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 from pyspark.sql.types import (
-    StructType,
-    StructField,
-    StringType,
     DoubleType,
     IntegerType,
+    StringType,
+    StructField,
+    StructType,
 )
 
 from nhp.data.inputs_data.helpers import get_spark
@@ -210,7 +210,7 @@ def main():
 
     spark = get_spark()
 
-    mlflow.autolog(
+    mlflow.autolog(  # ty: ignore[possibly-unbound-attribute]
         log_input_examples=False,
         log_model_signatures=False,
         log_models=False,
