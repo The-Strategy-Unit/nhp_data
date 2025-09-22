@@ -8,7 +8,7 @@ from pyspark.sql import DataFrame, SparkSession
 from nhp.data.model_data.helpers import (
     DEMOGRAPHICS_MAX_YEAR,
     DEMOGRAPHICS_MIN_YEAR,
-    create_population_projections,
+    create_provider_population_projections,
     get_spark,
 )
 
@@ -122,7 +122,7 @@ def extract(
     )
 
     (
-        create_population_projections(spark, births, fyear, projection_year)
+        create_provider_population_projections(spark, births, fyear, projection_year)
         .repartition(1)
         .write.mode("overwrite")
         .partitionBy("dataset")
