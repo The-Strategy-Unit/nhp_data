@@ -85,5 +85,5 @@ def create_population_by_imd_decile(
 def main() -> None:
     """main method"""
     spark = DatabricksSession.builder.getOrCreate()
-    base_year = int(sys.argv[3])
+    base_year = int(sys.argv[1])
     create_population_by_imd_decile(spark, base_year=base_year)
