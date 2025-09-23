@@ -68,6 +68,7 @@ model_data-health_status_adjustment-generate_national_gams = "nhp.data.model_dat
 model_data-aae = "nhp.data.model_data.aae:main"
 model_data-birth_factors = "nhp.data.model_data.birth_factors:main"
 model_data-demographic_factors = "nhp.data.model_data.demographic_factors:main"
+model_data-inequalities = "nhp.data.model_data.inequalities:main"
 model_data-ip = "nhp.data.model_data.ip:main"
 model_data-op = "nhp.data.model_data.op:main"
 
