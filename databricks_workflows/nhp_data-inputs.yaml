@@ -47,20 +47,9 @@ resources:
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
-        - task_key: extract_covid_adjustment
-          depends_on:
-            - task_key: extract_baseline
-          python_wheel_task:
-            package_name: nhp_data
-            entry_point: inputs_data-covid_adjustment
-            parameters:
-              - "{{job.parameters.save_path}}"
-          job_cluster_key: nhp_inputs_data_extract
-          libraries:
-            - whl: ../dist/*.whl
         - task_key: extract_diagnoses
           depends_on:
-            - task_key: extract_covid_adjustment
+            - task_key: extract_baseline
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-diagnoses
@@ -102,20 +91,9 @@ resources:
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
-        - task_key: extract_wli
-          depends_on:
-            - task_key: extract_rates
-          python_wheel_task:
-            package_name: nhp_data
-            entry_point: inputs_data-wli
-            parameters:
-              - "{{job.parameters.save_path}}"
-          job_cluster_key: nhp_inputs_data_extract
-          libraries:
-            - whl: ../dist/*.whl
         - task_key: extract_inequalities
           depends_on:
-            - task_key: extract_wli
+            - task_key: extract_rates
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-inequalities
