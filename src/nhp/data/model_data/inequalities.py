@@ -21,6 +21,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
     inequalities = (
         spark.read.table("inequalities")
         .filter(F.col("fyear") == fyear)
+        .withColumn("fyear", F.floor(F.col("fyear") / 100))
         .withColumnRenamed("provider", "dataset")
     )
 
@@ -28,7 +29,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
         inequalities.repartition(1)
         .write.mode("overwrite")
         .partitionBy(["fyear", "dataset"])
-        .parquet(f"{save_path}/ip")
+        .parquet(f"{save_path}/inequalities")
     )
 
 
