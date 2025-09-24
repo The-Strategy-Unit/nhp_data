@@ -143,6 +143,17 @@ resources:
             - pypi:
                 package: pygam==0.9.1
             - whl: ../dist/*.whl
+        - task_key: clean_up
+          depends_on:
+            - task_key: generate_national_gams
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: model_data-clean_up
+            parameters:
+              - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+          job_cluster_key: run_nhp_extracts_cluster
+          libraries:
+            - whl: ../dist/*.whl
       job_clusters:
         - job_cluster_key: run_nhp_extracts_cluster
           new_cluster:
