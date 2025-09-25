@@ -95,15 +95,19 @@ inpatient admission or daycase admission are converted to be performed in outpat
 are removed from the inpatients counts and are added to outpatients instead.
 """
 
+import json
+
 from pyspark.sql import functions as F
 
 from nhp.data.hes_datasets import nhp_apc, primary_procedure
 from nhp.data.raw_data.mitigators import efficiency_mitigator
-from nhp.data.raw_data.mitigators.reference_data import load_json
 
 
 def _day_procedures(day_procedure_type):
-    codes = load_json("day_procedures")
+    with open(
+        "/Volumes/nhp/reference/files/day_procedures.json", "r", encoding="utf-8"
+    ) as f:
+        codes = json.load(f)[day_procedure_type]
 
     classpats = ["1"] if day_procedure_type.endswith("dc") else ["1", "2"]
 
