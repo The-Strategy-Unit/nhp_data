@@ -1,14 +1,30 @@
 """Generate outpatients data"""
 
 from databricks.connect import DatabricksSession
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.types import *  # noqa: F403
 
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp.data.nhp_datasets.local_authorities import local_authority_successors
 from nhp.data.nhp_datasets.providers import read_data_with_provider
 from nhp.data.raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
-from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql import functions as F
-from pyspark.sql.types import *  # noqa: F403
+
+
+def create_capacity_conversion_group():
+    is_maternity = F.col("trestpef").isin(["424", "501", "505", "560"])
+    is_child = F.col("age") <= 17
+
+    return F.when(
+        F.col("has_procedures"),
+        F.when(is_maternity, "op-procedure-maternity")
+        .when(is_child, "op-procedure-childrens")
+        .otherwise("op-procedure-adult"),
+    ).otherwise(
+        F.when(is_maternity, "op-maternity")
+        .when(is_child, "op-childrens")
+        .otherwise("op-adult")
+    )
 
 
 def get_outpatients_data(spark: SparkSession) -> DataFrame:
@@ -144,6 +160,7 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
             .when(F.col("is_first"), "op_first")
             .otherwise("op_follow-up"),
         )
+        .withColumn("capacity_conversion_group", create_capacity_conversion_group())
         .withColumn("ndggrp", F.col("group"))
     )
 
