@@ -36,3 +36,5 @@ targets:
     permissions:
       - group_name: nhp_devs
         level: CAN_MANAGE
+      - service_principal_name: b61ef435-b155-42c7-8c9e-2a2442e280cd
+        level: CAN_MANAGE
