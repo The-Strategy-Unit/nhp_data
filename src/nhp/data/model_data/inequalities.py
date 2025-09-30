@@ -18,15 +18,29 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
     :param fyear: what year to extract
     :type fyear: int
     """
-    inequalities = (
-        spark.read.table("inequalities")
+
+    fyear_converted = fyear // 100
+
+    inequalities = spark.read.table("nhp.default.inequalities").filter(
+        F.col("fyear") == fyear
+    )
+
+    # handle providers with no inequalities data
+    providers = (
+        spark.read.table("nhp.default.apc")
         .filter(F.col("fyear") == fyear)
-        .withColumn("fyear", F.floor(F.col("fyear") / 100))
+        .select("provider")
+        .distinct()
+    )
+
+    inequalities_with_missing_providers = (
+        inequalities.join(providers, on="provider", how="right")
+        .withColumn("fyear", F.lit(fyear_converted))
         .withColumnRenamed("provider", "dataset")
     )
 
     (
-        inequalities.repartition(1)
+        inequalities_with_missing_providers.repartition(1)
         .write.mode("overwrite")
         .partitionBy(["fyear", "dataset"])
         .parquet(f"{save_path}/inequalities")
