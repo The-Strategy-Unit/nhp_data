@@ -21,40 +21,27 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
 
     fyear_converted = fyear // 100
 
-    inequalities = (
-        spark.read.table("nhp.default.inequalities")
-        .filter(F.col("fyear") == fyear)
-        .withColumn("fyear", F.lit(fyear_converted))
-        .withColumnRenamed("provider", "dataset")
+    inequalities = spark.read.table("nhp.default.inequalities").filter(
+        F.col("fyear") == fyear
     )
 
-    (
-        inequalities.repartition(1)
-        .write.mode("overwrite")
-        .partitionBy(["fyear", "dataset"])
-        .parquet(f"{save_path}/inequalities")
-    )
-
-    # Write empty parquet files for missing providers
+    # handle providers with no inequalities data
     providers = (
         spark.read.table("nhp.default.apc")
         .filter(F.col("fyear") == fyear)
         .select("provider")
         .distinct()
     )
-    missing_providers = (
-        providers.withColumnRenamed("provider", "dataset")
-        .join(inequalities.select("dataset").distinct(), on="dataset", how="left_anti")
+
+    inequalities_with_missing_providers = (
+        inequalities.join(providers, on="provider", how="right")
         .withColumn("fyear", F.lit(fyear_converted))
+        .withColumnRenamed("provider", "dataset")
     )
-    dummy_missing = missing_providers.join(
-        spark.createDataFrame([], inequalities.schema),
-        on=["fyear", "dataset"],
-        how="left",
-    )
+
     (
-        dummy_missing.repartition(1)
-        .write.mode("append")
+        inequalities_with_missing_providers.repartition(1)
+        .write.mode("overwrite")
         .partitionBy(["fyear", "dataset"])
         .parquet(f"{save_path}/inequalities")
     )
