@@ -143,9 +143,26 @@ resources:
             - pypi:
                 package: pygam==0.9.1
             - whl: ../dist/*.whl
-        - task_key: clean_up
+        - task_key: generate_synthetic_data
           depends_on:
             - task_key: generate_national_gams
+          for_each_task:
+            inputs: "{{job.parameters.years}}"
+            task:
+              task_key: run_generate_synthetic_data
+              python_wheel_task:
+                package_name: nhp_data
+                entry_point: model_data-generate_synthetic_data
+                parameters:
+                  - "{{job.parameters.save_path}}"
+                  - "{{input}}"
+                  - "20251001"
+              job_cluster_key: run_nhp_extracts_cluster
+              libraries:
+                - whl: ../dist/*.whl
+        - task_key: clean_up
+          depends_on:
+            - task_key: generate_synthetic_data
           python_wheel_task:
             package_name: nhp_data
             entry_point: model_data-clean_up
