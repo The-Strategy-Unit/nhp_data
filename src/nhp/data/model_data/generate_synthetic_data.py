@@ -71,6 +71,25 @@ class SynthData:
         self._demographic_factors()
         self._hsa_activity_tables()
 
+    @property
+    def hrgs(self) -> list:
+        if not hasattr(self, "_hrgs"):
+            ip_df = (
+                self.read_dev_file("ip")
+                .groupBy("sushrg_trimmed")
+                .count()
+                .orderBy(F.desc("count"))
+                .collect()
+            )
+            self._hrgs = [row["sushrg_trimmed"] for row in ip_df]
+        return self._hrgs
+
+    def _hrg_remapping(self, col: pd.Series) -> pd.Series:
+        hrgs = self.hrgs
+        if not hrgs:
+            raise ValueError("HRGs list is empty. Cannot remap.")
+        return col.replace(hrgs, [f"HRG{i + 1}" for i, _ in enumerate(hrgs)])
+
     # synth methods
 
     @generate_data("ip")
@@ -82,8 +101,7 @@ class SynthData:
         ip = df.drop("dataset", "fyear").toPandas()
         ip = ip.assign(sitetret=np.random.choice(["a", "b", "c"], len(ip)))
 
-        hrgs = list(ip["sushrg_trimmed"].value_counts()[:2].index).copy()
-        ip["sushrg_trimmed"] = ip["sushrg_trimmed"].replace(hrgs, ["HRG1", "HRG2"])
+        ip["sushrg_trimmed"] = self._hrg_remapping(ip["sushrg_trimmed"])
 
         return ip
 
@@ -100,10 +118,8 @@ class SynthData:
     @generate_data("inequalities")
     def _inequalities(self, df: DataFrame) -> pd.DataFrame:
         inequalities = df.drop("dataset").toPandas()
-        # TODO: sort hrgs
-        hrgs = []
-        inequalities["sushrg_trimmed"] = inequalities["sushrg_trimmed"].replace(
-            hrgs, ["HRG1", "HRG2"]
+        inequalities["sushrg_trimmed"] = self._hrg_remapping(
+            inequalities["sushrg_trimmed"]
         )
         return inequalities.drop_duplicates(
             subset=["sushrg_trimmed", "icb", "imd_quintile"]
@@ -150,6 +166,7 @@ class SynthData:
             )
             .query("(attendances > 0) or (tele_attendances > 0)")
         )
+        op["sushrg_trimmed"] = self._hrg_remapping(op["sushrg_trimmed"])
 
         op["rn"] = [str(uuid.uuid4()) for _ in op.index]
 
