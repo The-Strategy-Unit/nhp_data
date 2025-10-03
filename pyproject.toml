@@ -70,6 +70,7 @@ model_data-inequalities = "nhp.data.model_data.inequalities:main"
 model_data-ip = "nhp.data.model_data.ip:main"
 model_data-op = "nhp.data.model_data.op:main"
 model_data-clean_up = "nhp.data.model_data.clean_up:main"
+model_data-generate_synthetic_data = "nhp.data.model_data.generate_synthetic_data:main"
 
 reference-day_procedures = "nhp.data.reference.day_procedures:main"
 reference-ods_trusts = "nhp.data.reference.ods_trusts:main"
