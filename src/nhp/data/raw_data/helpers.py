@@ -31,7 +31,7 @@ def add_tretspef_grouped_column(self: DataFrame) -> DataFrame:
         "400",
         "410",
         "430",
-        "520",
+        "502",
     ]
 
     tretspef_column = (
