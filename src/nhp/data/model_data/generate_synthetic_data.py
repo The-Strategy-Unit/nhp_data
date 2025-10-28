@@ -42,13 +42,13 @@ class SynthData:
 
     # helper methods
 
-    def read_dev_file(self, file: str) -> pd.DataFrame:
+    def read_dev_file(self, file: str) -> DataFrame:
         return self.read_file(file, self._dev_path)
 
-    def read_synth_file(self, file: str) -> pd.DataFrame:
+    def read_synth_file(self, file: str) -> DataFrame:
         return self.read_file(file, self._synth_path)
 
-    def read_file(self, file: str, path: str) -> pd.DataFrame:
+    def read_file(self, file: str, path: str) -> DataFrame:
         return (
             self._spark.read.parquet(f"{path}/{file}")
             .filter(F.col("fyear") == self._fyear)

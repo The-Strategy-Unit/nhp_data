@@ -56,7 +56,7 @@ def get_icb_catchments(spark: SparkSession) -> DataFrame:
         if not features:
             break
         all_features.extend(features)
-        params["resultOffset"] += len(features)
+        params["resultOffset"] += len(features)  # ty: ignore[unsupported-operator]
 
     lad_icb_lsoa_counts = defaultdict(lambda: defaultdict(lambda: 0))
     icb_la_pcnts = []

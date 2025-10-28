@@ -9,11 +9,9 @@ from pyspark.sql import functions as F
 
 from nhp.data.raw_data.mitigators.ip.activity_avoidance import *  # noqa: F403
 from nhp.data.raw_data.mitigators.ip.efficiency import *  # noqa: F403
+from nhp.data.table_names import table_names
 
 __registered_mitigators = defaultdict(lambda: {})
-
-
-from nhp.data.table_names import table_names
 
 
 class Mitigator:

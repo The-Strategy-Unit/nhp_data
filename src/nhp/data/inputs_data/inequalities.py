@@ -211,7 +211,7 @@ def main():
 
     spark = get_spark()
 
-    mlflow.autolog(  # ty: ignore[possibly-unbound-attribute]
+    mlflow.autolog(  # ty: ignore[possibly-missing-attribute]
         log_input_examples=False,
         log_model_signatures=False,
         log_models=False,
