@@ -8,7 +8,7 @@ from nhp.data.inputs_data.ip import get_ip_df
 from nhp.data.table_names import table_names
 
 
-def get_pop(spark: SparkSession = get_spark()) -> DataFrame:
+def get_pop(spark: SparkSession) -> DataFrame:
     """Get the population by year table
 
     :param spark: The spark context to use
@@ -35,7 +35,7 @@ def get_pop(spark: SparkSession = get_spark()) -> DataFrame:
     )
 
 
-def create_catchments(spark: SparkSession = get_spark()) -> None:
+def create_catchments(spark: SparkSession) -> None:
     """Create the catchments table
 
     :param spark: The spark context to use
@@ -63,7 +63,7 @@ def create_catchments(spark: SparkSession = get_spark()) -> None:
     )
 
 
-def get_catchments(spark: SparkSession = get_spark()) -> DataFrame:
+def get_catchments(spark: SparkSession) -> DataFrame:
     """Get the catchments table
 
     :param spark: The spark context to use
@@ -74,7 +74,7 @@ def get_catchments(spark: SparkSession = get_spark()) -> DataFrame:
     return spark.read.table(table_names.reference_inputs_catchments).persist()
 
 
-def get_total_pop(spark: SparkSession = get_spark()) -> DataFrame:
+def get_total_pop(spark: SparkSession) -> DataFrame:
     """_summary_
 
     :param spark: _description_

@@ -11,7 +11,7 @@ from nhp.data.inputs_data.ip.diagnoses import get_ip_diagnoses
 from nhp.data.inputs_data.op.diagnoses import get_op_diagnoses
 
 
-def get_diagnoses(spark: SparkSession = get_spark()) -> DataFrame:
+def get_diagnoses(spark: SparkSession) -> DataFrame:
     """Get Diagnoses (combined)
 
     :param spark: The spark context to use
@@ -27,4 +27,6 @@ def get_diagnoses(spark: SparkSession = get_spark()) -> DataFrame:
 def main():
     path = sys.argv[1]
 
-    get_diagnoses().toPandas().to_parquet(f"{path}/diagnoses.parquet")
+    spark = get_spark()
+
+    get_diagnoses(spark).toPandas().to_parquet(f"{path}/diagnoses.parquet")

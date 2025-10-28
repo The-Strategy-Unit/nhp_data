@@ -105,7 +105,7 @@ def extract_custom_birth_factors(
 
 
 def extract(
-    save_path: str, fyear: int, projection_year: int, spark: SparkSession = get_spark()
+    save_path: str, fyear: int, projection_year: int, spark: SparkSession
 ) -> None:
     """Extract Birth Factors data
 
@@ -143,4 +143,7 @@ def main():
     path = sys.argv[1]
     fyear = int(sys.argv[2])
     projection_year = int(sys.argv[3])
-    extract(path, fyear, projection_year)
+
+    spark = get_spark()
+
+    extract(path, fyear, projection_year, spark)

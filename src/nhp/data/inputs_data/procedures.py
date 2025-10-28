@@ -11,7 +11,7 @@ from nhp.data.inputs_data.ip.procedures import get_ip_procedures
 from nhp.data.inputs_data.op.procedures import get_op_procedures
 
 
-def get_procedures(spark: SparkSession = get_spark()) -> DataFrame:
+def get_procedures(spark: SparkSession) -> DataFrame:
     """Get procedures (combined)
 
     :param spark: The spark context to use
@@ -27,4 +27,6 @@ def get_procedures(spark: SparkSession = get_spark()) -> DataFrame:
 def main():
     path = sys.argv[1]
 
-    get_procedures().toPandas().to_parquet(f"{path}/procedures.parquet")
+    spark = get_spark()
+
+    get_procedures(spark).toPandas().to_parquet(f"{path}/procedures.parquet")

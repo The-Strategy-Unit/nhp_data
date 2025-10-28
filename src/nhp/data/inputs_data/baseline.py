@@ -11,7 +11,7 @@ from nhp.data.inputs_data.ip.baseline import get_ip_baseline
 from nhp.data.inputs_data.op.baseline import get_op_baseline
 
 
-def get_baseline(spark: SparkSession = get_spark()) -> DataFrame:
+def get_baseline(spark: SparkSession) -> DataFrame:
     """Get Baseline Data
 
     :param spark: The spark context to use
@@ -27,4 +27,6 @@ def get_baseline(spark: SparkSession = get_spark()) -> DataFrame:
 def main():
     path = sys.argv[1]
 
-    get_baseline().toPandas().to_parquet(f"{path}/baseline.parquet")
+    spark = get_spark()
+
+    get_baseline(spark).toPandas().to_parquet(f"{path}/baseline.parquet")

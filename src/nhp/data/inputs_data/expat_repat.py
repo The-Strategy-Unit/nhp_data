@@ -23,7 +23,7 @@ from nhp.data.inputs_data.op.expat_repat import (
 )
 
 
-def get_expat_data(spark: SparkSession = get_spark()) -> DataFrame:
+def get_expat_data(spark: SparkSession) -> DataFrame:
     """Get expat data (combined)
 
     :param spark: The spark context to use
@@ -36,7 +36,7 @@ def get_expat_data(spark: SparkSession = get_spark()) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def get_repat_local_data(spark: SparkSession = get_spark()) -> DataFrame:
+def get_repat_local_data(spark: SparkSession) -> DataFrame:
     """Get repat (local) data (combined)
 
     :param spark: The spark context to use
@@ -49,7 +49,7 @@ def get_repat_local_data(spark: SparkSession = get_spark()) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
-def get_repat_nonlocal_data(spark: SparkSession = get_spark()) -> DataFrame:
+def get_repat_nonlocal_data(spark: SparkSession) -> DataFrame:
     """Get repat (non-local) data (combined)
 
     :param spark: The spark context to use
@@ -69,6 +69,10 @@ def get_repat_nonlocal_data(spark: SparkSession = get_spark()) -> DataFrame:
 def main():
     path = sys.argv[1]
 
-    get_expat_data().toPandas().to_parquet(f"{path}/expat.parquet")
-    get_repat_local_data().toPandas().to_parquet(f"{path}/repat_local.parquet")
-    get_repat_nonlocal_data().toPandas().to_parquet(f"{path}/repat_nonlocal.parquet")
+    spark = get_spark()
+
+    get_expat_data(spark).toPandas().to_parquet(f"{path}/expat.parquet")
+    get_repat_local_data(spark).toPandas().to_parquet(f"{path}/repat_local.parquet")
+    get_repat_nonlocal_data(spark).toPandas().to_parquet(
+        f"{path}/repat_nonlocal.parquet"
+    )

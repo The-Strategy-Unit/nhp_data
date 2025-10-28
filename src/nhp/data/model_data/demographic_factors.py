@@ -15,9 +15,7 @@ from nhp.data.table_names import table_names
 
 
 # pylint: disable=invalid-name
-def _create_custom_demographic_factors_RD8(
-    spark: SparkSession = get_spark(),
-) -> DataFrame:
+def _create_custom_demographic_factors_RD8(spark: SparkSession) -> DataFrame:
     """Create custom demographic factors file for RD8 using agreed methodology
 
     :param spark: the spark context to use
@@ -45,9 +43,7 @@ def _create_custom_demographic_factors_RD8(
 
 
 # pylint: disable=invalid-name
-def _create_custom_demographic_factors_R0A66(
-    spark: SparkSession = get_spark(),
-) -> DataFrame:
+def _create_custom_demographic_factors_R0A66(spark: SparkSession) -> DataFrame:
     """Create custom demographic factors file for R0A66 using agreed methodology
 
     :param spark: the spark context to use
@@ -113,7 +109,7 @@ def _create_custom_demographic_factors_R0A66(
 
 
 def extract(
-    save_path: str, fyear: int, projection_year: int, spark: SparkSession = get_spark()
+    save_path: str, fyear: int, projection_year: int, spark: SparkSession
 ) -> None:
     """Extract Demographic Factors data
 
@@ -149,4 +145,7 @@ def main():
     path = sys.argv[1]
     fyear = int(sys.argv[2])
     projection_year = int(sys.argv[3])
-    extract(path, fyear, projection_year)
+
+    spark = get_spark()
+
+    extract(path, fyear, projection_year, spark)

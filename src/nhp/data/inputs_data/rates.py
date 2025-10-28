@@ -16,7 +16,7 @@ from nhp.data.inputs_data.ip.rates import (
 from nhp.data.inputs_data.op.rates import get_op_rates
 
 
-def get_rates(spark: SparkSession = get_spark()) -> DataFrame:
+def get_rates(spark: SparkSession) -> DataFrame:
     """Get rates (combined)
 
     :param spark: The spark context to use
@@ -39,4 +39,6 @@ def get_rates(spark: SparkSession = get_spark()) -> DataFrame:
 def main():
     path = sys.argv[1]
 
-    get_rates().toPandas().to_parquet(f"{path}/rates.parquet")
+    spark = get_spark()
+
+    get_rates(spark).toPandas().to_parquet(f"{path}/rates.parquet")

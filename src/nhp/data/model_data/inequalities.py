@@ -9,7 +9,7 @@ from nhp.data.model_data.helpers import get_spark
 from nhp.data.table_names import table_names
 
 
-def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> None:
+def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
     """Extract inequalities data for model
 
     :param spark: the spark context to use
@@ -51,4 +51,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
 def main():
     path = sys.argv[1]
     fyear = int(sys.argv[2])
-    extract(path, fyear)
+
+    spark = get_spark()
+
+    extract(path, fyear, spark)
