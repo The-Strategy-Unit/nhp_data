@@ -57,9 +57,10 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
 
 
 def main():
-    path = sys.argv[1]
+    data_version = sys.argv[1]
+    save_path = f"{table_names.model_data_path}/{data_version}"
     fyear = int(sys.argv[2])
 
     spark = get_spark()
 
-    extract(path, fyear, spark)
+    extract(save_path, fyear, spark)

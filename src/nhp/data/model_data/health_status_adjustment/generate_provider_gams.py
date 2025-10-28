@@ -153,7 +153,8 @@ def _generate_activity_tables(
 
 def main() -> None:
     """Generate GAMs and HSA activity tables"""
-    save_path = sys.argv[1]
+    data_version = sys.argv[1]
+    save_path = f"{table_names.model_data_path}/{data_version}"
 
     spark: SparkSession = DatabricksSession.builder.getOrCreate()
 

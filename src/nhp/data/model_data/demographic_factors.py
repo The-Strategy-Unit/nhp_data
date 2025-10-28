@@ -142,10 +142,11 @@ def extract(
 
 
 def main():
-    path = sys.argv[1]
+    data_version = sys.argv[1]
+    save_path = f"{table_names.model_data_path}/{data_version}"
     fyear = int(sys.argv[2])
     projection_year = int(sys.argv[3])
 
     spark = get_spark()
 
-    extract(path, fyear, projection_year, spark)
+    extract(save_path, fyear, projection_year, spark)

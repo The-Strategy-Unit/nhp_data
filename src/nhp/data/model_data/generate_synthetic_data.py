@@ -10,6 +10,7 @@ import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.table_names import table_names
 
 logger = logging.getLogger(__name__)
 
@@ -219,9 +220,10 @@ def main():
 
     logging.getLogger("py4j").setLevel(logging.ERROR)
 
-    path = sys.argv[1]
-    fyear = int(sys.argv[2][:4])
-    seed = int(sys.argv[3])
+    path = table_names.model_data_path
+
+    fyear = int(sys.argv[1][:4])
+    seed = int(sys.argv[2])
 
     spark = get_spark()
 

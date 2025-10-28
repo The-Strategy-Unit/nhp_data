@@ -77,6 +77,10 @@ class TableNames:
     default_hsa_activity_tables_national: str
     default_inequalities: str
     # --------------------------------------------------------------------------
+    # model data
+    # --------------------------------------------------------------------------
+    model_data_path: str
+    # --------------------------------------------------------------------------
 
 
 mlcsu = TableNames(
@@ -150,6 +154,11 @@ mlcsu = TableNames(
     default_hsa_activity_tables_icb="nhp.default.hsa_activity_tables_icb",
     default_hsa_activity_tables_national="nhp.default.hsa_activity_tables_national",
     default_inequalities="nhp.default.inequalities",
+    # --------------------------------------------------------------------------
+    # model data
+    # --------------------------------------------------------------------------
+    model_data_path="/Volumes/nhp/model_data/files",
+    # --------------------------------------------------------------------------
 )
 
 table_names: TableNames

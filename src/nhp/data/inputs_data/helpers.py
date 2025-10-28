@@ -14,8 +14,6 @@ def get_spark() -> SparkSession:
     :rtype: SparkSession
     """
     spark: SparkSession = DatabricksSession.builder.getOrCreate()
-    spark.catalog.setCurrentCatalog("nhp")
-    spark.catalog.setCurrentDatabase("raw_data")
     return spark
 
 

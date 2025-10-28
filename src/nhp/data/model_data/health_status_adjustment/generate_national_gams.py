@@ -118,10 +118,10 @@ def _generate_activity_tables(spark: SparkSession, all_gams: dict) -> None:
 
 def main() -> None:
     """Generate GAMs and HSA activity tables"""
-    save_path = sys.argv[1]
+    data_version = sys.argv[1]
+    save_path = f"{table_names.model_data_path}/{data_version}"
+
     spark: SparkSession = DatabricksSession.builder.getOrCreate()
-    spark.catalog.setCurrentCatalog("nhp")
-    spark.catalog.setCurrentDatabase("default")
 
     all_gams = _generate_gams(spark, save_path)
     _generate_activity_tables(spark, all_gams)
