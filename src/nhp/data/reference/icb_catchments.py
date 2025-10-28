@@ -87,5 +87,5 @@ def create_icb_catchments(spark: SparkSession) -> None:
 
 
 def main():
-    spark = get_spark("reference")
+    spark = get_spark()
     create_icb_catchments(spark)

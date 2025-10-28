@@ -223,7 +223,7 @@ def main():
     fyear = int(sys.argv[2][:4])
     seed = int(sys.argv[3])
 
-    spark = get_spark("model_data")
+    spark = get_spark()
 
     d = SynthData(fyear, path, seed, spark)
     d.generate()

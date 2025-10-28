@@ -257,7 +257,7 @@ def get_ods_trusts_and_current_successors(api_key: str) -> pd.DataFrame:
 
 
 def main():
-    spark = get_spark("reference")
+    spark = get_spark()
     dbutils = DBUtils(spark)
 
     API_KEY = dbutils.secrets.get(scope="nhp", key="trud_api_key")

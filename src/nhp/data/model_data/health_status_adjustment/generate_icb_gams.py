@@ -122,14 +122,16 @@ def _generate_activity_tables(spark: SparkSession, all_gams: dict) -> None:
     for i in ["fyear", "sex", "age"]:
         hsa_activity_tables = hsa_activity_tables.withColumn(i, F.col(i).cast("int"))
 
-    hsa_activity_tables.write.mode("overwrite").saveAsTable("hsa_activity_tables_ICB")
+    hsa_activity_tables.write.mode("overwrite").saveAsTable(
+        table_names.default_hsa_activity_tables_ICB
+    )
 
 
 def main() -> None:
     """Generate GAMs and HSA activity tables"""
     save_path = sys.argv[1]
 
-    spark = get_spark("default")
+    spark = get_spark()
 
     dfr = _get_data(spark, save_path)
     all_gams = _generate_gams(dfr)
