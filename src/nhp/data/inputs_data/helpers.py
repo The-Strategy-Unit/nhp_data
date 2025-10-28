@@ -1,20 +1,9 @@
 """Helper methods/tables"""
 
 import pyspark.sql.functions as F
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.table_names import table_names
-
-
-def get_spark() -> SparkSession:
-    """_summary_
-
-    :return: get the spark context to use
-    :rtype: SparkSession
-    """
-    spark: SparkSession = DatabricksSession.builder.getOrCreate()
-    return spark
 
 
 def inputs_age_group(spark: SparkSession) -> DataFrame:

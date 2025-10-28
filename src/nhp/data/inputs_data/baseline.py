@@ -5,8 +5,8 @@ from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
 
+from nhp.data.get_spark import get_spark
 from nhp.data.inputs_data.ae.baseline import get_ae_baseline
-from nhp.data.inputs_data.helpers import get_spark
 from nhp.data.inputs_data.ip.baseline import get_ip_baseline
 from nhp.data.inputs_data.op.baseline import get_op_baseline
 

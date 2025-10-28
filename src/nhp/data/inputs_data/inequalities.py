@@ -15,7 +15,7 @@ from pyspark.sql.types import (
     StructType,
 )
 
-from nhp.data.inputs_data.helpers import get_spark
+from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
 
 

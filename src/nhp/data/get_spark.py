@@ -10,4 +10,6 @@ def get_spark() -> SparkSession:
     :return: get the spark session to use
     :rtype: SparkSession
     """
-    return DatabricksSession.builder.getOrCreate()
+    spark = DatabricksSession.builder.getOrCreate()
+    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
+    return spark

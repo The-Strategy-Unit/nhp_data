@@ -3,7 +3,7 @@
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
-from nhp.data.inputs_data.helpers import get_spark
+from nhp.data.get_spark import get_spark
 from nhp.data.inputs_data.ip import get_ip_df
 from nhp.data.table_names import table_names
 

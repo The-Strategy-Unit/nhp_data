@@ -5,12 +5,12 @@ from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
 
+from nhp.data.get_spark import get_spark
 from nhp.data.inputs_data.ae.expat_repat import (
     get_ae_expat_data,
     get_ae_repat_local_data,
     get_ae_repat_nonlocal_data,
 )
-from nhp.data.inputs_data.helpers import get_spark
 from nhp.data.inputs_data.ip.expat_repat import (
     get_ip_expat_data,
     get_ip_repat_local_data,

@@ -5,7 +5,7 @@ import sys
 import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 
-from nhp.data.model_data.helpers import get_spark
+from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
 
 

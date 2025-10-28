@@ -5,8 +5,8 @@ from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
 
+from nhp.data.get_spark import get_spark
 from nhp.data.inputs_data.ae.rates import get_ae_rates
-from nhp.data.inputs_data.helpers import get_spark
 from nhp.data.inputs_data.ip.rates import (
     get_ip_activity_avoidance_rates,
     get_ip_day_procedures,

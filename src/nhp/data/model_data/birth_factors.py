@@ -5,11 +5,11 @@ import sys
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
+from nhp.data.get_spark import get_spark
 from nhp.data.model_data.helpers import (
     DEMOGRAPHICS_MAX_YEAR,
     DEMOGRAPHICS_MIN_YEAR,
     create_provider_population_projections,
-    get_spark,
 )
 from nhp.data.table_names import table_names
 

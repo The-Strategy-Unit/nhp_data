@@ -5,8 +5,8 @@ from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
 
+from nhp.data.get_spark import get_spark
 from nhp.data.inputs_data.ae.diagnoses import get_ae_diagnoses
-from nhp.data.inputs_data.helpers import get_spark
 from nhp.data.inputs_data.ip.diagnoses import get_ip_diagnoses
 from nhp.data.inputs_data.op.diagnoses import get_op_diagnoses
 
