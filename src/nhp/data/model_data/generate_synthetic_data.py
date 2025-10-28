@@ -130,7 +130,11 @@ class SynthData:
         rng = np.random.default_rng(self._seed)
         n_aae_datasets = df.select("dataset").distinct().count()
 
-        df = df.drop("index", "dataset").withColumn("sitetret", F.lit("a"))
+        df = (
+            df.drop("index", "dataset")
+            .withColumn("sitetret", F.lit("a"))
+            .withColumn("icb", F.when(F.col("is_main_icb"), "A").otherwise("B"))
+        )
 
         aae = (
             df.groupBy(df.drop("arrivals").columns)
@@ -149,7 +153,11 @@ class SynthData:
         rng = np.random.default_rng(self._seed)
         n_op_datasets = df.select("dataset").distinct().count()
 
-        df = df.drop("index", "dataset").withColumn("sitetret", F.lit("a"))
+        df = (
+            df.drop("index", "dataset")
+            .withColumn("sitetret", F.lit("a"))
+            .withColumn("icb", F.when(F.col("is_main_icb"), "A").otherwise("B"))
+        )
 
         op = (
             df.groupBy(df.drop("attendances", "tele_attendances").columns)

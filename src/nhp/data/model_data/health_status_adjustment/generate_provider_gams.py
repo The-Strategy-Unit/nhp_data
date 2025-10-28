@@ -11,8 +11,9 @@ import pandas as pd
 import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
 from pygam import GAM
-
 from pyspark.sql import DataFrame, SparkSession
+
+from nhp.data.table_names import table_names
 
 
 def _get_data(spark: SparkSession, save_path: str) -> DataFrame:
@@ -132,12 +133,14 @@ def _generate_activity_tables(
     for i in ["fyear", "sex", "age"]:
         hsa_activity_tables = hsa_activity_tables.withColumn(i, F.col(i).cast("int"))
 
-    hsa_activity_tables.write.mode("overwrite").saveAsTable("hsa_activity_tables")
+    hsa_activity_tables.write.mode("overwrite").saveAsTable(
+        table_names.default_hsa_activity_tables_provider
+    )
 
     # Save out to the storage location used by the docker containers
 
     (
-        spark.read.table("hsa_activity_tables")
+        spark.read.table(table_names.default_hsa_activity_tables_provider)
         .filter(F.col("fyear").isin([202324]))
         .withColumn("fyear", F.udf(from_fyear)("fyear"))
         .withColumnRenamed("provider", "dataset")
@@ -153,8 +156,6 @@ def main() -> None:
     save_path = sys.argv[1]
 
     spark: SparkSession = DatabricksSession.builder.getOrCreate()
-    spark.catalog.setCurrentCatalog("nhp")
-    spark.catalog.setCurrentDatabase("default")
 
     dfr = _get_data(spark, save_path)
     all_gams = _generate_gams(save_path, dfr)

@@ -31,6 +31,7 @@ import requests
 from pyspark.dbutils import DBUtils
 
 from nhp.data.get_spark import get_spark
+from nhp.data.table_names import table_names
 
 
 def download_ods_full_archive(api_key: str) -> ET.Element:
@@ -263,9 +264,9 @@ def main():
     ods_df = get_ods_trusts_and_current_successors(API_KEY)
 
     trust_types = spark.read.parquet(
-        "/Volumes/nhp/reference/files/trust_types.parquet"
+        table_names.reference_trust_types
     ).withColumnRenamed("org_code", "org_to")
 
     df = spark.createDataFrame(ods_df).join(trust_types, "org_to", "left")
 
-    df.write.mode("overwrite").saveAsTable("ods_trusts")
+    df.write.mode("overwrite").saveAsTable(table_names.reference_ods_trusts)

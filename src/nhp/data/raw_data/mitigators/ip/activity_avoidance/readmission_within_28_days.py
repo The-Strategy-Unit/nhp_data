@@ -15,6 +15,7 @@ from pyspark.sql import functions as F
 
 from nhp.data.hes_datasets import nhp_apc
 from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
+from nhp.data.table_names import table_names
 
 
 @activity_avoidance_mitigator("readmission_within_28_days")
@@ -39,7 +40,7 @@ def _readmission_within_28_days():
     # (e.g. not all providers included)
     spark = DatabricksSession.builder.getOrCreate()
     prior = (
-        spark.read.table("hes.silver.apc")
+        spark.read.table(table_names.hes_apc)
         .filter(F.col("last_episode_in_spell"))
         # remove well babies
         .filter(F.col("well_baby_ind") == "N")

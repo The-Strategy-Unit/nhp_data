@@ -11,6 +11,7 @@ from nhp.data.model_data.helpers import (
     create_provider_population_projections,
     get_spark,
 )
+from nhp.data.table_names import table_names
 
 
 # pylint: disable=invalid-name
@@ -25,7 +26,7 @@ def _create_custom_demographic_factors_RD8(
     # Load demographics - principal projection only
     custom_file = (
         spark.read.csv(
-            "/Volumes/nhp/population_projections/files/RD8_population_projection V2.csv",
+            f"{table_names.popuplation_projections_custom}/RD8_population_projection V2.csv",
             header=True,
             inferSchema=True,
         )
@@ -54,7 +55,7 @@ def _create_custom_demographic_factors_R0A66(
     """
     # Load demographics - principal projection only
     demographics = (
-        spark.read.table("nhp.population_projections.demographics")
+        spark.read.table(table_names.population_projections_demographics)
         .filter(F.col("projection") == "principal_proj")
         .filter(F.col("projection_year") == 2018)
         .filter(F.col("area_code") != "E08000003")
@@ -67,7 +68,7 @@ def _create_custom_demographic_factors_R0A66(
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
     custom_file = (
         spark.read.csv(
-            "/Volumes/nhp/population_projections/files/ManchesterCityCouncil_custom_E08000003.csv",
+            f"{table_names.popuplation_projections_custom}/ManchesterCityCouncil_custom_E08000003.csv",
             header=True,
             inferSchema=True,
         )
@@ -89,7 +90,7 @@ def _create_custom_demographic_factors_R0A66(
     # Work out catchment with patched demographics
     total_window = Window.partitionBy("provider")
     df = (
-        spark.read.table("nhp.raw_data.apc")
+        spark.read.table(table_names.raw_data_apc)
         .filter(F.col("sitetret") == "R0A66")
         .filter(F.col("fyear") == 202324)
         .filter(F.col("resladst_ons").rlike("^E0[6-9]"))
@@ -124,9 +125,9 @@ def extract(
     :type fyear: int
     """
 
-    demographics = spark.read.table("nhp.population_projections.demographics").filter(
-        F.col("year").between(DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR)
-    )
+    demographics = spark.read.table(
+        table_names.population_projections_demographics
+    ).filter(F.col("year").between(DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR))
 
     custom_R0A = _create_custom_demographic_factors_R0A66(spark)
     custom_RD8 = _create_custom_demographic_factors_RD8(spark)

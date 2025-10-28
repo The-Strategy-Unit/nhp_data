@@ -5,6 +5,8 @@ from functools import cache
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
+from nhp.data.table_names import table_names
+
 
 @cache
 def get_acute_providers(spark: SparkSession) -> DataFrame:
@@ -18,7 +20,7 @@ def get_acute_providers(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
     acute_df = (
-        spark.read.table("nhp.reference.ods_trusts")
+        spark.read.table(table_names.reference_ods_trusts)
         .filter(F.col("org_type").startswith("ACUTE"))
         .persist()
     )

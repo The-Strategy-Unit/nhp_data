@@ -1,9 +1,12 @@
 """Create Population by IMD Decile"""
 
+import sys
+
 from databricks.connect import DatabricksSession
 from pyspark.sql import SparkSession, Window
 from pyspark.sql import functions as F
-import sys
+
+from nhp.data.table_names import table_names
 
 
 def create_population_by_imd_decile(
@@ -17,7 +20,8 @@ def create_population_by_imd_decile(
     :type base_year: int, optional
     """
 
-    df = spark.read.table("nhp.default.apc").drop("age_group")
+    # TODO: should switch to nhp.data.nhp_datasets.apc.hes_apc
+    df = spark.read.table(table_names.hes_apc).drop("age_group")
 
     # create age group lookups
     age_groups = spark.createDataFrame(
@@ -31,7 +35,7 @@ def create_population_by_imd_decile(
 
     # cheat to get lsoa->msoa lookup
     lsoa_to_msoa = (
-        spark.read.table("hes.silver.apc")
+        spark.read.table(table_names.hes_apc)
         .select("lsoa11", "msoa11")
         .filter(F.col("lsoa11").startswith("E"))
         .filter(F.col("lsoa11") != "E99999999")
@@ -40,9 +44,7 @@ def create_population_by_imd_decile(
     )
 
     pop = (
-        spark.read.csv(
-            "/Volumes/strategyunit/reference/files/sape22_pop_by_lsoa.csv", header=True
-        )
+        spark.read.csv(table_names.reference_pop_by_lsoa, header=True)
         .withColumn("age", F.col("age").cast("int"))
         .withColumn("imd19", F.col("imd19").cast("int"))
         .withColumnRenamed("lsoa11cd", "lsoa11")
@@ -79,7 +81,7 @@ def create_population_by_imd_decile(
 
     df_pop_msoa.orderBy("icb", "provider", "imd19").write.option(
         "mergeSchema", "true"
-    ).mode("overwrite").saveAsTable("nhp.reference.population_by_imd_decile")
+    ).mode("overwrite").saveAsTable(table_names.population_by_imd_decile)
 
 
 def main() -> None:

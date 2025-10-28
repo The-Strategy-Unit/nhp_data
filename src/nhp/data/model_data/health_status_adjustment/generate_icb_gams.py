@@ -12,6 +12,7 @@ from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
 from nhp.data.model_data.helpers import create_icb_population_projections
+from nhp.data.table_names import table_names
 
 
 def _get_data(spark: SparkSession, save_path: str) -> DataFrame:
@@ -35,7 +36,7 @@ def _get_data(spark: SparkSession, save_path: str) -> DataFrame:
     # load the demographics data
     demog = (
         create_icb_population_projections(
-            spark, spark.read.table("nhp.population_projections.demographics")
+            spark, spark.read.table(table_names.population_projections_demographics)
         )
         .filter(F.col("variant") == "migration_category")
         .filter(F.col("age") >= 18)

@@ -5,6 +5,7 @@ from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.helpers import inputs_age_group
+from nhp.data.table_names import table_names
 
 
 def get_ip_df(spark: SparkSession) -> DataFrame:
@@ -16,7 +17,7 @@ def get_ip_df(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
     return (
-        filter_acute_providers(spark, "apc")
+        filter_acute_providers(spark, table_names.default_apc)
         .filter(F.isnotnull("age"))
         .drop("age_group")
         .join(inputs_age_group(spark), "age")
@@ -56,7 +57,7 @@ def get_ip_mitigators(spark: SparkSession) -> DataFrame:
         )
     )
 
-    mitigators_df = spark.read.table("nhp.raw_data.apc_mitigators")
+    mitigators_df = spark.read.table(table_names.raw_data_apc_mitigators)
 
     return DataFrame.unionByName(mitigators_df, general_los_df)
 

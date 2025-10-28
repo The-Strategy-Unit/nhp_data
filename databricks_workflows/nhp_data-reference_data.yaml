@@ -62,7 +62,6 @@ resources:
             package_name: nhp_data
             entry_point: reference-day_procedures
             parameters:
-              - "{{job.parameters.day_procedures_save_path}}"
               - "{{job.parameters.day_procedures_base_year}}"
           job_cluster_key: generate_nhp_reference
       job_clusters:
@@ -88,8 +87,6 @@ resources:
       parameters:
         - name: run_reference_data
           default: "True"
-        - name: day_procedures_save_path
-          default: /Volumes/nhp/reference/files/day_procedures.json
         - name: day_procedures_base_year
           default: "202324"
         - name: population_by_imd_decile_base_year

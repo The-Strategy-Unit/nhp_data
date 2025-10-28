@@ -3,14 +3,15 @@
 from functools import reduce
 
 from databricks.connect import DatabricksSession
-
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
+from nhp.data.table_names import table_names
+
 
 def get_outpatients_mitigators(spark: SparkSession) -> DataFrame:
-    df = spark.read.table("nhp.raw_data.opa")
+    df = spark.read.table(table_names.raw_data_opa)
 
     op_strategies = [
         # Follow-up reduction
@@ -52,7 +53,7 @@ def generate_outpatients_mitigators(spark: SparkSession) -> None:
         .write.partitionBy("fyear", "provider")
         .mode("overwrite")
         .option("mergeSchema", "true")
-        .saveAsTable("nhp.raw_data.opa_mitigators")
+        .saveAsTable(table_names.raw_data_opa_mitigators)
     )
 
 

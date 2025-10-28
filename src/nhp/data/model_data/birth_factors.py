@@ -11,6 +11,7 @@ from nhp.data.model_data.helpers import (
     create_provider_population_projections,
     get_spark,
 )
+from nhp.data.table_names import table_names
 
 
 def create_custom_birth_factors(
@@ -116,7 +117,7 @@ def extract(
     :type fyear: int
     """
     births = (
-        spark.read.table("nhp.population_projections.births")
+        spark.read.table(table_names.population_projections_births)
         .withColumn("sex", F.lit(2))
         .filter(F.col("year").between(DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR))
     )

@@ -40,6 +40,7 @@ from pyspark.sql import functions as F
 
 from nhp.data.hes_datasets import diagnoses, nhp_apc
 from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
+from nhp.data.table_names import table_names
 
 spark = DatabricksSession.builder.getOrCreate()
 
@@ -57,15 +58,15 @@ def _frail_elderly():
                 ]
             )
         )
-        .csv("/Volumes/nhp/reference/files/frailty_risk_scores.csv")
+        .csv(table_names.reference_frailty_risk_scores)
     )
 
-    icd10_codes = spark.read.table("strategyunit.reference.icd10_codes")
+    icd10_codes = spark.read.table(table_names.reference_icd10_codes)
 
     # make sure to use full hes table - our nhp views filter on certain columns
     # (e.g. not all providers included)
     hes_apc = (
-        spark.read.table("hes.silver.apc")
+        spark.read.table(table_names.hes_apc)
         .filter(F.col("last_episode_in_spell"))
         .withColumnRenamed("person_id_deid", "person_id")
     )

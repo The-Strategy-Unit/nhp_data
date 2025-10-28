@@ -4,13 +4,16 @@ from collections import defaultdict
 
 from databricks.connect import DatabricksSession
 from delta.tables import DeltaTable
-
-from nhp.data.raw_data.mitigators.ip.activity_avoidance import *  # noqa: F403
-from nhp.data.raw_data.mitigators.ip.efficiency import *  # noqa: F403
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
+from nhp.data.raw_data.mitigators.ip.activity_avoidance import *  # noqa: F403
+from nhp.data.raw_data.mitigators.ip.efficiency import *  # noqa: F403
+
 __registered_mitigators = defaultdict(lambda: {})
+
+
+from nhp.data.table_names import table_names
 
 
 class Mitigator:
@@ -55,7 +58,7 @@ class Mitigator:
         # get the table to load the mitigators to
         target = (
             DeltaTable.createIfNotExists(self.spark)
-            .tableName("nhp.raw_data.apc_mitigators")
+            .tableName(table_names.raw_data_apc_mitigators)
             .addColumns(source.schema)
             .partitionedBy("fyear", "provider")
             .execute()

@@ -4,6 +4,8 @@ import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
 
+from nhp.data.table_names import table_names
+
 
 def get_spark() -> SparkSession:
     """_summary_
@@ -44,7 +46,7 @@ def treatment_function_grouping(spark: SparkSession) -> DataFrame:
     :return: Treatment Function Grouping Table
     :rtype: DataFrame
     """
-    return spark.read.table("nhp.reference.tretspef_grouping")
+    return spark.read.table(table_names.reference_tretspef_grouping)
 
 
 def complete_age_sex_data(

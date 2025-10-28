@@ -10,11 +10,12 @@ from scipy.stats import binomtest
 
 from nhp.data.nhp_datasets.apc import hes_apc
 from nhp.data.nhp_datasets.providers import read_data_with_provider
+from nhp.data.table_names import table_names
 
 
 def _get_procedures(spark: SparkSession, table_name: str) -> DataFrame:
     return (
-        spark.read.table(f"hes.silver.{table_name}_procedures")
+        spark.read.table(table_name)
         .filter(F.col("procedure_order") == 1)
         .filter(~F.col("procedure_code").rlike("^O(1[1-46]|28|3[01346]|4[2-8]|5[23])"))
         .filter(~F.col("procedure_code").rlike("^X[6-9]"))
@@ -46,7 +47,7 @@ def get_day_procedure_code_list(
     P_OCCASIONALLY = 0.05
 
     providers = (
-        spark.read.table("nhp.reference.ods_trusts")
+        spark.read.table(table_names.reference_ods_trusts)
         .filter(F.col("org_type").startswith("ACUTE"))
         .select(F.col("org_to").alias("provider"))
         .distinct()
@@ -58,7 +59,7 @@ def get_day_procedure_code_list(
     op = (
         # TODO: replicating logic from outpatients. not DRY.
         # but, cannot use nhp.raw_data.opa as this table needs to created before
-        read_data_with_provider(spark, "hes.silver.opa")
+        read_data_with_provider(spark, table_names.hes_opa)
         .filter(F.col("sex").isin(["1", "2"]))
         .filter(F.isnotnull("apptage"))
         # end of todo
@@ -71,7 +72,7 @@ def get_day_procedure_code_list(
     )
 
     df_op = (
-        _get_procedures(spark, "opa")
+        _get_procedures(spark, table_names.hes_opa_procedures)
         .join(op, on=["fyear", "procode3", "attendkey"], how="semi")
         .groupBy("procedure_code")
         .agg(F.count("attendkey").alias("op"))
@@ -85,7 +86,7 @@ def get_day_procedure_code_list(
     )
 
     df_ip = (
-        _get_procedures(spark, "apc")
+        _get_procedures(spark, table_names.hes_apc_procedures)
         .join(ip, on=["fyear", "procode3", "epikey"], how="inner")
         .withColumn(
             "type", F.when(F.col("classpat") == "1", F.lit("ip")).otherwise("dc")
@@ -158,17 +159,16 @@ def get_day_procedure_code_list(
     }
 
 
-def create_day_procedure_code_list(
-    spark: SparkSession, path: str, base_year: int
-) -> None:
+def create_day_procedure_code_list(spark: SparkSession, base_year: int) -> None:
     day_procedure_code_list = get_day_procedure_code_list(spark, base_year)
 
-    with open(path, "w", encoding="UTF-8") as f:
+    with open(
+        table_names.reference_day_procedures_code_list, "w", encoding="UTF-8"
+    ) as f:
         json.dump(day_procedure_code_list, f)
 
 
 def main():
     spark = DatabricksSession.builder.getOrCreate()
-    path = sys.argv[1]
-    base_year = int(sys.argv[2])
-    create_day_procedure_code_list(spark, path, base_year)
+    base_year = int(sys.argv[1])
+    create_day_procedure_code_list(spark, base_year)

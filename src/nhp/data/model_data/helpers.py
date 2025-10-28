@@ -4,6 +4,8 @@ import pyspark.sql.functions as F
 from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
 
+from nhp.data.table_names import table_names
+
 # what years should we support in the extract?
 DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR = 2023, 2043
 
@@ -15,8 +17,6 @@ def get_spark() -> SparkSession:
     :rtype: SparkSession
     """
     spark: SparkSession = DatabricksSession.builder.getOrCreate()
-    spark.catalog.setCurrentCatalog("nhp")
-    spark.catalog.setCurrentDatabase("default")
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
     return spark
 
@@ -25,14 +25,14 @@ def create_provider_population_projections(
     spark: SparkSession, df: DataFrame, fyear: int, projection_year: int = 2022
 ) -> DataFrame:
     providers = (
-        spark.read.table("nhp.reference.ods_trusts")
+        spark.read.table(table_names.reference_ods_trusts)
         .filter(F.col("org_type").startswith("ACUTE"))
         .select(F.col("org_to").alias("provider"))
         .distinct()
     )
 
     catchments = (
-        spark.read.table("nhp.reference.provider_catchments")
+        spark.read.table(table_names.reference_provider_catchments)
         .filter(F.col("fyear") == fyear)
         .drop("fyear")
         .join(providers, "provider", how="semi")
@@ -63,7 +63,7 @@ def create_provider_population_projections(
 def create_icb_population_projections(
     spark: SparkSession, df: DataFrame, projection_year: int = 2022
 ) -> DataFrame:
-    catchments = spark.read.table("nhp.reference.icb_catchments")
+    catchments = spark.read.table(table_names.reference_icb_catchments)
 
     projections_to_include = [
         "migration_category",

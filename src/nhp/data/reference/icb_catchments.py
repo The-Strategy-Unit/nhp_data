@@ -6,6 +6,7 @@ import requests
 from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.table_names import table_names
 
 
 def get_icb_catchments(spark: SparkSession) -> DataFrame:
@@ -82,7 +83,7 @@ def create_icb_catchments(spark: SparkSession) -> None:
     """
 
     df = get_icb_catchments(spark)
-    df.write.mode("overwrite").saveAsTable("icb_catchments")
+    df.write.mode("overwrite").saveAsTable(table_names.reference_icb_catchments)
 
 
 def main():

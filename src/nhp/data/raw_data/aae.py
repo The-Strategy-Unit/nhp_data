@@ -1,14 +1,15 @@
 """Generate the AAE data"""
 
-from databricks.connect import DatabricksSession
-
 import pyspark.sql.functions as F
+from databricks.connect import DatabricksSession
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.types import *  # noqa: F403
+
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp.data.nhp_datasets.local_authorities import local_authority_successors
 from nhp.data.nhp_datasets.providers import read_data_with_provider
 from nhp.data.raw_data.helpers import add_age_group_column
-from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.types import *  # noqa: F403
+from nhp.data.table_names import table_names
 
 
 def get_aae_data(spark: SparkSession) -> DataFrame:
@@ -18,7 +19,7 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
 
     # aae data doesn't contain sitetret - use procode3 (will have 0 effect)
     df = read_data_with_provider(
-        spark, "hes.silver.aae", sitetret_col="procode3"
+        spark, table_names.hes_aae, sitetret_col="procode3"
     ).filter(F.col("fyear") < 201920)
 
     # Frequent Attendners
@@ -56,13 +57,13 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
     # Is Discharged with No Treatment or Investigations
 
     df_treatments = (
-        spark.read.table("hes.silver.aae_treatments")
+        spark.read.table(table_names.hes_aae_treatments)
         .filter(F.col("treatment") != "24")
         .select("aekey", "fyear", "procode3")
     )
 
     df_investigations = (
-        spark.read.table("hes.silver.aae_investigations")
+        spark.read.table(table_names.hes_aae_investigations)
         .filter(~F.col("investigation").isin(["22", "99"]))
         .select("aekey", "fyear", "procode3")
     )
@@ -76,7 +77,7 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
     # Primary Diagnosis/Treatment
 
     df_pri_diag = (
-        spark.read.table("hes.silver.aae_diagnoses")
+        spark.read.table(table_names.hes_aae_diagnoses)
         .filter(F.col("diag_order") == 1)
         .withColumn("diagnosis", F.col("diagnosis").substr(0, 2))
         .filter(F.col("diagnosis").rlike("^[0-3][0-9]$"))
@@ -85,7 +86,7 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
     )
 
     df_pri_treat = (
-        spark.read.table("hes.silver.aae_treatments")
+        spark.read.table(table_names.hes_aae_treatments)
         .filter(F.col("treatment_order") == 1)
         .withColumn("treatment", F.col("treatment").substr(0, 2))
         .filter(F.col("treatment").rlike("^([0-4][0-9]|5[0-7]|99)$"))
@@ -208,7 +209,7 @@ def generate_aae_data(spark: SparkSession) -> None:
         hes_aae_ungrouped.write.partitionBy("fyear", "provider")
         .mode("overwrite")
         .option("mergeSchema", "true")
-        .saveAsTable("nhp.raw_data.ecds")
+        .saveAsTable(table_names.raw_data_ecds)
     )
 
 

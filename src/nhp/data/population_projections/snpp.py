@@ -6,6 +6,8 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
+from nhp.data.table_names import table_names
+
 
 def _process_demographics_file(
     spark: SparkSession, path: str, projection_year: int, projection_name: str
@@ -45,7 +47,7 @@ def _process_demographics_file(
             .repartition(1)
             .write.mode("overwrite")
             .partitionBy("projection_year", "projection", "sex", "area_code")
-            .saveAsTable("nhp.population_projections.demographics")
+            .saveAsTable(table_names.population_projections_demographics)
         )
 
 
@@ -87,7 +89,7 @@ def _process_births_file(
         .repartition(1)
         .write.mode("overwrite")
         .partitionBy("projection_year", "projection", "area_code")
-        .saveAsTable("nhp.population_projections.births")
+        .saveAsTable(table_names.population_projections_births)
     )
 
 

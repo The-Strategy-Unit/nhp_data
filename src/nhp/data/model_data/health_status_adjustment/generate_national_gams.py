@@ -10,6 +10,8 @@ from databricks.connect import DatabricksSession
 from pygam import GAM
 from pyspark.sql import DataFrame, SparkSession
 
+from nhp.data.table_names import table_names
+
 
 def _get_data(spark: SparkSession, save_path: str) -> pd.DataFrame:
     dfr = (
@@ -31,7 +33,7 @@ def _get_data(spark: SparkSession, save_path: str) -> pd.DataFrame:
     # load the demographics data, then cross join to the distinct HSA groups
 
     demog = (
-        spark.read.table("nhp.population_projections.demographics")
+        spark.read.table(table_names.population_projections_demographics)
         .filter(F.col("area_code").rlike("^E0[6-9]"))
         .filter(F.col("projection") == "migration_category")
         .filter(F.col("age") >= 18)
