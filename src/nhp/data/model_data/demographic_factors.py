@@ -24,7 +24,7 @@ def _create_custom_demographic_factors_RD8(spark: SparkSession) -> DataFrame:
     # Load demographics - principal projection only
     custom_file = (
         spark.read.csv(
-            f"{table_names.popuplation_projections_custom}/RD8_population_projection V2.csv",
+            f"{table_names.population_projections_custom}/RD8_population_projection V2.csv",
             header=True,
             inferSchema=True,
         )
@@ -64,7 +64,7 @@ def _create_custom_demographic_factors_R0A66(spark: SparkSession) -> DataFrame:
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
     custom_file = (
         spark.read.csv(
-            f"{table_names.popuplation_projections_custom}/ManchesterCityCouncil_custom_E08000003.csv",
+            f"{table_names.population_projections_custom}/ManchesterCityCouncil_custom_E08000003.csv",
             header=True,
             inferSchema=True,
         )
