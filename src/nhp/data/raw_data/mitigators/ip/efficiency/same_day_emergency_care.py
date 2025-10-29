@@ -25,7 +25,6 @@ The model groups these individual conditions into four categories:
 - Same day emergency care (very high potential) (IP-EF-031)
 """
 
-import json
 import re
 
 import pandas as pd
