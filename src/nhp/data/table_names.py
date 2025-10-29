@@ -29,7 +29,6 @@ class TableNames:
     population_projections_save_path: str
     population_projections_births: str
     population_projections_demographics: str
-    population_projections_custom: str
     # --------------------------------------------------------------------------
     # reference tables
     # --------------------------------------------------------------------------
@@ -109,7 +108,6 @@ mlcsu = TableNames(
     population_projections_save_path="/Volumes/nhp/population_projections/files",
     population_projections_births="nhp.population_projections.births",
     population_projections_demographics="nhp.population_projections.demographics",
-    population_projections_custom="/Volumes/nhp/population_projections/files",
     # --------------------------------------------------------------------------
     # reference tables
     # --------------------------------------------------------------------------
