@@ -35,6 +35,7 @@ from pyspark.sql import functions as F
 from nhp.data.hes_datasets import diagnoses, nhp_apc
 from nhp.data.raw_data.mitigators import efficiency_mitigator
 from nhp.data.raw_data.mitigators.reference_data import load_json
+from nhp.data.table_names import table_names
 
 spark = DatabricksSession.builder.getOrCreate()
 
@@ -42,19 +43,19 @@ spark = DatabricksSession.builder.getOrCreate()
 def _generate_aec_directory(group):
     aec_directory = load_json("aec_directory")
 
-    ref_path = "/Volumes/strategyunit/reference/files"
-
-    with open(f"{ref_path}/hrgs.json", "r", encoding="UTF-8") as f:
-        hrgs = json.load(f)
-
     hrgs = [
         v3
-        for v1 in hrgs.values()
+        for v1 in load_json("hrgs").values()
         for v2 in v1["subchapters"].values()
         for v3 in v2["hrgs"].keys()
     ]
 
-    icd10 = pd.read_csv(f"{ref_path}/icd10_codes.csv")["icd10"].to_list()
+    icd10 = (
+        spark.read.table(table_names.reference_icd10_codes)
+        .select("icd10")
+        .toPandas()["icd10"]
+        .to_list()
+    )
 
     df = pd.DataFrame(
         [
