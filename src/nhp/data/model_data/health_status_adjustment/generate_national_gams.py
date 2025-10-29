@@ -6,10 +6,10 @@ from functools import reduce
 import numpy as np
 import pandas as pd
 import pyspark.sql.functions as F
-from databricks.connect import DatabricksSession
 from pygam import GAM
 from pyspark.sql import DataFrame, SparkSession
 
+from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
 
 
@@ -121,7 +121,7 @@ def main() -> None:
     data_version = sys.argv[1]
     save_path = f"{table_names.model_data_path}/{data_version}"
 
-    spark: SparkSession = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
 
     all_gams = _generate_gams(spark, save_path)
     _generate_activity_tables(spark, all_gams)

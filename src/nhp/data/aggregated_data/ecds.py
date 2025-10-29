@@ -1,10 +1,10 @@
 """Generate ECDS Data"""
 
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
+from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
 
 
@@ -57,6 +57,6 @@ def generate_ecds_data(spark: SparkSession, ecds: DataFrame) -> None:
 
 def main() -> None:
     """main method"""
-    spark = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
     ecds = get_ecds_data(spark)
     generate_ecds_data(spark, ecds)

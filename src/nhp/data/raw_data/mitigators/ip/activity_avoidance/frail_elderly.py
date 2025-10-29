@@ -35,18 +35,17 @@ Available breakdowns
 from functools import cache
 
 import pyspark.sql.types as T
-from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 
+from nhp.data.get_spark import get_spark
 from nhp.data.hes_datasets import diagnoses, nhp_apc
 from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
 from nhp.data.table_names import table_names
 
-spark = DatabricksSession.builder.getOrCreate()
-
 
 @cache
 def _frail_elderly():
+    spark = get_spark()
     frs_ref = (
         spark.read.option("header", "true")
         .option("delimiter", ",")

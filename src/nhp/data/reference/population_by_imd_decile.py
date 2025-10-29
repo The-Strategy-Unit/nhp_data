@@ -2,10 +2,10 @@
 
 import sys
 
-from databricks.connect import DatabricksSession
 from pyspark.sql import SparkSession, Window
 from pyspark.sql import functions as F
 
+from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.apc import hes_apc
 from nhp.data.table_names import table_names
 
@@ -86,6 +86,6 @@ def create_population_by_imd_decile(
 
 def main() -> None:
     """main method"""
-    spark = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
     base_year = int(sys.argv[1])
     create_population_by_imd_decile(spark, base_year=base_year)

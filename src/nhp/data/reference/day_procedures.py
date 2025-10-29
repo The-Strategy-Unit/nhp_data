@@ -4,10 +4,10 @@ import json
 import sys
 
 import pyspark.sql.functions as F
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
 from scipy.stats import binomtest
 
+from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.apc import hes_apc
 from nhp.data.nhp_datasets.providers import read_data_with_provider
 from nhp.data.table_names import table_names
@@ -169,6 +169,6 @@ def create_day_procedure_code_list(spark: SparkSession, base_year: int) -> None:
 
 
 def main():
-    spark = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
     base_year = int(sys.argv[1])
     create_day_procedure_code_list(spark, base_year)

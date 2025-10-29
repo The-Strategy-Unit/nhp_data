@@ -1,24 +1,12 @@
 """Helper methods/tables"""
 
 import pyspark.sql.functions as F
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.table_names import table_names
 
 # what years should we support in the extract?
 DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR = 2023, 2043
-
-
-def get_spark() -> SparkSession:
-    """Get Spark session to use for model data extract
-
-    :return: get the spark context to use
-    :rtype: SparkSession
-    """
-    spark: SparkSession = DatabricksSession.builder.getOrCreate()
-    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
-    return spark
 
 
 def create_provider_population_projections(

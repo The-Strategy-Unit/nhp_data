@@ -1,13 +1,13 @@
-from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
+from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.icbs import icb_mapping
 from nhp.data.nhp_datasets.local_authorities import local_authority_successors
 from nhp.data.nhp_datasets.providers import read_data_with_provider
 from nhp.data.table_names import table_names
 
-spark = DatabricksSession.builder.getOrCreate()
+spark = get_spark()
 
 hes_apc = (
     local_authority_successors(

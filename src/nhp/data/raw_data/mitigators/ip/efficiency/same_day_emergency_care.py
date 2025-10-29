@@ -28,18 +28,18 @@ The model groups these individual conditions into four categories:
 import re
 
 import pandas as pd
-from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 
+from nhp.data.get_spark import get_spark
 from nhp.data.hes_datasets import diagnoses, nhp_apc
 from nhp.data.raw_data.mitigators import efficiency_mitigator
 from nhp.data.raw_data.mitigators.reference_data import load_json
 from nhp.data.table_names import table_names
 
-spark = DatabricksSession.builder.getOrCreate()
-
 
 def _generate_aec_directory(group):
+    spark = get_spark()
+
     aec_directory = load_json("aec_directory")
 
     hrgs = [

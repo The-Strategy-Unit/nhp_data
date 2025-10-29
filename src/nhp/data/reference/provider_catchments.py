@@ -1,9 +1,9 @@
 """Create Provider Catchments"""
 
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
+from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.apc import hes_apc
 from nhp.data.table_names import table_names
 
@@ -47,5 +47,5 @@ def create_provider_catchments(spark: SparkSession) -> None:
 
 
 def main():
-    spark: SparkSession = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
     create_provider_catchments(spark)

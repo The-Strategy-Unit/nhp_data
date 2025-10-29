@@ -1,11 +1,11 @@
 """Generate inpatients data"""
 
-from databricks.connect import DatabricksSession
 from delta.tables import DeltaTable
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
+from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.apc import apc_primary_procedures, hes_apc
 from nhp.data.nhp_datasets.icbs import add_main_icb
 from nhp.data.raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
@@ -179,5 +179,5 @@ def generate_inpatients_data(spark: SparkSession) -> None:
 
 def main() -> None:
     """main method"""
-    spark = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
     generate_inpatients_data(spark)

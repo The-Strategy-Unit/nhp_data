@@ -2,11 +2,11 @@
 
 from itertools import chain
 
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
+from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp.data.nhp_datasets.local_authorities import local_authority_successors
 from nhp.data.nhp_datasets.providers import add_provider
@@ -262,5 +262,5 @@ def generate_ecds_data(spark: SparkSession) -> None:
 
 def main() -> None:
     """main method"""
-    spark = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
     generate_ecds_data(spark)

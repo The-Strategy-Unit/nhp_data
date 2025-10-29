@@ -1,13 +1,13 @@
 from itertools import chain
 
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
+from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
 
-spark = DatabricksSession.builder.getOrCreate()
+spark = get_spark()
 
 ccg_to_icb = spark.read.table(table_names.reference_ccg_to_icb).collect()
 

@@ -10,13 +10,13 @@ Provides variables for connecting to HES datasets, and methods for working with 
 
 from typing import Callable
 
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
+from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
 
-spark = DatabricksSession.builder.getOrCreate()
+spark = get_spark()
 
 
 hes_apc = spark.read.table(table_names.hes_apc)
