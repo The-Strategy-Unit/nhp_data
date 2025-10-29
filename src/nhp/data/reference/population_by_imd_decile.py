@@ -6,6 +6,7 @@ from databricks.connect import DatabricksSession
 from pyspark.sql import SparkSession, Window
 from pyspark.sql import functions as F
 
+from nhp.data.nhp_datasets.apc import hes_apc
 from nhp.data.table_names import table_names
 
 
@@ -20,8 +21,7 @@ def create_population_by_imd_decile(
     :type base_year: int, optional
     """
 
-    # TODO: should switch to nhp.data.nhp_datasets.apc.hes_apc
-    df = spark.read.table(table_names.hes_apc).drop("age_group")
+    df = hes_apc
 
     # create age group lookups
     age_groups = spark.createDataFrame(
@@ -62,7 +62,7 @@ def create_population_by_imd_decile(
         .filter(F.col("admimeth").startswith("1"))
         .join(age_groups, "age")
         .groupBy("lsoa11", "icb", "provider", "age_group", "sex")
-        .agg(F.countDistinct("person_id").alias("n"))
+        .agg(F.countDistinct("person_id_deid").alias("n"))
         .persist()
     )
 
