@@ -201,8 +201,6 @@ resources:
       parameters:
         - name: data_version
           default: dev
-        - name: save_path
-          default: /Volumes/nhp/model_data/files
         - name: years
           default: "[202324]"
         - name: projection_year

@@ -17,6 +17,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+from nhp.data.table_names import table_names
+
 ONS_URL = "https://www.ons.gov.uk"
 BASE_URL = urljoin(
     ONS_URL,
@@ -232,8 +234,8 @@ def get_2022_population_files(output_dir: str) -> None:
 
 def main():
     """main method"""
-    path = sys.argv[1]
-    projection_year = sys.argv[2]
+    path = table_names.population_projections_save_path
+    projection_year = sys.argv[1]
 
     output_dir = os.path.join(path, f"{projection_year}-projections")
 

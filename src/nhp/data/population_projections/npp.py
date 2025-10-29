@@ -4,10 +4,10 @@ import re
 import sys
 
 import pandas as pd
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
+from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
 
 
@@ -135,11 +135,10 @@ def process_npp_variant(
 
 
 def main():
-    path = sys.argv[1]
-    projection_year = int(sys.argv[2])
-    file = sys.argv[3]
+    path = table_names.population_projections_save_path
+    projection_year = int(sys.argv[1])
+    file = sys.argv[2]
 
-    spark: SparkSession = DatabricksSession.builder.getOrCreate()
-    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
+    spark = get_spark()
 
     process_npp_variant(spark, path, projection_year, file)

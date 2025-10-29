@@ -24,7 +24,6 @@ resources:
             package_name: nhp_data
             entry_point: population_projections-get_ons_files_2022
             parameters:
-              - "{{job.parameters.path}}"
               - "{{job.parameters.projection_year}}"
           job_cluster_key: generate_nhp_population
           libraries:
@@ -44,7 +43,6 @@ resources:
                 package_name: nhp_data
                 entry_point: population_projections-snpp
                 parameters:
-                  - "{{job.parameters.path}}"
                   - "{{job.parameters.projection_year}}"
                   - "{{input}}"
               job_cluster_key: generate_nhp_population
@@ -61,7 +59,6 @@ resources:
                 package_name: nhp_data
                 entry_point: population_projections-npp
                 parameters:
-                  - "{{job.parameters.path}}"
                   - "{{job.parameters.projection_year}}"
                   - "{{input}}"
               job_cluster_key: generate_nhp_population
@@ -92,8 +89,6 @@ resources:
       queue:
         enabled: true
       parameters:
-        - name: path
-          default: /Volumes/nhp/population_projections/files
         - name: projection_year
           default: "2022"
         - name: run_population_data
