@@ -123,7 +123,7 @@ def _generate_activity_tables(spark: SparkSession, all_gams: dict) -> None:
         hsa_activity_tables = hsa_activity_tables.withColumn(i, F.col(i).cast("int"))
 
     hsa_activity_tables.write.mode("overwrite").saveAsTable(
-        table_names.default_hsa_activity_tables_ICB
+        table_names.default_hsa_activity_tables_icb
     )
 
 

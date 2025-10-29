@@ -41,7 +41,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
         ("efficiencies", "efficiency"),
     ]:
         (
-            spark.read.table(table_names.default.apc_mitigators)
+            spark.read.table(table_names.default_apc_mitigators)
             .filter(F.col("type") == v)
             .filter(F.col("fyear") == fyear)
             .drop("type", "fyear")

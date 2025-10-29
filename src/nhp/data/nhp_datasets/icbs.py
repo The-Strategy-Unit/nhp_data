@@ -25,6 +25,6 @@ def add_main_icb(spark: SparkSession, df: DataFrame) -> DataFrame:
     :return: the modified dataframe
     :rtype: DataFrame
     """
-    main_icbs = spark.read.table(table_names.provider_main_icb)
+    main_icbs = spark.read.table(table_names.reference_provider_main_icb)
 
     return df.join(main_icbs, "provider", "left")

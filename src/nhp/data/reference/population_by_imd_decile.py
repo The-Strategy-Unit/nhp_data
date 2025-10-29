@@ -81,7 +81,7 @@ def create_population_by_imd_decile(
 
     df_pop_msoa.orderBy("icb", "provider", "imd19").write.option(
         "mergeSchema", "true"
-    ).mode("overwrite").saveAsTable(table_names.population_by_imd_decile)
+    ).mode("overwrite").saveAsTable(table_names.reference_population_by_imd_decile)
 
 
 def main() -> None:
