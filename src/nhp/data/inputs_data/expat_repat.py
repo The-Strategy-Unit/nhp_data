@@ -1,6 +1,5 @@
 """Generate Rates Dataframe"""
 
-import sys
 from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
@@ -21,6 +20,7 @@ from nhp.data.inputs_data.op.expat_repat import (
     get_op_repat_local_data,
     get_op_repat_nonlocal_data,
 )
+from nhp.data.table_names import table_names
 
 
 def get_expat_data(spark: SparkSession) -> DataFrame:
@@ -66,13 +66,27 @@ def get_repat_nonlocal_data(spark: SparkSession) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
+def save_expat_repat_data(path: str, spark: SparkSession) -> None:
+    """Save expat and repat data.
+
+    :param path: The path to save the data to
+    :type path: str
+    :param spark: The spark sesssion to use
+    :type spark: SparkSession
+    """
+
+    fns = {
+        "expat": get_expat_data,
+        "repat_local": get_repat_local_data,
+        "repat_nonlocal": get_repat_nonlocal_data,
+    }
+
+    for name, fn in fns.items():
+        df = fn(spark).toPandas()
+        df.to_parquet(f"{path}/{name}.parquet")
+
+
 def main():
-    path = sys.argv[1]
-
+    path = table_names.inputs_save_path
     spark = get_spark()
-
-    get_expat_data(spark).toPandas().to_parquet(f"{path}/expat.parquet")
-    get_repat_local_data(spark).toPandas().to_parquet(f"{path}/repat_local.parquet")
-    get_repat_nonlocal_data(spark).toPandas().to_parquet(
-        f"{path}/repat_nonlocal.parquet"
-    )
+    save_expat_repat_data(path, spark)

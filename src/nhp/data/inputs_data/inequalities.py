@@ -1,7 +1,5 @@
 """Generate Inequalities Dataframe"""
 
-import sys
-
 import mlflow
 import pandas as pd
 import statsmodels.api as sm
@@ -203,14 +201,14 @@ def process_calculated_inequalities(
     )
 
 
-def main():
-    """
-    Loads data, calculates inequalities and saves the results to parquet
-    """
-    path = sys.argv[1]
+def save_inequalities(path: str, spark: SparkSession) -> None:
+    """Save inequalities data.
 
-    spark = get_spark()
-
+    :param path: The path to save the data to
+    :type path: str
+    :param spark: The spark sesssion to use
+    :type spark: SparkSession
+    """
     mlflow.autolog(  # ty: ignore[possibly-missing-attribute]
         log_input_examples=False,
         log_model_signatures=False,
@@ -232,3 +230,9 @@ def main():
         .saveAsTable(table_names.default_inequalities)
     )
     inequalities.toPandas().to_parquet(f"{path}/inequalities.parquet")
+
+
+def main():
+    path = table_names.inputs_save_path
+    spark = get_spark()
+    save_inequalities(path, spark)

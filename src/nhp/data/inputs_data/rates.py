@@ -1,6 +1,5 @@
 """Generate Rates Dataframe"""
 
-import sys
 from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
@@ -14,6 +13,7 @@ from nhp.data.inputs_data.ip.rates import (
     get_ip_preop_rates,
 )
 from nhp.data.inputs_data.op.rates import get_op_rates
+from nhp.data.table_names import table_names
 
 
 def get_rates(spark: SparkSession) -> DataFrame:
@@ -36,9 +36,19 @@ def get_rates(spark: SparkSession) -> DataFrame:
     return reduce(DataFrame.unionByName, [f(spark) for f in fns])
 
 
+def save_rates(path: str, spark: SparkSession) -> None:
+    """Save rates data.
+
+    :param path: The path to save the data to
+    :type path: str
+    :param spark: The spark sesssion to use
+    :type spark: SparkSession
+    """
+    df = get_rates(spark).toPandas()
+    df.to_parquet(f"{path}/rates.parquet")
+
+
 def main():
-    path = sys.argv[1]
-
+    path = table_names.inputs_save_path
     spark = get_spark()
-
-    get_rates(spark).toPandas().to_parquet(f"{path}/rates.parquet")
+    save_rates(path, spark)
