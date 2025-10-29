@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-# TODO:
+# TODO: this should be set via an environment variable or similar when deploying asset bundles
 environment = "mlcsu"  # mlcsu / udal
 
 
