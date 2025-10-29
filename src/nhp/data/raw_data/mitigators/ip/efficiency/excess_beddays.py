@@ -33,11 +33,14 @@ from pyspark.sql import functions as F
 
 from nhp.data.hes_datasets import nhp_apc
 from nhp.data.raw_data.mitigators import efficiency_mitigator
+from nhp.data.raw_data.mitigators.reference_data import get_reference_file_path
 
 spark = DatabricksSession.builder.getOrCreate()
 
 
 def _excess_beddays(group):
+    filename = get_reference_file_path("hrg_trimpoints.csv")
+
     ebd = (
         spark.read.option("header", "true")
         .option("delimiter", ",")
@@ -50,7 +53,7 @@ def _excess_beddays(group):
                 ]
             )
         )
-        .csv("/Volumes/nhp/reference/files/hrg_trimpoints.csv", nanValue="-")
+        .csv(f"file:///{filename}")
         .select("sushrg", F.col(group).alias("trimpoint"))
         .dropna()
     )
