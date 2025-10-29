@@ -19,7 +19,7 @@ def get_op_df(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
     return (
-        filter_acute_providers(spark, table_names.default_opa)
+        filter_acute_providers(spark, table_names.raw_data_opa)
         .filter(F.isnotnull("age"))
         .drop("age_group")
         .join(inputs_age_group(spark), "age")

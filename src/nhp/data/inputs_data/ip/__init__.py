@@ -17,7 +17,7 @@ def get_ip_df(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
     return (
-        filter_acute_providers(spark, table_names.default_apc)
+        filter_acute_providers(spark, table_names.raw_data_apc)
         .filter(F.isnotnull("age"))
         .drop("age_group")
         .join(inputs_age_group(spark), "age")
