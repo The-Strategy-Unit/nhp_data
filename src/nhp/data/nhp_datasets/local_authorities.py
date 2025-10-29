@@ -25,7 +25,6 @@ def local_authority_successors(
     """
 
     lad11_to_lad23_lookup = spark.read.csv(
-        # TODO: make this a table
         table_names.reference_lad11_to_lad23_lookup,
         header=True,
     )
