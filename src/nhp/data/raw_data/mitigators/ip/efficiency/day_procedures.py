@@ -99,8 +99,8 @@ import json
 
 from pyspark.sql import functions as F
 
-from nhp.data.hes_datasets import nhp_apc, primary_procedure
 from nhp.data.raw_data.mitigators import efficiency_mitigator
+from nhp.data.raw_data.mitigators.ip.hes_datasets import nhp_apc, primary_procedure
 from nhp.data.table_names import table_names
 
 

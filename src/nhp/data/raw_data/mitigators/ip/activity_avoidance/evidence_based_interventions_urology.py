@@ -23,16 +23,16 @@ Codes used within the model to identify spells of this type can be found on the
 
 from pyspark.sql import functions as F
 
-from nhp.data.hes_datasets import (
+from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
+from nhp.data.raw_data.mitigators.ip.activity_avoidance.evidence_based_interventions import (
+    evidence_based_interventions,
+)
+from nhp.data.raw_data.mitigators.ip.hes_datasets import (
     any_diagnosis,
     nhp_apc,
     primary_diagnosis,
     primary_procedure,
     secondary_procedure,
-)
-from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
-from nhp.data.raw_data.mitigators.ip.activity_avoidance.evidence_based_interventions import (
-    evidence_based_interventions,
 )
 
 

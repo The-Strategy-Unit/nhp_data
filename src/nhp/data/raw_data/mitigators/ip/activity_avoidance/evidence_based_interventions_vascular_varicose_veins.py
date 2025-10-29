@@ -21,10 +21,14 @@ Codes used within the model to identify spells of this type can be found on the
 [ebi_1]: https://ebi.aomrc.org.uk/specialty/cardiovascular-disease/
 """
 
-from nhp.data.hes_datasets import nhp_apc, primary_diagnosis, primary_procedure
 from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
 from nhp.data.raw_data.mitigators.ip.activity_avoidance.evidence_based_interventions import (
     evidence_based_interventions,
+)
+from nhp.data.raw_data.mitigators.ip.hes_datasets import (
+    nhp_apc,
+    primary_diagnosis,
+    primary_procedure,
 )
 
 

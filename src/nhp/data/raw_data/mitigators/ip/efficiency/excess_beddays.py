@@ -31,8 +31,8 @@ import pyspark.sql.types as T
 from pyspark.sql import functions as F
 
 from nhp.data.get_spark import get_spark
-from nhp.data.hes_datasets import nhp_apc
 from nhp.data.raw_data.mitigators import efficiency_mitigator
+from nhp.data.raw_data.mitigators.ip.hes_datasets import nhp_apc
 from nhp.data.raw_data.mitigators.reference_data import get_reference_file_path
 
 

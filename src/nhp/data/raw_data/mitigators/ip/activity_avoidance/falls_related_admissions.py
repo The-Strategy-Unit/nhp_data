@@ -31,13 +31,13 @@ from functools import reduce
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
-from nhp.data.hes_datasets import (
+from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
+from nhp.data.raw_data.mitigators.ip.hes_datasets import (
     any_diagnosis,
     nhp_apc,
     primary_diagnosis,
     secondary_diagnosis,
 )
-from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
 
 
 def _explicit_fractures():

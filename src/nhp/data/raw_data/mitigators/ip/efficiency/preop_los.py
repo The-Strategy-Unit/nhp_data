@@ -13,9 +13,9 @@ in these cases there is a valid clinical reason for the extended pre-op LOS.
 
 from pyspark.sql import functions as F
 
-from nhp.data.hes_datasets import nhp_apc
 from nhp.data.nhp_datasets.apc import apc_primary_procedures
 from nhp.data.raw_data.mitigators import efficiency_mitigator
+from nhp.data.raw_data.mitigators.ip.hes_datasets import nhp_apc
 
 
 def _preop_los(days):

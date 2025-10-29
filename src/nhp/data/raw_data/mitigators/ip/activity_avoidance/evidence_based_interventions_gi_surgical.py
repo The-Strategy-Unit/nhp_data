@@ -21,15 +21,15 @@ Codes used within the model to identify spells of this type can be found on the
 [ebi_1]: https://ebi.aomrc.org.uk/specialty/gastrointestinal-disease/
 """
 
-from nhp.data.hes_datasets import (
+from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
+from nhp.data.raw_data.mitigators.ip.activity_avoidance.evidence_based_interventions import (
+    evidence_based_interventions,
+)
+from nhp.data.raw_data.mitigators.ip.hes_datasets import (
     any_diagnosis,
     any_procedure,
     nhp_apc,
     primary_procedure,
-)
-from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
-from nhp.data.raw_data.mitigators.ip.activity_avoidance.evidence_based_interventions import (
-    evidence_based_interventions,
 )
 
 

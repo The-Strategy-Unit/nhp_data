@@ -36,8 +36,12 @@ The AAFs are also sourced from the above referenced document.
 from pyspark.sql import functions as F
 
 from nhp.data.get_spark import get_spark
-from nhp.data.hes_datasets import any_diagnosis, diagnoses, nhp_apc
 from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
+from nhp.data.raw_data.mitigators.ip.hes_datasets import (
+    any_diagnosis,
+    diagnoses,
+    nhp_apc,
+)
 from nhp.data.raw_data.mitigators.reference_data import load_json
 from nhp.data.table_names import table_names
 

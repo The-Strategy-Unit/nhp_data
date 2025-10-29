@@ -37,8 +37,8 @@ In addition, we have subsequently also included a number of breast surgery proce
 
 from pyspark.sql import functions as F
 
-from nhp.data.hes_datasets import nhp_apc, primary_procedure
 from nhp.data.raw_data.mitigators import efficiency_mitigator
+from nhp.data.raw_data.mitigators.ip.hes_datasets import nhp_apc, primary_procedure
 
 
 def _enhanced_recovery(*args, sex="[12]"):
