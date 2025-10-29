@@ -101,11 +101,12 @@ from pyspark.sql import functions as F
 
 from nhp.data.hes_datasets import nhp_apc, primary_procedure
 from nhp.data.raw_data.mitigators import efficiency_mitigator
+from nhp.data.table_names import table_names
 
 
 def _day_procedures(day_procedure_type):
     with open(
-        "/Volumes/nhp/reference/files/day_procedures.json", "r", encoding="utf-8"
+        table_names.reference_day_procedures_code_list, "r", encoding="utf-8"
     ) as f:
         codes = json.load(f)[day_procedure_type]
 
