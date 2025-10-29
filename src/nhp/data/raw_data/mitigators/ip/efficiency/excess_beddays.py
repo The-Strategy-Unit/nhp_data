@@ -42,9 +42,7 @@ def _excess_beddays(group):
     filename = get_reference_file_path("hrg_trimpoints.csv")
 
     ebd = (
-        spark.read.option("header", "true")
-        .option("delimiter", ",")
-        .schema(
+        spark.read.schema(
             T.StructType(
                 [
                     T.StructField("sushrg", T.StringType(), False),
@@ -53,7 +51,7 @@ def _excess_beddays(group):
                 ]
             )
         )
-        .csv(f"file:///{filename}")
+        .csv(f"file:///{filename}", sep=",", header=True, nullValue="-")
         .select("sushrg", F.col(group).alias("trimpoint"))
         .dropna()
     )
