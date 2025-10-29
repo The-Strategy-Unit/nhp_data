@@ -34,7 +34,7 @@ def save_age_sex(path: str, spark: SparkSession) -> None:
 
     :param path: The path to save the data to
     :type path: str
-    :param spark: The spark sesssion to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     """
     df = get_age_sex(spark).filter(F.col("n") > 5).toPandas()
