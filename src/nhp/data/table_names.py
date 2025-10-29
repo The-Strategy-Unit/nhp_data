@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 # TODO:
-environment = "udal"  # mlcsu
+environment = "mlcsu"  # mlcsu / udal
 
 
 @dataclass
