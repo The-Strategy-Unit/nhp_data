@@ -10,6 +10,7 @@ from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.catchments import get_catchments, get_total_pop
 from nhp.data.inputs_data.helpers import complete_age_sex_data
 from nhp.data.inputs_data.ip import get_ip_age_sex_data, get_ip_df, get_ip_mitigators
+from nhp.data.table_names import table_names
 
 
 def get_ip_activity_avoidance_rates(spark: SparkSession) -> DataFrame:
@@ -130,7 +131,7 @@ def get_ip_preop_rates(spark: SparkSession) -> DataFrame:
     df_mitigators = get_ip_mitigators(spark)
 
     opertn_counts = (
-        spark.read.table("nhp.raw_data.apc")
+        spark.read.table(table_names.raw_data_apc)
         .filter(F.col("admimeth").startswith("1"))
         .groupBy("fyear", "provider")
         .agg(F.count("has_procedure").alias("denominator"))
@@ -154,7 +155,7 @@ def get_ip_preop_rates(spark: SparkSession) -> DataFrame:
 @cache
 def _get_ip_day_procedures_code_list(spark: SparkSession) -> DataFrame:
     with open(
-        "/Volumes/nhp/reference/files/day_procedures.json", "r", encoding="UTF-8"
+        table_names.reference_day_procedures_code_list, "r", encoding="UTF-8"
     ) as f:
         data = [
             {"strategy": f"day_procedures_{k}", "procedure_code": v}
@@ -178,13 +179,13 @@ def _get_ip_day_procedures_op_denominator(spark: SparkSession) -> DataFrame:
     )
 
     op_procedures = (
-        spark.read.table("hes.silver.opa_procedures")
+        spark.read.table(table_names.hes_opa_procedures)
         .filter(F.col("procedure_order") == 1)
         .join(day_procedures, ["procedure_code"], "inner")
     )
 
     return (
-        filter_acute_providers(spark, "opa")
+        filter_acute_providers(spark, table_names.raw_data_opa)
         .join(op_procedures, ["fyear", "attendkey"], "inner")
         .groupBy("fyear", "provider", "strategy")
         .agg(F.count("strategy").alias("denominator"))
@@ -205,13 +206,13 @@ def _get_ip_day_procedures_dc_denominator(spark: SparkSession) -> DataFrame:
     )
 
     dc_procedures = (
-        spark.read.table("hes.silver.apc_procedures")
+        spark.read.table(table_names.hes_apc_procedures)
         .filter(F.col("procedure_order") == 1)
         .join(day_procedures, ["procedure_code"], "inner")
     )
 
     return (
-        filter_acute_providers(spark, "apc")
+        filter_acute_providers(spark, table_names.raw_data_apc)
         .join(dc_procedures, ["fyear", "epikey"], "inner")
         .groupBy("fyear", "provider", "strategy")
         .agg(F.count("strategy").alias("denominator"))

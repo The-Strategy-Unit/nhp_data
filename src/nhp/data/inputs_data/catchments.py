@@ -3,11 +3,12 @@
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
-from nhp.data.inputs_data.helpers import get_spark
+from nhp.data.get_spark import get_spark
 from nhp.data.inputs_data.ip import get_ip_df
+from nhp.data.table_names import table_names
 
 
-def get_pop(spark: SparkSession = get_spark()) -> DataFrame:
+def get_pop(spark: SparkSession) -> DataFrame:
     """Get the population by year table
 
     :param spark: The spark context to use
@@ -15,7 +16,7 @@ def get_pop(spark: SparkSession = get_spark()) -> DataFrame:
     :return: The population by year/lsoa11/age/sex
     :rtype: DataFrame
     """
-    pop = spark.read.parquet("/Volumes/nhp/reference/files/population_by_year.parquet")
+    pop = spark.read.parquet(table_names.reference_population_by_year)
 
     # TODO: replace when 2023/24 is published, use 2022/23 for now
     pop = DataFrame.unionByName(
@@ -34,7 +35,7 @@ def get_pop(spark: SparkSession = get_spark()) -> DataFrame:
     )
 
 
-def create_catchments(spark: SparkSession = get_spark()) -> None:
+def create_catchments(spark: SparkSession) -> None:
     """Create the catchments table
 
     :param spark: The spark context to use
@@ -57,10 +58,10 @@ def create_catchments(spark: SparkSession = get_spark()) -> None:
         .agg(F.sum("pop_catch").alias("pop_catch"))
     )
 
-    catchments.write.mode("overwrite").saveAsTable("nhp.reference.inputs_catchments")
+    catchments.write.mode("overwrite").saveAsTable(table_names.inputs_catchments)
 
 
-def get_catchments(spark: SparkSession = get_spark()) -> DataFrame:
+def get_catchments(spark: SparkSession) -> DataFrame:
     """Get the catchments table
 
     :param spark: The spark context to use
@@ -68,10 +69,10 @@ def get_catchments(spark: SparkSession = get_spark()) -> DataFrame:
     :return: The catchments data
     :rtype: DataFrame
     """
-    return spark.read.table("nhp.reference.inputs_catchments").persist()
+    return spark.read.table(table_names.inputs_catchments).persist()
 
 
-def get_total_pop(spark: SparkSession = get_spark()) -> DataFrame:
+def get_total_pop(spark: SparkSession) -> DataFrame:
     """_summary_
 
     :param spark: _description_
@@ -90,5 +91,5 @@ def get_total_pop(spark: SparkSession = get_spark()) -> DataFrame:
 def main():
     spark = get_spark()
 
-    if not spark.catalog.tableExists("nhp.reference.inputs_catchments"):
+    if not spark.catalog.tableExists(table_names.inputs_catchments):
         create_catchments(spark)

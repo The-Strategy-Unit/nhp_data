@@ -7,6 +7,7 @@ from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.helpers import inputs_age_group
+from nhp.data.table_names import table_names
 
 
 def get_op_df(spark: SparkSession) -> DataFrame:
@@ -18,7 +19,7 @@ def get_op_df(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
     return (
-        filter_acute_providers(spark, "opa")
+        filter_acute_providers(spark, table_names.raw_data_opa)
         .filter(F.isnotnull("age"))
         .drop("age_group")
         .join(inputs_age_group(spark), "age")

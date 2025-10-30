@@ -6,9 +6,11 @@ from functools import reduce
 import numpy as np
 import pandas as pd
 import pyspark.sql.functions as F
-from databricks.connect import DatabricksSession
 from pygam import GAM
 from pyspark.sql import DataFrame, SparkSession
+
+from nhp.data.get_spark import get_spark
+from nhp.data.table_names import table_names
 
 
 def _get_data(spark: SparkSession, save_path: str) -> pd.DataFrame:
@@ -31,7 +33,7 @@ def _get_data(spark: SparkSession, save_path: str) -> pd.DataFrame:
     # load the demographics data, then cross join to the distinct HSA groups
 
     demog = (
-        spark.read.table("nhp.population_projections.demographics")
+        spark.read.table(table_names.population_projections_demographics)
         .filter(F.col("area_code").rlike("^E0[6-9]"))
         .filter(F.col("projection") == "migration_category")
         .filter(F.col("age") >= 18)
@@ -110,16 +112,16 @@ def _generate_activity_tables(spark: SparkSession, all_gams: dict) -> None:
         hsa_activity_tables = hsa_activity_tables.withColumn(i, F.col(i).cast("int"))
 
     hsa_activity_tables.write.mode("overwrite").saveAsTable(
-        "hsa_activity_tables_NATIONAL"
+        table_names.default_hsa_activity_tables_national
     )
 
 
 def main() -> None:
     """Generate GAMs and HSA activity tables"""
-    save_path = sys.argv[1]
-    spark: SparkSession = DatabricksSession.builder.getOrCreate()
-    spark.catalog.setCurrentCatalog("nhp")
-    spark.catalog.setCurrentDatabase("default")
+    data_version = sys.argv[1]
+    save_path = f"{table_names.model_data_path}/{data_version}"
+
+    spark = get_spark()
 
     all_gams = _generate_gams(spark, save_path)
     _generate_activity_tables(spark, all_gams)

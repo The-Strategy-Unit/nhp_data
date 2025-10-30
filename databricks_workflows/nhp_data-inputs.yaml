@@ -20,8 +20,6 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-catchments
-            parameters:
-              - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
@@ -31,8 +29,6 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-age_sex
-            parameters:
-              - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
@@ -42,8 +38,6 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-baseline
-            parameters:
-              - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
@@ -53,8 +47,6 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-diagnoses
-            parameters:
-              - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
@@ -64,8 +56,6 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-expat_repat
-            parameters:
-              - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
@@ -75,8 +65,6 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-procedures
-            parameters:
-              - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
@@ -86,8 +74,6 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-rates
-            parameters:
-              - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
@@ -97,8 +83,6 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-inequalities
-            parameters:
-              - "{{job.parameters.save_path}}"
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
@@ -123,5 +107,3 @@ resources:
       parameters:
         - name: run_inputs_data
           default: "True"
-        - name: save_path
-          default: /Volumes/nhp/inputs_data/files/dev

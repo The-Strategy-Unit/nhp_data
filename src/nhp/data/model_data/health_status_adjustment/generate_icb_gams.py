@@ -12,6 +12,7 @@ from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
 from nhp.data.model_data.helpers import create_icb_population_projections
+from nhp.data.table_names import table_names
 
 
 def _get_data(spark: SparkSession, save_path: str) -> DataFrame:
@@ -35,7 +36,7 @@ def _get_data(spark: SparkSession, save_path: str) -> DataFrame:
     # load the demographics data
     demog = (
         create_icb_population_projections(
-            spark, spark.read.table("nhp.population_projections.demographics")
+            spark, spark.read.table(table_names.population_projections_demographics)
         )
         .filter(F.col("variant") == "migration_category")
         .filter(F.col("age") >= 18)
@@ -121,14 +122,17 @@ def _generate_activity_tables(spark: SparkSession, all_gams: dict) -> None:
     for i in ["fyear", "sex", "age"]:
         hsa_activity_tables = hsa_activity_tables.withColumn(i, F.col(i).cast("int"))
 
-    hsa_activity_tables.write.mode("overwrite").saveAsTable("hsa_activity_tables_ICB")
+    hsa_activity_tables.write.mode("overwrite").saveAsTable(
+        table_names.default_hsa_activity_tables_icb
+    )
 
 
 def main() -> None:
     """Generate GAMs and HSA activity tables"""
-    save_path = sys.argv[1]
+    data_version = sys.argv[1]
+    save_path = f"{table_names.model_data_path}/{data_version}"
 
-    spark = get_spark("default")
+    spark = get_spark()
 
     dfr = _get_data(spark, save_path)
     all_gams = _generate_gams(dfr)

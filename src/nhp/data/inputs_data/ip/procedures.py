@@ -4,6 +4,7 @@ from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
 from nhp.data.inputs_data.ip import get_ip_df, get_ip_mitigators
+from nhp.data.table_names import table_names
 
 
 def get_ip_procedures(spark: SparkSession) -> DataFrame:
@@ -15,7 +16,7 @@ def get_ip_procedures(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
     procs = (
-        spark.read.table("hes.silver.apc_procedures")
+        spark.read.table(table_names.hes_apc_procedures)
         .filter(F.col("procedure_order") == 1)
         .withColumn("procedure_code", F.col("procedure_code").substr(1, 3))
     )

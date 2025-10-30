@@ -16,6 +16,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+from nhp.data.table_names import table_names
+
 BASE_URL = "https://digital.nhs.uk"
 
 
@@ -83,7 +85,7 @@ def get_trust_types() -> pd.DataFrame:
 
 
 def create_trust_types_parquet(path: str) -> None:
-    get_trust_types().to_parquet(f"{path}/trust_types.parquet")
+    get_trust_types().to_parquet(table_names.reference_trust_types)
 
 
 def init() -> None:

@@ -1,10 +1,11 @@
 """Create Provider Catchments"""
 
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
+from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.apc import hes_apc
+from nhp.data.table_names import table_names
 
 
 def get_provider_catchments(spark: SparkSession) -> DataFrame:
@@ -17,7 +18,7 @@ def get_provider_catchments(spark: SparkSession) -> DataFrame:
     total_window = Window.partitionBy("fyear", "resladst_ons", "age", "sex")
 
     providers = (
-        spark.read.table("nhp.reference.ods_trusts")
+        spark.read.table(table_names.reference_ods_trusts)
         .filter(F.col("org_type").startswith("ACUTE"))
         .select("org_to")
         .distinct()
@@ -42,9 +43,9 @@ def create_provider_catchments(spark: SparkSession) -> None:
     """
 
     df = get_provider_catchments(spark)
-    df.write.mode("overwrite").saveAsTable("nhp.reference.provider_catchments")
+    df.write.mode("overwrite").saveAsTable(table_names.reference_provider_catchments)
 
 
 def main():
-    spark: SparkSession = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
     create_provider_catchments(spark)

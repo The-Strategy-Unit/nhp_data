@@ -14,8 +14,8 @@ The [ICD10 diagnosis coding framework][ish_1] includes a range of explicit self 
 
 from pyspark.sql import functions as F
 
-from nhp.data.hes_datasets import any_diagnosis, nhp_apc
 from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
+from nhp.data.raw_data.mitigators.ip.hes_datasets import any_diagnosis, nhp_apc
 
 
 @activity_avoidance_mitigator()

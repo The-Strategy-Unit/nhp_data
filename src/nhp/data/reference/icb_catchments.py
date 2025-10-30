@@ -6,6 +6,7 @@ import requests
 from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.table_names import table_names
 
 
 def get_icb_catchments(spark: SparkSession) -> DataFrame:
@@ -55,7 +56,7 @@ def get_icb_catchments(spark: SparkSession) -> DataFrame:
         if not features:
             break
         all_features.extend(features)
-        params["resultOffset"] += len(features)
+        params["resultOffset"] += len(features)  # ty: ignore[unsupported-operator]
 
     lad_icb_lsoa_counts = defaultdict(lambda: defaultdict(lambda: 0))
     icb_la_pcnts = []
@@ -82,9 +83,9 @@ def create_icb_catchments(spark: SparkSession) -> None:
     """
 
     df = get_icb_catchments(spark)
-    df.write.mode("overwrite").saveAsTable("icb_catchments")
+    df.write.mode("overwrite").saveAsTable(table_names.reference_icb_catchments)
 
 
 def main():
-    spark = get_spark("reference")
+    spark = get_spark()
     create_icb_catchments(spark)

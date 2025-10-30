@@ -5,10 +5,11 @@ import sys
 import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 
-from nhp.data.model_data.helpers import get_spark
+from nhp.data.get_spark import get_spark
+from nhp.data.table_names import table_names
 
 
-def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> None:
+def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
     """Extract inequalities data for model
 
     :param spark: the spark context to use
@@ -21,13 +22,13 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
 
     fyear_converted = fyear // 100
 
-    inequalities = spark.read.table("nhp.default.inequalities").filter(
+    inequalities = spark.read.table(table_names.default_inequalities).filter(
         F.col("fyear") == fyear
     )
 
     # handle providers with no inequalities data
     providers = (
-        spark.read.table("nhp.default.apc")
+        spark.read.table(table_names.default_apc)
         .filter(F.col("fyear") == fyear)
         .select("provider")
         .distinct()
@@ -48,6 +49,10 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
 
 
 def main():
-    path = sys.argv[1]
+    data_version = sys.argv[1]
+    save_path = f"{table_names.model_data_path}/{data_version}"
     fyear = int(sys.argv[2])
-    extract(path, fyear)
+
+    spark = get_spark()
+
+    extract(save_path, fyear, spark)

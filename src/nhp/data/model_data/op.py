@@ -5,10 +5,11 @@ import sys
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
-from nhp.data.model_data.helpers import get_spark
+from nhp.data.get_spark import get_spark
+from nhp.data.table_names import table_names
 
 
-def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> None:
+def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
     """Extract OP data
 
     :param spark: the spark context to use
@@ -20,7 +21,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
     """
 
     opa = (
-        spark.read.table("opa")
+        spark.read.table(table_names.default_opa)
         .filter(F.col("fyear") == fyear)
         .withColumnRenamed("provider", "dataset")
         .withColumn("fyear", F.floor(F.col("fyear") / 100))
@@ -28,7 +29,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
     )
 
     inequalities = (
-        spark.read.table("inequalities")
+        spark.read.table(table_names.default_inequalities)
         .filter(F.col("fyear") == fyear)
         .select("icb", "provider", "sushrg_trimmed")
         .withColumnRenamed("provider", "dataset")
@@ -63,6 +64,10 @@ def extract(save_path: str, fyear: int, spark: SparkSession = get_spark()) -> No
 
 
 def main():
-    path = sys.argv[1]
+    data_version = sys.argv[1]
+    save_path = f"{table_names.model_data_path}/{data_version}"
     fyear = int(sys.argv[2])
-    extract(path, fyear)
+
+    spark = get_spark()
+
+    extract(save_path, fyear, spark)

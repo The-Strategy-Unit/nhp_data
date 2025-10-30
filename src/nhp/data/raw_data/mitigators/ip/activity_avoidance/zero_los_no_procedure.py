@@ -13,8 +13,8 @@ identifies admissions of this type and categorises them into adult and child.
 
 from pyspark.sql import functions as F
 
-from nhp.data.hes_datasets import nhp_apc, procedures
 from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
+from nhp.data.raw_data.mitigators.ip.hes_datasets import nhp_apc, procedures
 
 
 def _zero_los(age_filter):

@@ -1,19 +1,20 @@
 """Generate outpatients data"""
 
-from databricks.connect import DatabricksSession
-
-from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
-from nhp.data.nhp_datasets.local_authorities import local_authority_successors
-from nhp.data.nhp_datasets.providers import read_data_with_provider
-from nhp.data.raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
+from nhp.data.get_spark import get_spark
+from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
+from nhp.data.nhp_datasets.local_authorities import local_authority_successors
+from nhp.data.nhp_datasets.providers import read_data_with_provider
+from nhp.data.raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
+from nhp.data.table_names import table_names
+
 
 def get_outpatients_data(spark: SparkSession) -> DataFrame:
     """Get Outpatients Data"""
-    df = read_data_with_provider(spark, "hes.silver.opa")
+    df = read_data_with_provider(spark, table_names.hes_opa)
 
     # Calculate icb column
     df = df.withColumn(
@@ -40,11 +41,11 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
     # convert local authorities to current
     df = local_authority_successors(spark, df, "resladst_ons")
 
-    df_primary_diagnosis = spark.read.table("hes.silver.opa_diagnoses").filter(
+    df_primary_diagnosis = spark.read.table(table_names.hes_opa_diagnoses).filter(
         F.col("diag_order") == 1
     )
 
-    df_primary_procedure = spark.read.table("hes.silver.opa_procedures").filter(
+    df_primary_procedure = spark.read.table(table_names.hes_opa_procedures).filter(
         F.col("procedure_order") == 1
     )
 
@@ -159,11 +160,11 @@ def generate_outpatients_data(spark: SparkSession) -> None:
         hes_opa_ungrouped.write.partitionBy("fyear", "provider")
         .mode("overwrite")
         .option("mergeSchema", "true")
-        .saveAsTable("nhp.raw_data.opa")
+        .saveAsTable(table_names.raw_data_opa)
     )
 
 
 def main() -> None:
     """main method"""
-    spark = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
     generate_outpatients_data(spark)

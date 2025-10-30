@@ -10,11 +10,12 @@ Some of these patients may have been discharged from a different hospital than t
 readmitted to.
 """
 
-from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 
-from nhp.data.hes_datasets import nhp_apc
+from nhp.data.get_spark import get_spark
 from nhp.data.raw_data.mitigators import activity_avoidance_mitigator
+from nhp.data.raw_data.mitigators.ip.hes_datasets import nhp_apc
+from nhp.data.table_names import table_names
 
 
 @activity_avoidance_mitigator("readmission_within_28_days")
@@ -37,9 +38,9 @@ def _readmission_within_28_days():
 
     # make sure to use full hes table - our nhp views filter on certain columns
     # (e.g. not all providers included)
-    spark = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
     prior = (
-        spark.read.table("hes.silver.apc")
+        spark.read.table(table_names.hes_apc)
         .filter(F.col("last_episode_in_spell"))
         # remove well babies
         .filter(F.col("well_baby_ind") == "N")

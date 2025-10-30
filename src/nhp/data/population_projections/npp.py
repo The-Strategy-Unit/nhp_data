@@ -4,9 +4,11 @@ import re
 import sys
 
 import pandas as pd
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
+
+from nhp.data.get_spark import get_spark
+from nhp.data.table_names import table_names
 
 
 def _process_npp_demographics(
@@ -23,7 +25,7 @@ def _process_npp_demographics(
             raise ValueError(f"Invalid f{projection_year=}")
 
     (
-        spark.read.table("nhp.population_projections.demographics")
+        spark.read.table(table_names.population_projections_demographics)
         .filter(F.col("projection") == projection)
         .filter(F.col("projection_year") == projection_year)
         .join(df, ["year", "sex", "age"])
@@ -34,7 +36,7 @@ def _process_npp_demographics(
         .repartition(1)
         .write.mode("overwrite")
         .partitionBy("projection_year", "projection", "sex", "area_code")
-        .saveAsTable("nhp.population_projections.demographics")
+        .saveAsTable(table_names.population_projections_demographics)
     )
 
 
@@ -52,7 +54,7 @@ def _process_npp_births(
             raise ValueError(f"Invalid f{projection_year=}")
 
     (
-        spark.read.table("nhp.population_projections.births")
+        spark.read.table(table_names.population_projections_births)
         .filter(F.col("projection") == projection)
         .filter(F.col("projection_year") == projection_year)
         .join(df.filter(F.col("sex") == 2), ["year", "age"])
@@ -63,7 +65,7 @@ def _process_npp_births(
         .repartition(1)
         .write.mode("overwrite")
         .partitionBy("projection_year", "projection", "area_code")
-        .saveAsTable("nhp.population_projections.births")
+        .saveAsTable(table_names.population_projections_births)
     )
 
 
@@ -133,11 +135,10 @@ def process_npp_variant(
 
 
 def main():
-    path = sys.argv[1]
-    projection_year = int(sys.argv[2])
-    file = sys.argv[3]
+    path = table_names.population_projections_save_path
+    projection_year = int(sys.argv[1])
+    file = sys.argv[2]
 
-    spark: SparkSession = DatabricksSession.builder.getOrCreate()
-    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
+    spark = get_spark()
 
     process_npp_variant(spark, path, projection_year, file)

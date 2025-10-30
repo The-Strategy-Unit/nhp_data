@@ -5,12 +5,13 @@ import sys
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
+from nhp.data.get_spark import get_spark
 from nhp.data.model_data.helpers import (
     DEMOGRAPHICS_MAX_YEAR,
     DEMOGRAPHICS_MIN_YEAR,
     create_provider_population_projections,
-    get_spark,
 )
+from nhp.data.table_names import table_names
 
 
 def create_custom_birth_factors(
@@ -104,7 +105,7 @@ def extract_custom_birth_factors(
 
 
 def extract(
-    save_path: str, fyear: int, projection_year: int, spark: SparkSession = get_spark()
+    save_path: str, fyear: int, projection_year: int, spark: SparkSession
 ) -> None:
     """Extract Birth Factors data
 
@@ -116,7 +117,7 @@ def extract(
     :type fyear: int
     """
     births = (
-        spark.read.table("nhp.population_projections.births")
+        spark.read.table(table_names.population_projections_births)
         .withColumn("sex", F.lit(2))
         .filter(F.col("year").between(DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR))
     )
@@ -139,7 +140,12 @@ def extract(
 
 
 def main():
-    path = sys.argv[1]
+    data_version = sys.argv[1]
+    save_path = f"{table_names.model_data_path}/{data_version}"
+
     fyear = int(sys.argv[2])
     projection_year = int(sys.argv[3])
-    extract(path, fyear, projection_year)
+
+    spark = get_spark()
+
+    extract(save_path, fyear, projection_year, spark)

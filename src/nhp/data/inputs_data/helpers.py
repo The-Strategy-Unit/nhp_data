@@ -1,20 +1,9 @@
 """Helper methods/tables"""
 
 import pyspark.sql.functions as F
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
 
-
-def get_spark() -> SparkSession:
-    """_summary_
-
-    :return: get the spark context to use
-    :rtype: SparkSession
-    """
-    spark: SparkSession = DatabricksSession.builder.getOrCreate()
-    spark.catalog.setCurrentCatalog("nhp")
-    spark.catalog.setCurrentDatabase("raw_data")
-    return spark
+from nhp.data.table_names import table_names
 
 
 def inputs_age_group(spark: SparkSession) -> DataFrame:
@@ -44,7 +33,7 @@ def treatment_function_grouping(spark: SparkSession) -> DataFrame:
     :return: Treatment Function Grouping Table
     :rtype: DataFrame
     """
-    return spark.read.table("nhp.reference.tretspef_grouping")
+    return spark.read.table(table_names.reference_tretspef_grouping)
 
 
 def complete_age_sex_data(

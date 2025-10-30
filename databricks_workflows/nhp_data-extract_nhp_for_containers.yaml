@@ -17,7 +17,7 @@ resources:
                 package_name: nhp_data
                 entry_point: model_data-ip
                 parameters:
-                  - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+                  - "{{job.parameters.data_version}}"
                   - "{{input}}"
               job_cluster_key: run_nhp_extracts_cluster
               libraries:
@@ -33,7 +33,7 @@ resources:
                 package_name: nhp_data
                 entry_point: model_data-op
                 parameters:
-                  - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+                  - "{{job.parameters.data_version}}"
                   - "{{input}}"
               job_cluster_key: run_nhp_extracts_cluster
               libraries:
@@ -49,7 +49,7 @@ resources:
                 package_name: nhp_data
                 entry_point: model_data-aae
                 parameters:
-                  - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+                  - "{{job.parameters.data_version}}"
                   - "{{input}}"
               job_cluster_key: run_nhp_extracts_cluster
               libraries:
@@ -65,7 +65,7 @@ resources:
                 package_name: nhp_data
                 entry_point: model_data-demographic_factors
                 parameters:
-                  - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+                  - "{{job.parameters.data_version}}"
                   - "{{input}}"
                   - "{{job.parameters.projection_year}}"
               job_cluster_key: run_nhp_extracts_cluster
@@ -82,7 +82,7 @@ resources:
                 package_name: nhp_data
                 entry_point: model_data-birth_factors
                 parameters:
-                  - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+                  - "{{job.parameters.data_version}}"
                   - "{{input}}"
                   - "{{job.parameters.projection_year}}"
               job_cluster_key: run_nhp_extracts_cluster
@@ -99,7 +99,7 @@ resources:
                 package_name: nhp_data
                 entry_point: model_data-inequalities
                 parameters:
-                  - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+                  - "{{job.parameters.data_version}}"
                   - "{{input}}"
               job_cluster_key: run_nhp_extracts_cluster
               libraries:
@@ -111,7 +111,7 @@ resources:
             package_name: nhp_data
             entry_point: model_data-health_status_adjustment-generate_provider_gams
             parameters:
-              - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+              - "{{job.parameters.data_version}}"
           job_cluster_key: run_nhp_extracts_cluster
           libraries:
             - pypi:
@@ -124,7 +124,7 @@ resources:
             package_name: nhp_data
             entry_point: model_data-health_status_adjustment-generate_icb_gams
             parameters:
-              - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+              - "{{job.parameters.data_version}}"
           job_cluster_key: run_nhp_extracts_cluster
           libraries:
             - pypi:
@@ -137,7 +137,7 @@ resources:
             package_name: nhp_data
             entry_point: model_data-health_status_adjustment-generate_national_gams
             parameters:
-              - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+              - "{{job.parameters.data_version}}"
           job_cluster_key: run_nhp_extracts_cluster
           libraries:
             - pypi:
@@ -154,7 +154,6 @@ resources:
                 package_name: nhp_data
                 entry_point: model_data-generate_synthetic_data
                 parameters:
-                  - "{{job.parameters.save_path}}"
                   - "{{input}}"
                   - "20251001"
               job_cluster_key: run_nhp_extracts_cluster
@@ -167,7 +166,7 @@ resources:
             package_name: nhp_data
             entry_point: model_data-clean_up
             parameters:
-              - "{{job.parameters.save_path}}/{{job.parameters.data_version}}"
+              - "{{job.parameters.data_version}}"
           job_cluster_key: run_nhp_extracts_cluster
           libraries:
             - whl: ../dist/*.whl
@@ -202,8 +201,6 @@ resources:
       parameters:
         - name: data_version
           default: dev
-        - name: save_path
-          default: /Volumes/nhp/model_data/files
         - name: years
           default: "[202324]"
         - name: projection_year

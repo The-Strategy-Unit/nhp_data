@@ -4,6 +4,8 @@ from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
+from nhp.data.table_names import table_names
+
 
 def local_authority_successors(
     spark: SparkSession, df: DataFrame, col_name: str
@@ -23,7 +25,8 @@ def local_authority_successors(
     """
 
     lad11_to_lad23_lookup = spark.read.csv(
-        "/Volumes/nhp/reference/files/lad11_to_lad23_lookup.csv", header=True
+        table_names.reference_lad11_to_lad23_lookup,
+        header=True,
     )
 
     lookup = {

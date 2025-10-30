@@ -1,21 +1,22 @@
 """Generate inpatients data"""
 
-from databricks.connect import DatabricksSession
 from delta.tables import DeltaTable
-
-from nhp.data.nhp_datasets.apc import apc_primary_procedures, hes_apc
-from nhp.data.nhp_datasets.icbs import add_main_icb
-from nhp.data.raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
+
+from nhp.data.get_spark import get_spark
+from nhp.data.nhp_datasets.apc import apc_primary_procedures, hes_apc
+from nhp.data.nhp_datasets.icbs import add_main_icb
+from nhp.data.raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
+from nhp.data.table_names import table_names
 
 
 def get_inpatients_data(spark: SparkSession) -> DataFrame:
     """Get Inpatients Data"""
     # Spell has maternity delivery episode
     mat_delivery_spells = (
-        spark.read.table("hes.silver.apc")
+        spark.read.table(table_names.hes_apc)
         .filter(F.col("fce") == 1)
         .filter(F.col("maternity_episode_type") == 1)
         .select("susspellid")
@@ -27,11 +28,11 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
     df = add_tretspef_grouped_column(df)
     df = add_age_group_column(df)
 
-    df_primary_diagnosis = spark.read.table("hes.silver.apc_diagnoses").filter(
+    df_primary_diagnosis = spark.read.table(table_names.hes_apc_diagnoses).filter(
         F.col("diag_order") == 1
     )
 
-    df_primary_procedure = spark.read.table("hes.silver.apc_procedures").filter(
+    df_primary_procedure = spark.read.table(table_names.hes_apc_procedures).filter(
         F.col("procedure_order") == 1
     )
 
@@ -158,7 +159,7 @@ def generate_inpatients_data(spark: SparkSession) -> None:
 
     target = (
         DeltaTable.createIfNotExists(spark)
-        .tableName("nhp.raw_data.apc")
+        .tableName(table_names.raw_data_apc)
         .addColumns(hes_apc_processed.schema)
         .execute()
     )
@@ -178,5 +179,5 @@ def generate_inpatients_data(spark: SparkSession) -> None:
 
 def main() -> None:
     """main method"""
-    spark = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
     generate_inpatients_data(spark)

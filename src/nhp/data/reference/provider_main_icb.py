@@ -4,6 +4,7 @@ from pyspark.sql import Window
 from pyspark.sql import functions as F
 
 from nhp.data.nhp_datasets.apc import hes_apc
+from nhp.data.table_names import table_names
 
 
 def generate_provider_main_icb() -> None:
@@ -22,7 +23,9 @@ def generate_provider_main_icb() -> None:
         .withColumnRenamed("icb", "main_icb")
     )
 
-    main_icbs.write.mode("overwrite").saveAsTable("nhp.reference.provider_main_icb")
+    main_icbs.write.mode("overwrite").saveAsTable(
+        table_names.reference_provider_main_icb
+    )
 
 
 def main():

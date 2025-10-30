@@ -1,15 +1,17 @@
 """Generate Outpatients Data"""
 
-from databricks.connect import DatabricksSession
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
+
+from nhp.data.get_spark import get_spark
+from nhp.data.table_names import table_names
 
 
 def get_outpatients_data(spark: SparkSession) -> DataFrame:
     """Get Outpatients Data"""
     return (
-        spark.read.table("nhp.raw_data.opa")
+        spark.read.table(table_names.raw_data_opa)
         .groupBy(
             F.col("fyear"),
             F.col("provider"),
@@ -51,12 +53,12 @@ def generate_outpatients_data(spark: SparkSession, opa: DataFrame) -> None:
         opa.write.partitionBy("fyear", "provider")
         .mode("overwrite")
         .option("mergeSchema", "true")
-        .saveAsTable("nhp.aggregated_data.opa")
+        .saveAsTable(table_names.aggregated_data_opa)
     )
 
 
 def main() -> None:
     """main method"""
-    spark = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
     opa = get_outpatients_data(spark)
     generate_outpatients_data(spark, opa)

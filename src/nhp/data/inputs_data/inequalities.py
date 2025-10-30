@@ -1,7 +1,5 @@
 """Generate Inequalities Dataframe"""
 
-import sys
-
 import mlflow
 import pandas as pd
 import statsmodels.api as sm
@@ -15,7 +13,8 @@ from pyspark.sql.types import (
     StructType,
 )
 
-from nhp.data.inputs_data.helpers import get_spark
+from nhp.data.get_spark import get_spark
+from nhp.data.table_names import table_names
 
 
 def load_inequalities_data(spark: SparkSession) -> DataFrame:
@@ -29,7 +28,7 @@ def load_inequalities_data(spark: SparkSession) -> DataFrame:
     """
 
     imd_df = (
-        spark.read.table("nhp.reference.population_by_imd_decile")
+        spark.read.table(table_names.reference_population_by_imd_decile)
         .withColumn("imd_quintile", F.floor((F.col("imd19") - 1) / 2) + 1)
         .drop("imd19")
         .groupby("icb", "provider", "imd_quintile")
@@ -45,7 +44,7 @@ def load_inequalities_data(spark: SparkSession) -> DataFrame:
     )
 
     apc = (
-        spark.read.table("nhp.default.apc")
+        spark.read.table(table_names.default_apc)
         .withColumn("sushrg_trimmed", F.expr("substring(sushrg, 1, 4)"))
         .filter(F.col("admimeth").startswith("1"))
         .groupby("icb", "provider", "imd_quintile", "sushrg_trimmed", "fyear")
@@ -53,7 +52,7 @@ def load_inequalities_data(spark: SparkSession) -> DataFrame:
     )
 
     opa = (
-        spark.read.table("nhp.default.opa")
+        spark.read.table(table_names.default_opa)
         .filter(F.col("has_procedures"))
         .groupby("icb", "provider", "imd_quintile", "sushrg_trimmed", "fyear")
         .agg(F.sum("attendances").alias("count"))
@@ -202,15 +201,15 @@ def process_calculated_inequalities(
     )
 
 
-def main():
-    """
-    Loads data, calculates inequalities and saves the results to parquet
-    """
-    path = sys.argv[1]
+def save_inequalities(path: str, spark: SparkSession) -> None:
+    """Save inequalities data.
 
-    spark = get_spark()
-
-    mlflow.autolog(  # ty: ignore[possibly-unbound-attribute]
+    :param path: The path to save the data to
+    :type path: str
+    :param spark: The spark session to use
+    :type spark: SparkSession
+    """
+    mlflow.autolog(  # ty: ignore[possibly-missing-attribute]
         log_input_examples=False,
         log_model_signatures=False,
         log_models=False,
@@ -228,6 +227,12 @@ def main():
     (
         inequalities.write.option("mergeSchema", "true")
         .mode("overwrite")
-        .saveAsTable("nhp.default.inequalities")
+        .saveAsTable(table_names.default_inequalities)
     )
     inequalities.toPandas().to_parquet(f"{path}/inequalities.parquet")
+
+
+def main():
+    path = table_names.inputs_save_path
+    spark = get_spark()
+    save_inequalities(path, spark)

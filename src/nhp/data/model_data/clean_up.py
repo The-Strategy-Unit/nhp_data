@@ -5,6 +5,8 @@ Removes any of the _SUCCESS, _committed_*, _started_* files that spark leaves.""
 import os
 import sys
 
+from nhp.data.table_names import table_names
+
 
 def clean_up(path: str) -> None:
     """Clean up spark files from a given path.
@@ -24,5 +26,7 @@ def clean_up(path: str) -> None:
 
 
 def main() -> None:
-    path = sys.argv[1]
-    clean_up(path)
+    data_version = sys.argv[1]
+    save_path = f"{table_names.model_data_path}/{data_version}"
+
+    clean_up(save_path)

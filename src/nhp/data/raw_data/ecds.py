@@ -2,27 +2,28 @@
 
 from itertools import chain
 
-from databricks.connect import DatabricksSession
-
-from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
-from nhp.data.nhp_datasets.local_authorities import local_authority_successors
-from nhp.data.nhp_datasets.providers import add_provider
-from nhp.data.raw_data.helpers import add_age_group_column
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
+from nhp.data.get_spark import get_spark
+from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
+from nhp.data.nhp_datasets.local_authorities import local_authority_successors
+from nhp.data.nhp_datasets.providers import add_provider
+from nhp.data.raw_data.helpers import add_age_group_column
+from nhp.data.table_names import table_names
+
 
 def get_ecds_data(spark: SparkSession) -> DataFrame:
     """Get ECDS data"""
-    df = spark.read.table("hes.silver.ecds")
+    df = spark.read.table(table_names.hes_ecds)
 
     df = add_provider(spark, df, "der_provider_code", "der_provider_site_code")
     df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
 
     # Add IMD fields
     imd_lookup = (
-        spark.read.table("strategyunit.reference.lsoa11_to_imd19")
+        spark.read.table(table_names.reference_lsoa11_to_imd19)
         .withColumnRenamed("lsoa11", "der_postcode_lsoa_2011_code")
         .withColumnRenamed("imd19_decile", "imd_decile")
         .withColumn(
@@ -57,7 +58,7 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
 
     # for 2019/20, we need to look back one year, so use A&E data
     aae_df = (
-        spark.read.table("hes.silver.aae")
+        spark.read.table(table_names.hes_aae)
         .filter(F.col("fyear") == 201819)
         .filter(F.col("aeattendcat") == "1")
         .filter(F.isnotnull("person_id_deid"))
@@ -255,11 +256,11 @@ def generate_ecds_data(spark: SparkSession) -> None:
         hes_ecds_ungrouped.write.partitionBy("fyear", "provider")
         .mode("overwrite")
         .option("mergeSchema", "true")
-        .saveAsTable("nhp.raw_data.ecds")
+        .saveAsTable(table_names.raw_data_ecds)
     )
 
 
 def main() -> None:
     """main method"""
-    spark = DatabricksSession.builder.getOrCreate()
+    spark = get_spark()
     generate_ecds_data(spark)

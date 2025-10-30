@@ -10,6 +10,7 @@ import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.table_names import table_names
 
 logger = logging.getLogger(__name__)
 
@@ -42,13 +43,13 @@ class SynthData:
 
     # helper methods
 
-    def read_dev_file(self, file: str) -> pd.DataFrame:
+    def read_dev_file(self, file: str) -> DataFrame:
         return self.read_file(file, self._dev_path)
 
-    def read_synth_file(self, file: str) -> pd.DataFrame:
+    def read_synth_file(self, file: str) -> DataFrame:
         return self.read_file(file, self._synth_path)
 
-    def read_file(self, file: str, path: str) -> pd.DataFrame:
+    def read_file(self, file: str, path: str) -> DataFrame:
         return (
             self._spark.read.parquet(f"{path}/{file}")
             .filter(F.col("fyear") == self._fyear)
@@ -130,7 +131,11 @@ class SynthData:
         rng = np.random.default_rng(self._seed)
         n_aae_datasets = df.select("dataset").distinct().count()
 
-        df = df.drop("index", "dataset").withColumn("sitetret", F.lit("a"))
+        df = (
+            df.drop("index", "dataset")
+            .withColumn("sitetret", F.lit("a"))
+            .withColumn("icb", F.when(F.col("is_main_icb"), "A").otherwise("B"))
+        )
 
         aae = (
             df.groupBy(df.drop("arrivals").columns)
@@ -149,7 +154,11 @@ class SynthData:
         rng = np.random.default_rng(self._seed)
         n_op_datasets = df.select("dataset").distinct().count()
 
-        df = df.drop("index", "dataset").withColumn("sitetret", F.lit("a"))
+        df = (
+            df.drop("index", "dataset")
+            .withColumn("sitetret", F.lit("a"))
+            .withColumn("icb", F.when(F.col("is_main_icb"), "A").otherwise("B"))
+        )
 
         op = (
             df.groupBy(df.drop("attendances", "tele_attendances").columns)
@@ -211,11 +220,12 @@ def main():
 
     logging.getLogger("py4j").setLevel(logging.ERROR)
 
-    path = sys.argv[1]
-    fyear = int(sys.argv[2][:4])
-    seed = int(sys.argv[3])
+    path = table_names.model_data_path
 
-    spark = get_spark("model_data")
+    fyear = int(sys.argv[1][:4])
+    seed = int(sys.argv[2])
+
+    spark = get_spark()
 
     d = SynthData(fyear, path, seed, spark)
     d.generate()

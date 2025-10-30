@@ -1,16 +1,17 @@
-from databricks.connect import DatabricksSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *  # noqa: F403
 
+from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.icbs import icb_mapping
 from nhp.data.nhp_datasets.local_authorities import local_authority_successors
 from nhp.data.nhp_datasets.providers import read_data_with_provider
+from nhp.data.table_names import table_names
 
-spark = DatabricksSession.builder.getOrCreate()
+spark = get_spark()
 
 hes_apc = (
     local_authority_successors(
-        spark, read_data_with_provider(spark, "hes.silver.apc"), "resladst_ons"
+        spark, read_data_with_provider(spark, table_names.hes_apc), "resladst_ons"
     )
     .filter(F.col("last_episode_in_spell"))
     .withColumn(
@@ -40,7 +41,7 @@ hes_apc = (
 )
 
 apc_primary_procedures = (
-    spark.read.table("hes.silver.apc_procedures")
+    spark.read.table(table_names.hes_apc_procedures)
     .filter(F.col("procedure_order") == 1)
     .filter(~F.col("procedure_code").rlike("^O(1[1-46]|28|3[01346]|4[2-8]|5[23])"))
     .filter(~F.col("procedure_code").rlike("^X[6-9]"))

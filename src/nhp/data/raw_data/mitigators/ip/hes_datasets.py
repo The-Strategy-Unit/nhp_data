@@ -10,19 +10,20 @@ Provides variables for connecting to HES datasets, and methods for working with 
 
 from typing import Callable
 
-from databricks.connect import DatabricksSession
-
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
-spark = DatabricksSession.builder.getOrCreate()
+from nhp.data.get_spark import get_spark
+from nhp.data.table_names import table_names
+
+spark = get_spark()
 
 
-hes_apc = spark.read.table("hes.silver.apc")
-diagnoses = spark.read.table("hes.silver.apc_diagnoses")
-procedures = spark.read.table("hes.silver.apc_procedures")
+hes_apc = spark.read.table(table_names.hes_apc)
+diagnoses = spark.read.table(table_names.hes_apc_diagnoses)
+procedures = spark.read.table(table_names.hes_apc_procedures)
 
-nhp_apc = spark.read.table("nhp.raw_data.apc")
+nhp_apc = spark.read.table(table_names.raw_data_apc)
 
 
 def combine_into_regex(*args) -> str:

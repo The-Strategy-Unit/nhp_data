@@ -4,9 +4,11 @@ import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.types import *  # noqa: F403
 
+from nhp.data.table_names import table_names
+
 
 def get_provider_successors_mapping(spark: SparkSession):
-    provider_successors = spark.read.table("nhp.reference.ods_trusts").collect()
+    provider_successors = spark.read.table(table_names.reference_ods_trusts).collect()
 
     provider_successors = {
         row["org_from"]: row["org_to"] for row in provider_successors
