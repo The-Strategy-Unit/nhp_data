@@ -121,7 +121,7 @@ def process_organisation(org: ET.Element) -> dict:
         for i in org.findall("Date")
         if _get_attrib(i, "Type", "value") == "Operational"
     ][0]
-    org_dict["start_date"] = operational_date.find("Start").get("value")
+    org_dict["start_date"] = operational_date.find("Start").get("value")  # ty: ignore[possibly-missing-attribute]
     end_date = operational_date.find("End")
     if end_date is not None:
         org_dict["end_date"] = end_date.get("value")
