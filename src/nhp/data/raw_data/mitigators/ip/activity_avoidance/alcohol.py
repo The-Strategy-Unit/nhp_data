@@ -108,7 +108,7 @@ def _alcohol_partially_attributable(condition_group):
     ]
 
     aaf = (
-        spark.read.json(sc.parallelize(aaf_list))
+        spark.read.json(sc.parallelize(aaf_list))  # ty: ignore[invalid-argument-type]
         .join(icd.select("icd10"), F.expr("icd10 rlike regex"))
         .persist()
     )

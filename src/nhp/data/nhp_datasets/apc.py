@@ -26,6 +26,18 @@ hes_apc = (
     .filter(F.col("well_baby_ind") == "N")
     .filter((F.col("sushrg") != "PB03Z") | F.col("sushrg").isNull())
     .filter(~((F.col("tretspef") == "424") & (F.col("epitype") == "3")))
+    # filter out excessive los
+    # - likely to be DQ issues
+    # - unless mental health
+    # - or, there are a large number of episodes in the spell
+    .filter(
+        ~(
+            (F.col("speldur") > 2 * 365)
+            & ~(F.col("tretspef").startswith("7"))
+            & ~(F.col("mainspef").startswith("7"))
+            & (F.col("epiorder") < 10)
+        )
+    )
     # ---
     .filter(F.col("sex").isin(["1", "2"]))
     .filter(F.col("age").between(0, 90))
