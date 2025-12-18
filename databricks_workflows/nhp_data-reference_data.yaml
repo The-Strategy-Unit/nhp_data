@@ -64,6 +64,35 @@ resources:
             parameters:
               - "{{job.parameters.day_procedures_base_year}}"
           job_cluster_key: generate_nhp_reference
+
+        - task_key: lsoa_lookups
+          depends_on:
+            - task_key: create_day_procedure_code_list
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: reference-lsoa_lookups
+          job_cluster_key: generate_nhp_reference
+          libraries:
+            - whl: ../dist/*.whl
+        - task_key: population_by_lsoa21
+          depends_on:
+            - task_key: lsoa_lookups
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: reference-population_by_lsoa21
+          job_cluster_key: generate_nhp_reference
+          libraries:
+            - whl: ../dist/*.whl
+        - task_key: provider_catchments_2
+          depends_on:
+            - task_key: population_by_lsoa21
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: reference-provider_catchments_2
+          job_cluster_key: generate_nhp_reference
+          libraries:
+            - whl: ../dist/*.whl
+
       job_clusters:
         - job_cluster_key: generate_nhp_reference
           new_cluster:

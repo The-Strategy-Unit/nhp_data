@@ -40,6 +40,13 @@ class TableNames:
     reference_provider_catchments: str
     reference_provider_main_icb: str
     reference_tretspef_grouping: str
+    reference_lsoa11_to_lsoa21: str
+    reference_lsoa21_to_lad23: str
+    reference_lsoa11_to_lad23: str
+    reference_pop_by_lsoa21: str
+    reference_provider_to_lad23_splits: str
+    reference_pop_by_provider: str
+    reference_pop_by_lad23: str
     # TODO: convert these to tables
     reference_day_procedures_code_list: str
     reference_frailty_risk_scores: str
@@ -122,6 +129,13 @@ match environment:
             reference_provider_catchments="nhp.reference.provider_catchments",
             reference_provider_main_icb="nhp.reference.provider_main_icb",
             reference_tretspef_grouping="nhp.reference.tretspef_grouping",
+            reference_lsoa11_to_lsoa21="nhp.reference.lsoa11_to_lsoa21",
+            reference_lsoa21_to_lad23="nhp.reference.lsoa21_to_lad23",
+            reference_pop_by_lsoa21="nhp.reference.pop_by_lsoa21",
+            reference_provider_to_lad23_splits="nhp.reference.provider_lad23_splits",
+            reference_pop_by_provider="nhp.reference.pop_by_provider",
+            reference_pop_by_lad23="nhp.reference.pop_by_lad23",
+            reference_lsoa11_to_lad23="nhp.reference.lsoa11_to_lad23",
             # ---
             reference_day_procedures_code_list="/Volumes/nhp/reference/files/day_procedures.json",
             reference_frailty_risk_scores="/Volumes/nhp/reference/files/frailty_risk_scores.csv",

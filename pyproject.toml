@@ -83,4 +83,7 @@ reference-ods_trusts = "nhp.data.reference.ods_trusts:main"
 reference-provider_main_icb = "nhp.data.reference.provider_main_icb:main"
 reference-population_by_imd_decile = "nhp.data.reference.population_by_imd_decile:main"
 reference-provider_catchments = "nhp.data.reference.provider_catchments:main"
+reference-lsoa_lookups = "nhp.data.reference.lsoa_lookups:main"
+reference-population_by_lsoa21 = "nhp.data.reference.population_by_lsoa21:main"
+reference-provider_catchments_2 = "nhp.data.reference.provider_catchments_2:main"
 
