@@ -17,14 +17,14 @@ hes_apc = (
     .withColumn(
         "age",
         F.when(
-            (F.col("admiage") == 999) | F.col("admiage").isNull(),
+            (F.col("admiage") == 999) | F.col("admiage").isNull(),  # ty: ignore[missing-argument]
             F.when(F.col("startage") > 7000, 0).otherwise(F.col("startage")),
         ).otherwise(F.col("admiage")),
     )
     .withColumn("age", F.when(F.col("age") > 90, 90).otherwise(F.col("age")))
     # remove well babies
     .filter(F.col("well_baby_ind") == "N")
-    .filter((F.col("sushrg") != "PB03Z") | F.col("sushrg").isNull())
+    .filter((F.col("sushrg") != "PB03Z") | F.col("sushrg").isNull())  # ty: ignore[missing-argument]
     .filter(~((F.col("tretspef") == "424") & (F.col("epitype") == "3")))
     # filter out excessive los
     # - likely to be DQ issues
@@ -33,8 +33,8 @@ hes_apc = (
     .filter(
         ~(
             (F.col("speldur") > 2 * 365)
-            & ~(F.col("tretspef").startswith("7"))
-            & ~(F.col("mainspef").startswith("7"))
+            & ~(F.col("tretspef").startswith("7"))  # ty: ignore[missing-argument, invalid-argument-type]
+            & ~(F.col("mainspef").startswith("7"))  # ty: ignore[missing-argument, invalid-argument-type]
             & (F.col("epiorder") < 10)
         )
     )

@@ -47,7 +47,7 @@ def create_catchments(spark: SparkSession) -> None:
 
     catchments = (
         get_ip_df(spark)
-        .filter(F.col("lsoa11").startswith("E"))
+        .filter(F.col("lsoa11").startswith("E"))  # ty: ignore[missing-argument, invalid-argument-type]
         .groupBy("fyear", "lsoa11", "age_group", "sex", "provider")
         .agg(F.count("provider").alias("n"))
         .withColumn("total", F.sum("n").over(w))

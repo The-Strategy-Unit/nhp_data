@@ -59,7 +59,7 @@ def get_snpp_uris(path: str) -> list[str]:
         },
     )
 
-    return [urljoin(ONS_URL, i["href"]) for i in matches]
+    return [urljoin(ONS_URL, i["href"]) for i in matches]  # ty: ignore[not-subscriptable]
 
 
 def snpp_uri_variant_match(uri: str) -> str | None:
@@ -173,8 +173,9 @@ def get_npp_uri(path: str) -> str:
         "a",
         attrs={"aria-label": lambda x: x and re.match(pattern, x)},
     )
+    assert match is not None, "could not find NPP zip file link"
 
-    return urljoin(ONS_URL, match["href"])
+    return urljoin(ONS_URL, match["href"])  # ty: ignore[not-subscriptable]
 
 
 def extract_npp_zip(uri: str, dir_in_zip: str, output_dir: str) -> str:

@@ -14,7 +14,7 @@ def create_provider_population_projections(
 ) -> DataFrame:
     providers = (
         spark.read.table(table_names.reference_ods_trusts)
-        .filter(F.col("org_type").startswith("ACUTE"))
+        .filter(F.col("org_type").startswith("ACUTE"))  # ty: ignore[missing-argument, invalid-argument-type]
         .select(F.col("org_to").alias("provider"))
         .distinct()
     )
