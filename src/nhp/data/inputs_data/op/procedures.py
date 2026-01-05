@@ -27,7 +27,7 @@ def get_op_procedures(spark: SparkSession) -> DataFrame:
 
     return (
         get_op_df(spark)
-        .join(mitigators, ["attendkey"])
+        .join(mitigators, ["fyear", "provider", "attendkey"])
         .join(procs, ["attendkey", "fyear"])
         .groupBy("fyear", "provider", "strategy", "procedure_code")
         .agg(F.count("n").alias("n"))

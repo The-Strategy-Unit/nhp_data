@@ -17,7 +17,7 @@ def create_provider_lad23_splits(spark: SparkSession) -> DataFrame:
 
     df = (
         spark.read.table(table_names.default_apc)
-        .filter(F.col("lsoa11").startswith("E"))
+        .filter(F.col("lsoa11").startswith("E"))  # ty: ignore[missing-argument, invalid-argument-type]
         .filter(F.col("lsoa11") != "E99999999")
         .join(lsoa11_to_lad23, F.col("lsoa11") == F.col("lsoa11cd"))
         # get unique patients; more closely related to OHIDs logic

@@ -7,6 +7,7 @@ from pyspark.sql import functions as F
 
 from nhp.data.get_spark import get_spark
 from nhp.data.inputs_data.ae import get_ae_age_sex_data
+from nhp.data.inputs_data.helpers import inputs_age_group
 from nhp.data.inputs_data.ip import get_ip_age_sex_data
 from nhp.data.inputs_data.op import get_op_age_sex_data
 from nhp.data.table_names import table_names
@@ -26,7 +27,17 @@ def get_age_sex(spark: SparkSession) -> DataFrame:
         get_op_age_sex_data,
     ]
 
-    return reduce(DataFrame.unionByName, [f(spark) for f in fns])
+    cols = ["fyear", "provider", "strategy", "sex", "age", "n"]
+
+    df = reduce(DataFrame.unionByName, [f(spark).select(*cols) for f in fns])
+
+    age_groups = inputs_age_group(spark)
+
+    return (
+        df.join(age_groups, "age")
+        .groupBy(*cols[:-2], "age_group")
+        .agg(F.sum("n").alias("n"))
+    )
 
 
 def save_age_sex(path: str, spark: SparkSession) -> None:

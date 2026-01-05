@@ -3,7 +3,7 @@
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
-from nhp.data.inputs_data.ae import get_ae_df, get_ae_mitigators
+from nhp.data.inputs_data.ae import get_ae_mitigators
 
 
 def get_ae_diagnoses(spark: SparkSession) -> DataFrame:
@@ -16,11 +16,9 @@ def get_ae_diagnoses(spark: SparkSession) -> DataFrame:
     """
     diags_w = Window.partitionBy("fyear", "provider", "strategy")
 
-    mitigators = get_ae_mitigators(spark).filter(F.col("n") > 0)
-
     return (
-        get_ae_df(spark)
-        .join(mitigators, ["fyear", "key"])
+        get_ae_mitigators(spark)
+        .filter(F.col("n") > 0)
         .filter(F.isnotnull("primary_diagnosis"))
         .filter(F.col("primary_diagnosis") != "")
         .withColumnRenamed("primary_diagnosis", "diagnosis")

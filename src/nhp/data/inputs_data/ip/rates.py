@@ -3,16 +3,17 @@
 import json
 from functools import cache
 
-from pyspark.sql import DataFrame, SparkSession, Window
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
 from nhp.data.inputs_data.acute_providers import filter_acute_providers
-from nhp.data.inputs_data.catchments import get_catchments, get_total_pop
-from nhp.data.inputs_data.helpers import complete_age_sex_data
-from nhp.data.inputs_data.ip import get_ip_age_sex_data, get_ip_df, get_ip_mitigators
+from nhp.data.inputs_data.direct_standardisation import directly_standardise
+from nhp.data.inputs_data.ip import get_ip_age_sex_data
+from nhp.data.reference.provider_catchments_2 import get_pop_by_provider
 from nhp.data.table_names import table_names
 
 
+@directly_standardise
 def get_ip_activity_avoidance_rates(spark: SparkSession) -> DataFrame:
     """Get inpatients activity avoidance rates
 
@@ -22,54 +23,22 @@ def get_ip_activity_avoidance_rates(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
 
-    df = get_ip_age_sex_data(spark)
-    df = complete_age_sex_data(spark, df, "full")
+    pop_by_provider = get_pop_by_provider(spark).withColumnRenamed("population", "d")
 
-    mitigators = (
-        get_ip_mitigators(spark)
+    return (
+        get_ip_age_sex_data(spark)
         .filter(
             (F.col("type") == "activity_avoidance")
             # sdec is technically an efficiency mitigator, but behaves like an
             # activity avoidance mitigator
             | F.col("strategy").startswith("same_day_emergency_care_")  # ty: ignore[missing-argument, invalid-argument-type]
         )
-        .select("strategy")
-        .distinct()
-    )
-    catchments = get_catchments(spark)
-    total_pop = get_total_pop(spark)
-
-    df = (
-        df.join(
-            mitigators,
-            "strategy",
-            "semi",
-        )
-        .join(catchments, ["fyear", "age_group", "sex", "provider"], "inner")
-        .join(total_pop, ["fyear", "age_group", "sex"], "inner")
+        .join(pop_by_provider, ["fyear", "age", "sex", "provider"], "inner")
+        .drop("speldur")
     )
 
-    df_provider = df.groupBy("fyear", "strategy", "provider").agg(
-        F.sum("n").alias("numerator"),
-        F.sum("pop_catch").alias("denominator"),
-        (
-            F.sum(F.col("n") / F.col("pop_catch") * F.col("total_pop"))
-            / F.sum("total_pop")
-            * 1000
-        ).alias("rate"),
-    )
 
-    df_national = df.groupBy("fyear", "strategy").agg(
-        (
-            F.sum(F.col("n") / F.col("pop_catch") * F.col("total_pop"))
-            / F.sum("total_pop")
-            * 1000
-        ).alias("national_rate"),
-    )
-
-    return df_provider.join(df_national, ["fyear", "strategy"])
-
-
+@directly_standardise
 def get_ip_mean_los(spark: SparkSession) -> DataFrame:
     """Get inpatients mean length of stay data
 
@@ -79,8 +48,7 @@ def get_ip_mean_los(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
 
-    df = get_ip_df(spark)
-    df_mitigators = get_ip_mitigators(spark)
+    df = get_ip_age_sex_data(spark)
 
     mean_los_reduction_mitigators = [
         "emergency_elderly",
@@ -102,22 +70,14 @@ def get_ip_mean_los(spark: SparkSession) -> DataFrame:
         "virtual_wards_efficiencies_heart_failure",
     ]
 
-    w = Window.partitionBy("fyear", "strategy")
-
     return (
-        df.join(df_mitigators, ["fyear", "provider", "epikey"], "inner")
-        .filter(F.col("strategy").isin(mean_los_reduction_mitigators))
-        .groupBy("fyear", "strategy", "provider")
-        .agg(
-            F.sum("speldur").alias("numerator"), F.count("speldur").alias("denominator")
-        )
-        .withColumn("rate", F.col("numerator") / F.col("denominator"))
-        .withColumn(
-            "national_rate", F.sum("numerator").over(w) / F.sum("denominator").over(w)
-        )
+        df.filter(F.col("strategy").isin(mean_los_reduction_mitigators))
+        .withColumnRenamed("n", "d")
+        .withColumnRenamed("speldur", "n")
     )
 
 
+@directly_standardise
 def get_ip_preop_rates(spark: SparkSession) -> DataFrame:
     """Get inpatients pre-op rates
 
@@ -127,28 +87,18 @@ def get_ip_preop_rates(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
 
-    df = get_ip_df(spark)
-    df_mitigators = get_ip_mitigators(spark)
-
     opertn_counts = (
         spark.read.table(table_names.raw_data_apc)
         .filter(F.col("admimeth").startswith("1"))  # ty: ignore[missing-argument, invalid-argument-type]
         .groupBy("fyear", "provider")
-        .agg(F.count("has_procedure").alias("denominator"))
+        .agg(F.count("has_procedure").alias("d"))
     )
 
-    w = Window.partitionBy("fyear", "strategy")
-
     return (
-        df.join(df_mitigators, ["fyear", "provider", "epikey"], "inner")
+        get_ip_age_sex_data(spark)
         .filter(F.col("strategy").startswith("pre-op_los_"))  # ty: ignore[missing-argument, invalid-argument-type]
-        .groupBy("fyear", "strategy", "provider")
-        .agg(F.count("strategy").alias("numerator"))
         .join(opertn_counts, ["fyear", "provider"], "inner")
-        .withColumn("rate", F.col("numerator") / F.col("denominator"))
-        .withColumn(
-            "national_rate", F.sum("numerator").over(w) / F.sum("denominator").over(w)
-        )
+        .drop("speldur")
     )
 
 
@@ -187,8 +137,8 @@ def _get_ip_day_procedures_op_denominator(spark: SparkSession) -> DataFrame:
     return (
         filter_acute_providers(spark, table_names.raw_data_opa)
         .join(op_procedures, ["fyear", "attendkey"], "inner")
-        .groupBy("fyear", "provider", "strategy")
-        .agg(F.count("strategy").alias("denominator"))
+        .groupBy("fyear", "provider", "strategy", "age", "sex")
+        .agg(F.count("strategy").alias("d"))
     )
 
 
@@ -214,11 +164,12 @@ def _get_ip_day_procedures_dc_denominator(spark: SparkSession) -> DataFrame:
     return (
         filter_acute_providers(spark, table_names.raw_data_apc)
         .join(dc_procedures, ["fyear", "epikey"], "inner")
-        .groupBy("fyear", "provider", "strategy")
-        .agg(F.count("strategy").alias("denominator"))
+        .groupBy("fyear", "provider", "strategy", "age", "sex")
+        .agg(F.count("strategy").alias("d"))
     )
 
 
+@directly_standardise
 def get_ip_day_procedures(spark: SparkSession) -> DataFrame:
     """Get inpatients day procedures rates
 
@@ -228,24 +179,13 @@ def get_ip_day_procedures(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
 
-    df = get_ip_df(spark)
-    df_mitigators = get_ip_mitigators(spark)
-
     denominator = DataFrame.union(
         _get_ip_day_procedures_dc_denominator(spark),
         _get_ip_day_procedures_op_denominator(spark),
     )
 
-    w = Window.partitionBy("fyear", "strategy")
-
     return (
-        df.join(df_mitigators, ["fyear", "provider", "epikey"], "inner")
-        .groupBy("fyear", "strategy", "provider")
-        .agg(F.count("strategy").alias("numerator"))
-        .join(denominator, ["fyear", "strategy", "provider"])
-        .withColumn("denominator", F.col("numerator") + F.col("denominator"))
-        .withColumn("rate", F.col("numerator") / F.col("denominator"))
-        .withColumn(
-            "national_rate", F.sum("numerator").over(w) / F.sum("denominator").over(w)
-        )
+        get_ip_age_sex_data(spark)
+        .join(denominator, ["fyear", "strategy", "provider", "age", "sex"])
+        .withColumn("d", F.col("n") + F.col("d"))
     )

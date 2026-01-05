@@ -27,7 +27,7 @@ def get_op_diagnoses(spark: SparkSession) -> DataFrame:
 
     return (
         get_op_df(spark)
-        .join(mitigators, ["attendkey"])
+        .join(mitigators, ["fyear", "provider", "attendkey"])
         .join(diags, ["attendkey", "fyear"])
         .groupBy("fyear", "provider", "strategy", "diagnosis")
         .agg(F.sum("n").alias("n"))

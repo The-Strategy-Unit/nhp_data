@@ -13,19 +13,10 @@ resources:
             op: EQUAL_TO
             left: "{{job.parameters.run_inputs_data}}"
             right: "True"
-        - task_key: catchments
+        - task_key: extract_age_sex
           depends_on:
             - task_key: run_inputs_data
               outcome: "true"
-          python_wheel_task:
-            package_name: nhp_data
-            entry_point: inputs_data-catchments
-          job_cluster_key: nhp_inputs_data_extract
-          libraries:
-            - whl: ../dist/*.whl
-        - task_key: extract_age_sex
-          depends_on:
-            - task_key: catchments
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-age_sex
