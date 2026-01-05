@@ -105,7 +105,7 @@ def create_lsoa11_to_lad23_lookup(spark: SparkSession) -> DataFrame:
     lsoa21_to_lad23 = get_lsoa21_to_lad23(spark)
 
     df = (
-        lsoa11_to_lsoa21.filter(F.col("lsoa11cd").startswith("E"))  # ty: ignore[missing-argument, invalid-argument-type]
+        lsoa11_to_lsoa21.filter(F.col("lsoa11cd").startswith("E"))  # ty:ignore[missing-argument, invalid-argument-type]
         .join(lsoa21_to_lad23, "lsoa21cd")
         .select("lsoa11cd", "lad23cd")
         .distinct()
