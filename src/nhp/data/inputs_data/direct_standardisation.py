@@ -55,16 +55,29 @@ def directly_standardise(
         )
 
         df_with_ref_pop = (
-            df.select("fyear", "strategy", "provider", "age", "sex", "n", "d")
-            .join(ref_pop, ["fyear", "strategy", "age", "sex"], "right")
+            df.join(ref_pop, ["fyear", "strategy", "age", "sex"], "right")
             .fillna(0, subset=["n"])
             .fillna(1, subset=["d"])
             .filter(F.col("provider").isNotNull())  # ty: ignore[missing-argument]
+            .select(
+                "fyear",
+                "strategy",
+                "provider",
+                "age",
+                "sex",
+                "n",
+                "d",
+                "reference_population",
+            )
         )
 
         national_df = (
             df_with_ref_pop.groupBy("fyear", "strategy", "age", "sex")
-            .agg(F.sum("n").alias("n"), F.sum("d").alias("d"))
+            .agg(
+                F.sum("n").alias("n"),
+                F.sum("d").alias("d"),
+                F.sum("reference_population").alias("reference_population"),
+            )
             .withColumn("provider", F.lit("national"))
         )
 
