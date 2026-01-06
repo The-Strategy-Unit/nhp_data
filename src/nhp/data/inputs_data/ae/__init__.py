@@ -40,7 +40,7 @@ def get_ae_mitigators(spark: SparkSession) -> DataFrame:
 
     def _create_mitigator(col: str, name: str) -> DataFrame:
         return (
-            df.withColumn("strategy", F.lit(name))
+            df.withColumn("strategy", F.concat(F.lit(f"{name}_"), F.col("type")))
             .withColumn("n", F.col(col).cast("int") * F.col("arrival"))
             .withColumn("d", F.col("arrival"))
         )
