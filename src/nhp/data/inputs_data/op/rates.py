@@ -32,7 +32,7 @@ def get_op_rates(spark: SparkSession) -> DataFrame:
             "rate",
             F.col("numerator")
             / F.when(
-                F.col("strategy").startswith("followup_reduction_"),
+                F.col("strategy").startswith("followup_reduction_"),  # ty: ignore[missing-argument, invalid-argument-type]
                 F.col("denominator") - F.col("numerator"),
             ).otherwise(F.col("denominator")),
         )

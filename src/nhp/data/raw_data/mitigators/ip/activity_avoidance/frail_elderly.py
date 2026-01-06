@@ -109,7 +109,7 @@ def _frail_elderly():
                 ),
             ],
         )
-        .filter(F.col("admimeth").startswith("2"))
+        .filter(F.col("admimeth").startswith("2"))  # ty: ignore[missing-argument, invalid-argument-type]
         .filter(F.col("age") >= 75)
         .withColumn("diagnosis", F.col("diagnosis").substr(1, 3))
         .select("i.epikey", "fyear", "provider", "diagnosis", "score")

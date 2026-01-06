@@ -114,7 +114,7 @@ def _day_procedures(day_procedure_type):
 
     return (
         nhp_apc.admission_has(primary_procedure, *codes)  # ty: ignore[call-non-callable]
-        .filter(F.col("admimeth").startswith("1"))
+        .filter(F.col("admimeth").startswith("1"))  # ty: ignore[missing-argument, invalid-argument-type]
         .filter(F.col("classpat").isin(classpats))
         .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))

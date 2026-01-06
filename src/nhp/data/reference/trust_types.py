@@ -36,9 +36,12 @@ def get_eric_links():
 
     pattern = r"Estates Returns? Information Collection(.*Summary page and dataset for ERIC \d{4}/\d{2}|.* England, \d{4}-\d{2})"
 
+    div = soup.find("div", id="past-publications")
+    assert div is not None, "could not find past publications div"
+
     links = [
         a.attrs["href"]
-        for a in soup.find("div", id="past-publications").find_all("a")
+        for a in div.find_all("a")  # ty: ignore[unresolved-attribute]
         if re.match(pattern, a.text)
     ]
 
@@ -51,10 +54,12 @@ def get_eric_trust_data(year: int, link: str) -> pd.DataFrame:
     response.raise_for_status()
 
     soup = BeautifulSoup(response.content)
+    div = soup.find("div", id="resources")
+    assert div is not None, "could not find resources div"
 
     uri = next(
         a.attrs["href"]
-        for a in soup.find("div", id="resources").find_all("a")
+        for a in div.find_all("a")  # ty: ignore[unresolved-attribute]
         if "Trust" in a.text
     )
 

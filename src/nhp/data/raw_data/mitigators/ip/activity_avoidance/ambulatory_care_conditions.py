@@ -138,7 +138,7 @@ def _ambulatory_care_conditions_chronic():
 
     return (
         reduce(DataFrame.unionByName, conditions)
-        .filter(F.col("admimeth").startswith("2"))
+        .filter(F.col("admimeth").startswith("2"))  # ty: ignore[missing-argument, invalid-argument-type]
         .select("fyear", "provider", "epikey")
         .distinct()
         .withColumn("sample_rate", F.lit(1.0))
@@ -159,7 +159,7 @@ def _ambulatory_care_conditions_vaccine_preventable():
 
     return (
         reduce(DataFrame.unionByName, conditions)
-        .filter(F.col("admimeth").startswith("2"))
+        .filter(F.col("admimeth").startswith("2"))  # ty: ignore[missing-argument, invalid-argument-type]
         .select("fyear", "provider", "epikey")
         .distinct()
         .withColumn("sample_rate", F.lit(1.0))

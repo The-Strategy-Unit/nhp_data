@@ -20,7 +20,7 @@ from nhp.data.raw_data.mitigators.ip.hes_datasets import nhp_apc
 
 def _preop_los(days):
     return (
-        nhp_apc.filter(F.col("admimeth").startswith("1"))
+        nhp_apc.filter(F.col("admimeth").startswith("1"))  # ty: ignore[missing-argument, invalid-argument-type]
         .join(apc_primary_procedures.drop("fyear"), ["epikey"])
         .filter(F.col("admidate") <= F.col("date"))
         .filter(F.col("date") <= F.col("disdate"))

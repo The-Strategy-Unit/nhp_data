@@ -32,6 +32,12 @@ where = ["src"]
 requires = ["setuptools>=80", "setuptools-scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.ruff]
+exclude = ["**/*.pyi"]
+
+[tool.ty.src]
+exclude = ["**/*.pyi"]
+
 [project.scripts]
 aggregated_data-ecds = "nhp.data.aggregated_data.ecds:main"
 aggregated_data-outpatients = "nhp.data.aggregated_data.outpatients:main"

@@ -31,7 +31,7 @@ def get_ip_activity_avoidance_rates(spark: SparkSession) -> DataFrame:
             (F.col("type") == "activity_avoidance")
             # sdec is technically an efficiency mitigator, but behaves like an
             # activity avoidance mitigator
-            | F.col("strategy").startswith("same_day_emergency_care_")
+            | F.col("strategy").startswith("same_day_emergency_care_")  # ty: ignore[missing-argument, invalid-argument-type]
         )
         .select("strategy")
         .distinct()
@@ -132,7 +132,7 @@ def get_ip_preop_rates(spark: SparkSession) -> DataFrame:
 
     opertn_counts = (
         spark.read.table(table_names.raw_data_apc)
-        .filter(F.col("admimeth").startswith("1"))
+        .filter(F.col("admimeth").startswith("1"))  # ty: ignore[missing-argument, invalid-argument-type]
         .groupBy("fyear", "provider")
         .agg(F.count("has_procedure").alias("denominator"))
     )
@@ -141,7 +141,7 @@ def get_ip_preop_rates(spark: SparkSession) -> DataFrame:
 
     return (
         df.join(df_mitigators, ["fyear", "provider", "epikey"], "inner")
-        .filter(F.col("strategy").startswith("pre-op_los_"))
+        .filter(F.col("strategy").startswith("pre-op_los_"))  # ty: ignore[missing-argument, invalid-argument-type]
         .groupBy("fyear", "strategy", "provider")
         .agg(F.count("strategy").alias("numerator"))
         .join(opertn_counts, ["fyear", "provider"], "inner")
@@ -175,7 +175,7 @@ def _get_ip_day_procedures_op_denominator(spark: SparkSession) -> DataFrame:
     """
 
     day_procedures = _get_ip_day_procedures_code_list(spark).filter(
-        F.col("strategy").endswith("op")
+        F.col("strategy").endswith("op")  # ty: ignore[missing-argument, invalid-argument-type]
     )
 
     op_procedures = (
@@ -202,7 +202,7 @@ def _get_ip_day_procedures_dc_denominator(spark: SparkSession) -> DataFrame:
     """
 
     day_procedures = _get_ip_day_procedures_code_list(spark).filter(
-        F.col("strategy").endswith("dc")
+        F.col("strategy").endswith("dc")  # ty: ignore[missing-argument, invalid-argument-type]
     )
 
     dc_procedures = (

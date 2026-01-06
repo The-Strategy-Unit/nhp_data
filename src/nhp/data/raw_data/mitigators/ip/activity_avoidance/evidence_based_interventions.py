@@ -19,7 +19,7 @@ def evidence_based_interventions(*args: Callable[[], DataFrame]) -> DataFrame:
     """
     return (
         reduce(DataFrame.unionByName, [f() for f in args])
-        .filter(~F.col("admimeth").startswith("2"))
+        .filter(~F.col("admimeth").startswith("2"))  # ty: ignore[missing-argument, invalid-argument-type]
         # .filter(F.col("admincat") != "02")
         .admission_not(any_diagnosis, "C", "D(0|3[789]|4[0-8])")  # ty: ignore[call-non-callable]
         .select("fyear", "provider", "epikey")
