@@ -83,15 +83,6 @@ resources:
           job_cluster_key: generate_nhp_reference
           libraries:
             - whl: ../dist/*.whl
-        - task_key: provider_catchments_2
-          depends_on:
-            - task_key: population_by_lsoa21
-          python_wheel_task:
-            package_name: nhp_data
-            entry_point: reference-provider_catchments_2
-          job_cluster_key: generate_nhp_reference
-          libraries:
-            - whl: ../dist/*.whl
 
       job_clusters:
         - job_cluster_key: generate_nhp_reference

@@ -6,7 +6,7 @@ from pyspark.sql.types import *  # noqa: F403
 
 from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
-from nhp.data.nhp_datasets.local_authorities import local_authority_successors
+from nhp.data.nhp_datasets.local_authorities import lsoa11_to_lad23
 from nhp.data.nhp_datasets.providers import read_data_with_provider
 from nhp.data.raw_data.helpers import add_age_group_column
 from nhp.data.table_names import table_names
@@ -114,8 +114,7 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
         .otherwise(F.col("activage")),
     )
     df = add_age_group_column(df)
-    # convert local authorities to current
-    df = local_authority_successors(spark, df, "resladst_ons")
+    df = lsoa11_to_lad23(spark, df, "lsoa11")
 
     hes_aae_ungrouped = (
         df.filter(F.col("sex").isin(["1", "2"]))
@@ -163,8 +162,8 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
             F.col("aeattendcat").alias("attendance_category"),
             F.col("arrivaldate").alias("arrival_date"),
             F.col("resgor_ons"),
-            F.col("resladst_ons"),
             F.col("lsoa11"),
+            F.col("lad23cd"),
             F.col("icb"),
             F.col("is_main_icb"),
             F.col("is_adult"),

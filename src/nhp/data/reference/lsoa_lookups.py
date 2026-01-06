@@ -149,8 +149,40 @@ def get_lsoa11_to_lad23_lookup(spark: SparkSession) -> DataFrame:
     return spark.read.table(table)
 
 
+def create_lad22_to_lad23_lookup(spark: SparkSession) -> pd.DataFrame:
+    lad22_to_lad23 = download_arcgis_results(
+        "/".join(
+            [
+                "https://services1.arcgis.com",
+                "ESMARspQHYMw9BZ9",
+                "arcgis",
+                "rest",
+                "services",
+                "LAD22_LAD23_UK_LU_v1",
+                "FeatureServer",
+                "0",
+                "query",
+            ]
+        ),
+        fields="LAD22CD,LAD23CD",
+    )
+
+    lad22_to_lad23.columns = [col.lower() for col in lad22_to_lad23.columns]
+    return lad22_to_lad23
+
+
+def get_lad22_to_lad23_lookup(spark: SparkSession) -> DataFrame:
+    table = table_names.reference_lad22_to_lad23
+    if not spark.catalog.tableExists(table):
+        df = create_lad22_to_lad23_lookup(spark)
+        df.write.mode("overwrite").saveAsTable(table)
+
+    return spark.read.table(table)
+
+
 def main():
     spark = get_spark()
 
     # this will generate the other lsoa lookups as needed
     get_lsoa11_to_lad23_lookup(spark)
+    get_lad22_to_lad23_lookup(spark)

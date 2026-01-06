@@ -9,7 +9,7 @@ from pyspark.sql import functions as F
 from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.direct_standardisation import directly_standardise
 from nhp.data.inputs_data.ip import get_ip_age_sex_data
-from nhp.data.reference.provider_catchments_2 import get_pop_by_provider
+from nhp.data.reference.provider_catchments import get_pop_by_provider
 from nhp.data.table_names import table_names
 
 
