@@ -6,7 +6,7 @@ from pyspark.sql.types import *  # noqa: F403
 
 from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
-from nhp.data.nhp_datasets.local_authorities import local_authority_successors
+from nhp.data.nhp_datasets.local_authorities import lsoa11_to_lad23
 from nhp.data.nhp_datasets.providers import read_data_with_provider
 from nhp.data.raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
 from nhp.data.table_names import table_names
@@ -39,7 +39,7 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
     )
     df = add_age_group_column(df)
     # convert local authorities to current
-    df = local_authority_successors(spark, df, "resladst_ons")
+    df = lsoa11_to_lad23(spark, df, "lsoa11")
 
     df_primary_diagnosis = spark.read.table(table_names.hes_opa_diagnoses).filter(
         F.col("diag_order") == 1
@@ -102,8 +102,8 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
             F.col("has_procedures"),
             F.col("sushrg"),
             F.col("resgor_ons"),
-            F.col("resladst_ons"),
             F.col("lsoa11"),
+            F.col("lad23cd"),
             F.col("icb"),
             F.col("diagnosis").alias("primary_diagnosis"),
             F.col("procedure_code").alias("primary_procedure"),

@@ -46,16 +46,14 @@ def get_op_mitigators(spark: SparkSession) -> DataFrame:
         df.filter(~F.col("has_procedures"))
         .withColumn("strategy", F.concat(F.lit("followup_reduction_"), F.col("type")))
         .withColumn("n", (1 - F.col("is_first").cast("int")) * F.col("attendance"))
-        .withColumn("d", F.col("attendance"))
-        .select("attendkey", "strategy", "n", "d"),
+        .withColumn("d", F.col("attendance")),
         # Consultant to Consultant reduction
         df.withColumn(
             "strategy",
             F.concat(F.lit("consultant_to_consultant_reduction_"), F.col("type")),
         )
         .withColumn("n", F.col("is_cons_cons_ref").cast("int") * F.col("attendance"))
-        .withColumn("d", F.col("attendance"))
-        .select("attendkey", "strategy", "n", "d"),
+        .withColumn("d", F.col("attendance")),
         # GP Referred First Attendance reduction
         df.withColumn(
             "strategy",
@@ -65,14 +63,12 @@ def get_op_mitigators(spark: SparkSession) -> DataFrame:
             "n",
             (F.col("is_gp_ref") & F.col("is_first")).cast("int") * F.col("attendance"),
         )
-        .withColumn("d", F.col("attendance"))
-        .select("attendkey", "strategy", "n", "d"),
+        .withColumn("d", F.col("attendance")),
         # Convert to tele
         df.filter(~F.col("has_procedures"))
         .withColumn("strategy", F.concat(F.lit("convert_to_tele_"), F.col("type")))
         .withColumn("n", F.col("attendance"))
-        .withColumn("d", F.col("attendance") + F.col("tele_attendance"))
-        .select("attendkey", "strategy", "n", "d"),
+        .withColumn("d", F.col("attendance") + F.col("tele_attendance")),
     ]
 
     return reduce(DataFrame.unionByName, op_strategies)
@@ -86,11 +82,8 @@ def get_op_age_sex_data(spark: SparkSession) -> DataFrame:
     :return: The inpatients age/sex data
     :rtype: DataFrame
     """
-    mitigators = get_op_mitigators(spark).filter(F.col("n") > 0)
-
     return (
-        get_op_df(spark)
-        .join(mitigators, "attendkey", "inner")
-        .groupBy("fyear", "age_group", "sex", "provider", "strategy")
-        .agg(F.sum("n").alias("n"))
+        get_op_mitigators(spark)
+        .groupBy("fyear", "age", "sex", "provider", "strategy")
+        .agg(F.sum("n").alias("n"), F.sum("d").alias("d"))
     )

@@ -3,15 +3,15 @@ from pyspark.sql.types import *  # noqa: F403
 
 from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.icbs import icb_mapping
-from nhp.data.nhp_datasets.local_authorities import local_authority_successors
+from nhp.data.nhp_datasets.local_authorities import lsoa11_to_lad23
 from nhp.data.nhp_datasets.providers import read_data_with_provider
 from nhp.data.table_names import table_names
 
 spark = get_spark()
 
 hes_apc = (
-    local_authority_successors(
-        spark, read_data_with_provider(spark, table_names.hes_apc), "resladst_ons"
+    lsoa11_to_lad23(
+        spark, read_data_with_provider(spark, table_names.hes_apc), "lsoa11"
     )
     .filter(F.col("last_episode_in_spell"))
     .withColumn(

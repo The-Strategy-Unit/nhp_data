@@ -8,7 +8,7 @@ from pyspark.sql.types import *  # noqa: F403
 
 from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
-from nhp.data.nhp_datasets.local_authorities import local_authority_successors
+from nhp.data.nhp_datasets.local_authorities import lsoa11_to_lad23
 from nhp.data.nhp_datasets.providers import add_provider
 from nhp.data.raw_data.helpers import add_age_group_column
 from nhp.data.table_names import table_names
@@ -133,8 +133,7 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
         .cast("int"),
     )
     df = add_age_group_column(df)
-    # convert local authorities to current
-    df = local_authority_successors(spark, df, "local_authority_district")
+    df = lsoa11_to_lad23(spark, df, "der_postcode_lsoa_2011_code")
 
     hes_ecds_ungrouped = (
         df.join(freq_attenders, "ec_ident")
@@ -210,8 +209,8 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
             F.col("arrival_date").cast("date").alias("arrival_date"),
             F.col("acuity"),
             F.col("government_office_region").alias("resgor_ons"),
-            F.col("local_authority_district").alias("resladst_ons"),
             F.col("der_postcode_lsoa_2011_code").alias("lsoa11"),
+            F.col("lad23cd"),
             F.col("icb"),
             F.col("is_main_icb"),
             F.col("is_adult"),

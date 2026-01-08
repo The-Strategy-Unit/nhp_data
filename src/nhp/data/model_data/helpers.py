@@ -3,6 +3,7 @@
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
+from nhp.data.reference.lsoa_lookups import get_lad22_to_lad23_lookup
 from nhp.data.table_names import table_names
 
 # what years should we support in the extract?
@@ -20,7 +21,7 @@ def create_provider_population_projections(
     )
 
     catchments = (
-        spark.read.table(table_names.reference_provider_catchments)
+        spark.read.table(table_names.reference_provider_lad23_splits)
         .filter(F.col("fyear") == fyear)
         .drop("fyear")
         .join(providers, "provider", how="semi")
@@ -35,15 +36,19 @@ def create_provider_population_projections(
         "var_proj_zero_net_migration",
     ]
 
+    lad22_to_lad23 = get_lad22_to_lad23_lookup(spark)
+
     return (
         df.filter(F.col("projection_year") == projection_year)
         .filter(F.col("projection").isin(projections_to_include))
-        .join(catchments, ["area_code", "age", "sex"])
+        .withColumnRenamed("area_code", "lad22cd")
+        .join(lad22_to_lad23, "lad22cd")
+        .join(catchments, ["lad23cd", "age", "sex"])
         .withColumnRenamed("projection", "variant")
         .withColumnRenamed("provider", "dataset")
         .groupBy("dataset", "variant", "age", "sex")
         .pivot("year")
-        .agg(F.sum(F.col("value") * F.col("pcnt")))
+        .agg(F.sum(F.col("value") * F.col("lad23_pcnt")))
         .orderBy("dataset", "variant", "age", "sex")
     )
 

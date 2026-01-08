@@ -1,11 +1,13 @@
 """Get Outpatients Rates Data"""
 
-from pyspark.sql import DataFrame, SparkSession, Window
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
-from nhp.data.inputs_data.op import get_op_df, get_op_mitigators
+from nhp.data.inputs_data.direct_standardisation import directly_standardise
+from nhp.data.inputs_data.op import get_op_age_sex_data
 
 
+@directly_standardise
 def get_op_rates(spark: SparkSession) -> DataFrame:
     """Get outpatients activity avoidance rates
 
@@ -14,29 +16,10 @@ def get_op_rates(spark: SparkSession) -> DataFrame:
     :return: The outpatients activity avoidances rates
     :rtype: DataFrame
     """
-
-    df = get_op_df(spark)
-    mitigators = get_op_mitigators(spark)
-
-    w = Window.partitionBy("fyear", "strategy")
-
-    return (
-        df.join(
-            mitigators,
-            "attendkey",
-            "inner",
-        )
-        .groupBy("fyear", "strategy", "provider")
-        .agg(F.sum("n").alias("numerator"), F.sum("d").alias("denominator"))
-        .withColumn(
-            "rate",
-            F.col("numerator")
-            / F.when(
-                F.col("strategy").startswith("followup_reduction_"),  # ty: ignore[missing-argument, invalid-argument-type]
-                F.col("denominator") - F.col("numerator"),
-            ).otherwise(F.col("denominator")),
-        )
-        .withColumn(
-            "national_rate", F.sum("numerator").over(w) / F.sum("denominator").over(w)
-        )
+    return get_op_age_sex_data(spark).withColumn(
+        "d",
+        F.when(
+            F.col("strategy").startswith("followup_reduction_"),  # ty: ignore[missing-argument, invalid-argument-type]
+            F.col("d") - F.col("n"),
+        ).otherwise(F.col("d")),
     )

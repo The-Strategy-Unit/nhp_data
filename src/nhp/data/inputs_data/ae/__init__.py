@@ -39,12 +39,10 @@ def get_ae_mitigators(spark: SparkSession) -> DataFrame:
     df = get_ae_df(spark)
 
     def _create_mitigator(col: str, name: str) -> DataFrame:
-        return df.select(
-            F.col("fyear"),
-            F.col("key"),
-            F.concat(F.lit(f"{name}_"), F.col("type")).alias("strategy"),
-            (F.col(col).cast("int") * F.col("arrival")).alias("n"),
-            F.col("arrival").alias("d"),
+        return (
+            df.withColumn("strategy", F.concat(F.lit(f"{name}_"), F.col("type")))
+            .withColumn("n", F.col(col).cast("int") * F.col("arrival"))
+            .withColumn("d", F.col("arrival"))
         )
 
     ae_strategies = [
@@ -57,7 +55,7 @@ def get_ae_mitigators(spark: SparkSession) -> DataFrame:
         ]
     ]
 
-    return reduce(DataFrame.unionByName, ae_strategies)
+    return reduce(DataFrame.unionByName, ae_strategies).persist()
 
 
 def get_ae_age_sex_data(spark: SparkSession) -> DataFrame:
@@ -68,11 +66,8 @@ def get_ae_age_sex_data(spark: SparkSession) -> DataFrame:
     :return: The inpatients age/sex data
     :rtype: DataFrame
     """
-    mitigators = get_ae_mitigators(spark).filter(F.col("n") > 0)
-
     return (
-        get_ae_df(spark)
-        .join(mitigators, ["fyear", "key"], "inner")
-        .groupBy("fyear", "age_group", "sex", "provider", "strategy")
-        .agg(F.sum("n").alias("n"))
+        get_ae_mitigators(spark)
+        .groupBy("fyear", "age", "sex", "provider", "type", "strategy")
+        .agg(F.sum("n").alias("n"), F.sum("d").alias("d"))
     )

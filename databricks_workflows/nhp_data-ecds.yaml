@@ -28,8 +28,7 @@ resources:
             - whl: ../dist/*.whl
         - task_key: nhp-raw_data-ecds
           depends_on:
-            - task_key: run_ecds
-              outcome: "true"
+            - task_key: nhp-raw_data-aae
           python_wheel_task:
             package_name: nhp_data
             entry_point: raw_data-ecds
@@ -38,7 +37,6 @@ resources:
             - whl: ../dist/*.whl
         - task_key: nhp-aggregated_data-ecds
           depends_on:
-            - task_key: nhp-raw_data-aae
             - task_key: nhp-raw_data-ecds
           python_wheel_task:
             package_name: nhp_data
