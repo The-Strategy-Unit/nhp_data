@@ -3,7 +3,7 @@
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
-from nhp.data.inputs_data.op import get_op_df, get_op_mitigators
+from nhp.data.inputs_data.op import get_op_mitigators
 from nhp.data.table_names import table_names
 
 
@@ -23,11 +23,9 @@ def get_op_diagnoses(spark: SparkSession) -> DataFrame:
 
     diags_w = Window.partitionBy("fyear", "provider", "strategy")
 
-    mitigators = get_op_mitigators(spark).filter(F.col("n") > 0)
-
     return (
-        get_op_df(spark)
-        .join(mitigators, ["fyear", "provider", "attendkey"])
+        get_op_mitigators(spark)
+        .filter(F.col("n") > 0)
         .join(diags, ["attendkey", "fyear"])
         .groupBy("fyear", "provider", "strategy", "diagnosis")
         .agg(F.sum("n").alias("n"))
