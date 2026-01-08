@@ -9,7 +9,28 @@ from nhp.data.reference.population_by_lsoa21 import get_pop_by_lad23
 _REFERENCE_POP_DF: DataFrame | None = None
 
 
-def reference_pop(spark: SparkSession) -> DataFrame:
+def _reference_pop(spark: SparkSession) -> DataFrame:
+    """
+    Get or create a cached reference population DataFrame aggregated by year, age, and sex.
+
+    This function implements a singleton pattern using a global variable to cache the reference
+    population data. On first call, it retrieves population data by LAD23 (Local Authority District 2023),
+    aggregates it by fiscal year, age, and sex, and persists the result for efficient reuse.
+
+    Args:
+        spark (SparkSession): The active Spark session used to execute the query.
+
+    Returns:
+        DataFrame: A Spark DataFrame with columns:
+            - fyear: Fiscal year
+            - age: Age group
+            - sex: Sex category
+            - reference_population: Total population count for the group
+
+    Note:
+        The DataFrame is cached in memory after materialization to improve performance
+        on subsequent calls. The cache is stored in the global variable _REFERENCE_POP_DF.
+    """
     global _REFERENCE_POP_DF
 
     if _REFERENCE_POP_DF is None:
@@ -27,6 +48,37 @@ def reference_pop(spark: SparkSession) -> DataFrame:
 def directly_standardise(
     func: Callable[[SparkSession], DataFrame],
 ) -> Callable[[SparkSession], DataFrame]:
+    """
+    Decorator function that applies direct standardisation to health data.
+
+    This function wraps a data loading function and applies direct standardisation
+    using a reference population. It calculates both crude and standardised rates
+    for different providers (including a national aggregate).
+
+    Args:
+        func (Callable[[SparkSession], DataFrame]): A function that takes a SparkSession
+            and returns a DataFrame containing health data with columns: fyear, strategy,
+            provider, age, sex, n (numerator), and d (denominator).
+
+    Returns:
+        Callable[[SparkSession], DataFrame]: A wrapper function that returns a DataFrame
+            with directly standardised rates containing columns:
+            - fyear: Financial year
+            - strategy: Strategy identifier
+            - provider: Provider identifier (including 'national' for aggregated data)
+            - crude_rate: Raw rate calculated as sum(n)/sum(d)
+            - std_rate: Standardised rate adjusted using reference population weights
+            - denominator: Total denominator (sum of d)
+
+    Notes:
+        - The function performs a range join with the reference population based on
+          age ranges within each fyear, strategy, and sex combination
+        - Missing values are filled with 0 for numerators and 1 for denominators
+        - A national aggregate is computed by grouping across all providers
+        - Direct standardisation formula: Σ(rate_i × ref_pop_i) / Σ(ref_pop_i)
+          where rate_i = n_i/d_i for age group i
+    """
+
     def wrapper(spark: SparkSession) -> DataFrame:
         df = func(spark)
 
@@ -35,7 +87,7 @@ def directly_standardise(
             .agg(F.min("age").alias("min_age"), F.max("age").alias("max_age"))
             .alias("x")
             .join(
-                reference_pop(spark).alias("y").hint("range_join", 1),
+                _reference_pop(spark).alias("y").hint("range_join", 1),
                 [
                     F.col("x.fyear") == F.col("y.fyear"),
                     F.col("x.sex") == F.col("y.sex"),

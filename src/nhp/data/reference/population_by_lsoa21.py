@@ -14,7 +14,7 @@ from nhp.data.table_names import table_names
 
 
 def create_pop_by_lsoa21():
-    BASE_URL = url = "https://www.ons.gov.uk"
+    BASE_URL = "https://www.ons.gov.uk"
 
     url = "/".join(
         [
