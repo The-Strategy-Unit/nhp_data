@@ -175,7 +175,7 @@ def get_lad22_to_lad23_lookup(spark: SparkSession) -> DataFrame:
     table = table_names.reference_lad22_to_lad23
     if not spark.catalog.tableExists(table):
         df = create_lad22_to_lad23_lookup(spark)
-        df.write.mode("overwrite").saveAsTable(table)
+        spark.createDataFrame(df).write.mode("overwrite").saveAsTable(table)
 
     return spark.read.table(table)
 
