@@ -25,7 +25,6 @@ def create_provider_population_projections(
         .filter(F.col("fyear") == fyear)
         .drop("fyear")
         .join(providers, "provider", how="semi")
-        .withColumnRenamed("lad23cd", "area_code")
     )
 
     projections_to_include = [
@@ -42,15 +41,14 @@ def create_provider_population_projections(
     return (
         df.filter(F.col("projection_year") == projection_year)
         .filter(F.col("projection").isin(projections_to_include))
-        .join(lad22_to_lad23, F.col("area_code") == F.col("lad22cd"))
-        .withColumnRenamed("lad23cd", "area_code")
-        .drop("lad22cd")
-        .join(catchments, ["area_code", "age", "sex"])
+        .withColumnRenamed("area_code", "lad22cd")
+        .join(lad22_to_lad23, "lad22cd")
+        .join(catchments, ["lad23cd", "age", "sex"])
         .withColumnRenamed("projection", "variant")
         .withColumnRenamed("provider", "dataset")
         .groupBy("dataset", "variant", "age", "sex")
         .pivot("year")
-        .agg(F.sum(F.col("value") * F.col("pcnt")))
+        .agg(F.sum(F.col("value") * F.col("lad23_pcnt")))
         .orderBy("dataset", "variant", "age", "sex")
     )
 
