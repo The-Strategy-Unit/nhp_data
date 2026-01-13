@@ -74,16 +74,18 @@ def get_op_mitigators(spark: SparkSession) -> DataFrame:
     return reduce(DataFrame.unionByName, op_strategies)
 
 
-def get_op_age_sex_data(spark: SparkSession) -> DataFrame:
+def get_op_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get the op age sex table
 
     :param spark: The spark context to use
     :type spark: SparkSession
-    :return: The inpatients age/sex data
+    :param geography_column: The geography column to use
+    :type geography_column: str
+    :return: The outpatients age/sex data
     :rtype: DataFrame
     """
     return (
         get_op_mitigators(spark)
-        .groupBy("fyear", "age", "sex", "provider", "strategy")
+        .groupBy("fyear", "age", "sex", geography_column, "strategy")
         .agg(F.sum("n").alias("n"), F.sum("d").alias("d"))
     )

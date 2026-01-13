@@ -58,16 +58,18 @@ def get_ae_mitigators(spark: SparkSession) -> DataFrame:
     return reduce(DataFrame.unionByName, ae_strategies).persist()
 
 
-def get_ae_age_sex_data(spark: SparkSession) -> DataFrame:
+def get_ae_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get the ae age sex table
 
     :param spark: The spark context to use
     :type spark: SparkSession
+    :param geography_column: The geography column to use
+    :type geography_column: str
     :return: The inpatients age/sex data
     :rtype: DataFrame
     """
     return (
         get_ae_mitigators(spark)
-        .groupBy("fyear", "age", "sex", "provider", "type", "strategy")
+        .groupBy("fyear", "age", "sex", geography_column, "type", "strategy")
         .agg(F.sum("n").alias("n"), F.sum("d").alias("d"))
     )

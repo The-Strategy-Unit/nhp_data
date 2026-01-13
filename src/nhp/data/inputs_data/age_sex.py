@@ -1,5 +1,6 @@
 """Generate Age/Sex Dataframe"""
 
+import sys
 from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
@@ -13,23 +14,27 @@ from nhp.data.inputs_data.op import get_op_age_sex_data
 from nhp.data.table_names import table_names
 
 
-def get_age_sex(spark: SparkSession) -> DataFrame:
+def get_age_sex(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get age/sex (combined)
 
     :param spark: The spark session to use
     :type spark: SparkSession
+    :param geography_column: The geography column to use
+    :type geography_column: str
     :return: The age/sex data
     :rtype: DataFrame
     """
     fns = [
         get_ae_age_sex_data,
-        lambda spark: get_ip_age_sex_data(spark).drop("speldur"),
+        get_ip_age_sex_data,
         get_op_age_sex_data,
     ]
 
-    cols = ["fyear", "provider", "strategy", "sex", "age", "n"]
+    cols = ["fyear", geography_column, "strategy", "sex", "age", "n"]
 
-    df = reduce(DataFrame.unionByName, [f(spark).select(*cols) for f in fns])
+    df = reduce(
+        DataFrame.unionByName, [f(spark, geography_column).select(*cols) for f in fns]
+    )
 
     age_groups = inputs_age_group(spark)
 
@@ -40,19 +45,24 @@ def get_age_sex(spark: SparkSession) -> DataFrame:
     )
 
 
-def save_age_sex(path: str, spark: SparkSession) -> None:
+def save_age_sex(path: str, spark: SparkSession, geography_column: str) -> None:
     """Save age/sex (combined) data.
 
     :param path: The path to save the data to
     :type path: str
+    :param geography_column: The geography column to use
+    :type geography_column: str
     :param spark: The spark session to use
     :type spark: SparkSession
     """
-    df = get_age_sex(spark).filter(F.col("n") > 5).toPandas()
+    df = get_age_sex(spark, geography_column).filter(F.col("n") > 5).toPandas()
     df.to_parquet(f"{path}/age_sex.parquet")
 
 
 def main():
-    path = table_names.inputs_save_path
+    geography_column = sys.argv[1]
+    assert geography_column in ["provider", "lad23cd"], "invalid geography_column"
+
+    path = f"{table_names.inputs_save_path}/{geography_column}"
     spark = get_spark()
-    save_age_sex(path, spark)
+    save_age_sex(path, spark, geography_column)

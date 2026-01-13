@@ -1,5 +1,6 @@
 """Baseline Data"""
 
+import sys
 from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
@@ -11,20 +12,22 @@ from nhp.data.inputs_data.op.baseline import get_op_baseline
 from nhp.data.table_names import table_names
 
 
-def get_baseline(spark: SparkSession) -> DataFrame:
+def get_baseline(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get Baseline Data
 
     :param spark: The spark context to use
     :type spark: SparkSession
+    :param geography_column: The geography column to use
+    :type geography_column: str
     :return: The baseline data
     :rtype: DataFrame
     """
     fns = [get_ae_baseline, get_ip_baseline, get_op_baseline]
 
-    return reduce(DataFrame.unionByName, [f(spark) for f in fns])
+    return reduce(DataFrame.unionByName, [f(spark, geography_column) for f in fns])
 
 
-def save_baseline(path: str, spark: SparkSession) -> None:
+def save_baseline(path: str, spark: SparkSession, geography_column: str) -> None:
     """Save baseline data.
 
     :param path: The path to save the data to
@@ -32,11 +35,14 @@ def save_baseline(path: str, spark: SparkSession) -> None:
     :param spark: The spark session to use
     :type spark: SparkSession
     """
-    df = get_baseline(spark).toPandas()
+    df = get_baseline(spark, geography_column).toPandas()
     df.to_parquet(f"{path}/baseline.parquet")
 
 
 def main():
-    path = table_names.inputs_save_path
+    geography_column = sys.argv[1]
+    assert geography_column in ["provider", "lad23cd"], "invalid geography_column"
+
+    path = f"{table_names.inputs_save_path}/{geography_column}"
     spark = get_spark()
-    save_baseline(path, spark)
+    save_baseline(path, spark, geography_column)

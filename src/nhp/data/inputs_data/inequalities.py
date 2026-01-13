@@ -1,5 +1,8 @@
 """Generate Inequalities Dataframe"""
 
+import logging
+import sys
+
 import mlflow
 import pandas as pd
 import statsmodels.api as sm
@@ -233,6 +236,11 @@ def save_inequalities(path: str, spark: SparkSession) -> None:
 
 
 def main():
-    path = table_names.inputs_save_path
+    geography_column = sys.argv[1]
+    if geography_column != "provider":
+        logging.info("skipping expat_repat data generation for non-provider geography")
+        return
+
+    path = f"{table_names.inputs_save_path}/{geography_column}"
     spark = get_spark()
     save_inequalities(path, spark)

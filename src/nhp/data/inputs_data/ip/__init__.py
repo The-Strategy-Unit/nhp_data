@@ -26,11 +26,13 @@ def get_ip_df(spark: SparkSession) -> DataFrame:
     )
 
 
-def get_ip_mitigators(spark: SparkSession) -> DataFrame:
+def get_ip_mitigators(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get Inpatients Mitigators DataFrame
 
     :param spark: The spark context to use
     :type spark: SparkSession
+    :param geography_column: The geography column to use
+    :type geography_column: str
     :return: The inpatients mitigators data
     :rtype: DataFrame
     """
@@ -46,7 +48,7 @@ def get_ip_mitigators(spark: SparkSession) -> DataFrame:
         .filter(F.col("classpat") == "1")
         .select(
             F.col("fyear"),
-            F.col("provider"),
+            F.col(geography_column),
             F.col("epikey"),
             F.lit("efficiency").alias("type"),
             F.concat(
@@ -62,17 +64,23 @@ def get_ip_mitigators(spark: SparkSession) -> DataFrame:
     return DataFrame.unionByName(mitigators_df, general_los_df)
 
 
-def get_ip_age_sex_data(spark: SparkSession) -> DataFrame:
+def get_ip_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get the IP age sex table
 
     :param spark: The spark context to use
     :type spark: SparkSession
+    :param geography_column: The geography column to use
+    :type geography_column: str
     :return: The inpatients age/sex data
     :rtype: DataFrame
     """
     return (
         get_ip_df(spark)
-        .join(get_ip_mitigators(spark), ["fyear", "provider", "epikey"], "inner")
-        .groupBy("fyear", "age", "sex", "provider", "type", "strategy")
+        .join(
+            get_ip_mitigators(spark, geography_column),
+            ["fyear", geography_column, "epikey"],
+            "inner",
+        )
+        .groupBy("fyear", "age", "sex", geography_column, "type", "strategy")
         .agg(F.sum("sample_rate").alias("n"), F.sum("speldur").alias("speldur"))
     )
