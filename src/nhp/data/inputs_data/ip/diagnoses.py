@@ -25,12 +25,12 @@ def get_ip_diagnoses(spark: SparkSession, geography_column: str) -> DataFrame:
 
     diags_w = Window.partitionBy("fyear", geography_column, "strategy")
 
-    mitigators = get_ip_mitigators(spark, geography_column)
+    mitigators = get_ip_mitigators(spark)
 
     return (
         get_ip_df(spark)
         .join(diags, ["epikey", "fyear"])
-        .join(mitigators, ["fyear", geography_column, "epikey"])
+        .join(mitigators, ["fyear", "provider", "epikey"])
         .groupBy("fyear", geography_column, "strategy", "diagnosis")
         .agg(F.sum("sample_rate").alias("n"))
         .withColumn("total", F.sum("n").over(diags_w))

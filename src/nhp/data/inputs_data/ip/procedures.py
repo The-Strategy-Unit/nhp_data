@@ -25,12 +25,12 @@ def get_ip_procedures(spark: SparkSession, geography_column: str) -> DataFrame:
 
     procs_w = Window.partitionBy("fyear", geography_column, "strategy")
 
-    mitigators = get_ip_mitigators(spark, geography_column)
+    mitigators = get_ip_mitigators(spark)
 
     return (
         get_ip_df(spark)
         .join(procs, ["epikey", "fyear"])
-        .join(mitigators, ["fyear", geography_column, "epikey"])
+        .join(mitigators, ["fyear", "provider", "epikey"])
         .groupBy("fyear", geography_column, "strategy", "procedure_code")
         .agg(F.sum("sample_rate").alias("n"))
         .withColumn("total", F.sum("n").over(procs_w))
