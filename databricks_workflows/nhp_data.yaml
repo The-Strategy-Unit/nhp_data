@@ -29,13 +29,18 @@ resources:
             - task_key: generate_nhp_reference_data
           run_job_task:
             job_id: ${resources.jobs.Generate_NHP_Data_OP.id}
-        - task_key: generate_inputs_data
+        - task_key: generate_inputs_data_provider
           depends_on:
             - task_key: generate_ecds
             - task_key: generate_ip
             - task_key: generate_op
           run_job_task:
-            job_id: ${resources.jobs.Generate_NHP_Data_Inputs.id}
+            job_id: ${resources.jobs.Generate_NHP_Data_Inputs_provider.id}
+        - task_key: generate_inputs_data_local_authorities
+          depends_on:
+            - task_key: generate_inputs_data_provider
+          run_job_task:
+            job_id: ${resources.jobs.Generate_NHP_Data_Inputs_lad23cd.id}
       git_source:
         git_url: https://github.com/The-Strategy-Unit/nhp_data
         git_provider: gitHub

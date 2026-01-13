@@ -1,0 +1,92 @@
+resources:
+  jobs:
+    Generate_NHP_Data_Inputs_lad23cd:
+      name: "Generate NHP Data (Inputs: Local Authorities)"
+      webhook_notifications:
+        on_success:
+          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
+        on_failure:
+          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
+      tasks:
+        - task_key: run_inputs_data
+          condition_task:
+            op: EQUAL_TO
+            left: "{{job.parameters.run_inputs_data}}"
+            right: "True"
+        - task_key: extract_age_sex
+          depends_on:
+            - task_key: run_inputs_data
+              outcome: "true"
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-age_sex
+            parameters:
+              - lad23cd
+          job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
+        - task_key: extract_baseline
+          depends_on:
+            - task_key: extract_age_sex
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-baseline
+            parameters:
+              - lad23cd
+          job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
+        - task_key: extract_diagnoses
+          depends_on:
+            - task_key: extract_baseline
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-diagnoses
+            parameters:
+              - lad23cd
+          job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
+        - task_key: extract_procedures
+          depends_on:
+            - task_key: extract_diagnoses
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-procedures
+            parameters:
+              - lad23cd
+          job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
+        - task_key: extract_rates
+          depends_on:
+            - task_key: extract_procedures
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-rates
+            parameters:
+              - lad23cd
+          job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
+      job_clusters:
+        - job_cluster_key: nhp_inputs_data_extract
+          new_cluster:
+            cluster_name: ""
+            spark_version: 16.4.x-scala2.13
+            spark_env_vars:
+              PYSPARK_PYTHON: /databricks/python3/bin/python3
+            instance_pool_id: 0129-130615-maw351-pool-pss8mvfy
+            data_security_mode: SINGLE_USER
+            runtime_engine: PHOTON
+            autoscale:
+              min_workers: 2
+              max_workers: 8
+      tags:
+        group: nhp_data
+        env: ${bundle.target}
+      queue:
+        enabled: true
+      parameters:
+        - name: run_inputs_data
+          default: "True"
