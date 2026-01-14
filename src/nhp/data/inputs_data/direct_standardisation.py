@@ -46,26 +46,26 @@ def _reference_pop(spark: SparkSession) -> DataFrame:
 
 
 def directly_standardise(
-    func: Callable[[SparkSession], DataFrame],
-) -> Callable[[SparkSession], DataFrame]:
+    func: Callable[[SparkSession, str], DataFrame],
+) -> Callable[[SparkSession, str], DataFrame]:
     """
     Decorator function that applies direct standardisation to health data.
 
     This function wraps a data loading function and applies direct standardisation
     using a reference population. It calculates both crude and standardised rates
-    for different providers (including a national aggregate).
+    for different geographies (including a national aggregate).
 
     Args:
-        func (Callable[[SparkSession], DataFrame]): A function that takes a SparkSession
+        func (Callable[[SparkSession, str], DataFrame]): A function that takes a SparkSession
             and returns a DataFrame containing health data with columns: fyear, strategy,
-            provider, age, sex, n (numerator), and d (denominator).
+            geography_column, age, sex, n (numerator), and d (denominator).
 
     Returns:
         Callable[[SparkSession], DataFrame]: A wrapper function that returns a DataFrame
             with directly standardised rates containing columns:
             - fyear: Financial year
             - strategy: Strategy identifier
-            - provider: Provider identifier (including 'national' for aggregated data)
+            - geography_column: Geography identifier (including 'national' for aggregated data)
             - crude_rate: Raw rate calculated as sum(n)/sum(d)
             - std_rate: Standardised rate adjusted using reference population weights
             - denominator: Total denominator (sum of d)
@@ -74,13 +74,13 @@ def directly_standardise(
         - The function performs a range join with the reference population based on
           age ranges within each fyear, strategy, and sex combination
         - Missing values are filled with 0 for numerators and 1 for denominators
-        - A national aggregate is computed by grouping across all providers
+        - A national aggregate is computed by grouping across all geographies
         - Direct standardisation formula: Σ(rate_i × ref_pop_i) / Σ(ref_pop_i)
           where rate_i = n_i/d_i for age group i
     """
 
-    def wrapper(spark: SparkSession) -> DataFrame:
-        df = func(spark)
+    def wrapper(spark: SparkSession, geography_column: str) -> DataFrame:
+        df = func(spark, geography_column)
 
         ref_pop = (
             df.groupBy("fyear", "strategy", "sex")
@@ -110,11 +110,11 @@ def directly_standardise(
             df.join(ref_pop, ["fyear", "strategy", "age", "sex"], "right")
             .fillna(0, subset=["n"])
             .fillna(1, subset=["d"])
-            .filter(F.col("provider").isNotNull())  # ty: ignore[missing-argument]
+            .filter(F.col(geography_column).isNotNull())  # ty: ignore[missing-argument]
             .select(
                 "fyear",
                 "strategy",
-                "provider",
+                geography_column,
                 "age",
                 "sex",
                 "n",
@@ -130,12 +130,12 @@ def directly_standardise(
                 F.sum("d").alias("d"),
                 F.sum("reference_population").alias("reference_population"),
             )
-            .withColumn("provider", F.lit("national"))
+            .withColumn(geography_column, F.lit("national"))
         )
 
         return (
             df_with_ref_pop.unionByName(national_df)
-            .groupBy("fyear", "strategy", "provider")
+            .groupBy("fyear", "strategy", geography_column)
             .agg(
                 (F.sum("n") / F.sum("d")).alias("crude_rate"),
                 (

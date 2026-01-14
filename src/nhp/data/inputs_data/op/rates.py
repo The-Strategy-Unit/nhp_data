@@ -8,15 +8,17 @@ from nhp.data.inputs_data.op import get_op_age_sex_data
 
 
 @directly_standardise
-def get_op_rates(spark: SparkSession) -> DataFrame:
+def get_op_rates(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get outpatients activity avoidance rates
 
     :param spark: The spark context to use
     :type spark: SparkSession
+    :param geography_column: The geography column to use
+    :type geography_column: str
     :return: The outpatients activity avoidances rates
     :rtype: DataFrame
     """
-    return get_op_age_sex_data(spark).withColumn(
+    return get_op_age_sex_data(spark, geography_column).withColumn(
         "d",
         F.when(
             F.col("strategy").startswith("followup_reduction_"),  # ty: ignore[missing-argument, invalid-argument-type]

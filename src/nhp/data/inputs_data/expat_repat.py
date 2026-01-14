@@ -1,5 +1,7 @@
 """Generate Rates Dataframe"""
 
+import logging
+import sys
 from functools import reduce
 
 from pyspark.sql import DataFrame, SparkSession
@@ -87,6 +89,11 @@ def save_expat_repat_data(path: str, spark: SparkSession) -> None:
 
 
 def main():
-    path = table_names.inputs_save_path
+    geography_column = sys.argv[1]
+    if geography_column != "provider":
+        logging.info("skipping expat_repat data generation for non-provider geography")
+        return
+
+    path = f"{table_names.inputs_save_path}/{geography_column}"
     spark = get_spark()
     save_expat_repat_data(path, spark)

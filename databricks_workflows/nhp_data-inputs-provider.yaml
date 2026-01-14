@@ -1,7 +1,7 @@
 resources:
   jobs:
-    Generate_NHP_Data_Inputs:
-      name: Generate NHP Data (Inputs)
+    Generate_NHP_Data_Inputs_provider:
+      name: "Generate NHP Data (Inputs: Provider)"
       webhook_notifications:
         on_success:
           - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
@@ -20,6 +20,8 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-age_sex
+            parameters:
+              - provider
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
@@ -29,6 +31,8 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-baseline
+            parameters:
+              - provider
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
@@ -38,24 +42,19 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-diagnoses
-          job_cluster_key: nhp_inputs_data_extract
-          libraries:
-            - whl: ../dist/*.whl
-        - task_key: extract_expat_repat
-          depends_on:
-            - task_key: extract_diagnoses
-          python_wheel_task:
-            package_name: nhp_data
-            entry_point: inputs_data-expat_repat
+            parameters:
+              - provider
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
         - task_key: extract_procedures
           depends_on:
-            - task_key: extract_expat_repat
+            - task_key: extract_diagnoses
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-procedures
+            parameters:
+              - provider
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
@@ -65,15 +64,30 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-rates
+            parameters:
+              - provider
+          job_cluster_key: nhp_inputs_data_extract
+          libraries:
+            - whl: ../dist/*.whl
+        - task_key: extract_expat_repat
+          depends_on:
+            - task_key: extract_rates
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-expat_repat
+            parameters:
+              - provider
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
         - task_key: extract_inequalities
           depends_on:
-            - task_key: extract_rates
+            - task_key: extract_expat_repat
           python_wheel_task:
             package_name: nhp_data
             entry_point: inputs_data-inequalities
+            parameters:
+              - provider
           job_cluster_key: nhp_inputs_data_extract
           libraries:
             - whl: ../dist/*.whl
