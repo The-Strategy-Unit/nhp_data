@@ -10,7 +10,10 @@ from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp.data.nhp_datasets.local_authorities import lsoa11_to_lad23
 from nhp.data.nhp_datasets.providers import add_provider
-from nhp.data.raw_data.helpers import add_age_group_column
+from nhp.data.raw_data.helpers import (
+    add_age_group_column,
+    remove_mental_health_providers,
+)
 from nhp.data.table_names import table_names
 
 
@@ -19,6 +22,7 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
     df = spark.read.table(table_names.hes_ecds)
 
     df = add_provider(spark, df, "der_provider_code", "der_provider_site_code")
+    df = remove_mental_health_providers(spark, df, "provider")
     df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
 
     # Add IMD fields

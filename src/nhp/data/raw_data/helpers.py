@@ -1,7 +1,9 @@
 """Helper methods/tables"""
 
 import pyspark.sql.functions as F
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
+
+from nhp.data.table_names import table_names
 
 
 def add_tretspef_grouped_column(self: DataFrame) -> DataFrame:
@@ -63,3 +65,28 @@ def add_age_group_column(self: DataFrame) -> DataFrame:
         .when(F.col("age") <= 84, "75-84")
         .otherwise("85+"),
     )
+
+
+def remove_mental_health_providers(
+    spark: SparkSession, df: DataFrame, provider_col: str = "provider"
+) -> DataFrame:
+    """Filter out mental health providers from DataFrame
+
+    :param spark: The Spark session
+    :type spark: SparkSession
+    :param df: The data frame to filter
+    :type df: DataFrame
+    :param provider_col: The column name containing provider codes
+    :type provider_col: str
+    :return: The data frame with mental health providers filtered out
+    :rtype: DataFrame
+    """
+
+    mental_health_providers = (
+        spark.read.table(table_names.reference_ods_trusts)
+        .filter(F.col("org_type") == "MENTAL HEALTH AND LEARNING DISABILITY")
+        .select(F.col("org_to").alias(provider_col))
+        .distinct()
+    )
+
+    return df.join(mental_health_providers, provider_col, "anti")
