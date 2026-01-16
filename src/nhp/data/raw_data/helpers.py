@@ -84,7 +84,11 @@ def remove_mental_health_providers(
 
     mental_health_providers = (
         spark.read.table(table_names.reference_ods_trusts)
-        .filter(F.col("org_type") == "MENTAL HEALTH AND LEARNING DISABILITY")
+        .filter(
+            F.col("org_type").isin(
+                ["MENTAL HEALTH AND LEARNING DISABILITY", "CARE TRUST"]
+            )
+        )
         .select(F.col("org_to").alias(provider_col))
         .distinct()
     )
