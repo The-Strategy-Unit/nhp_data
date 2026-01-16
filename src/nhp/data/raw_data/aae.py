@@ -8,7 +8,10 @@ from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp.data.nhp_datasets.local_authorities import lsoa11_to_lad23
 from nhp.data.nhp_datasets.providers import read_data_with_provider
-from nhp.data.raw_data.helpers import add_age_group_column
+from nhp.data.raw_data.helpers import (
+    add_age_group_column,
+    remove_mental_health_providers,
+)
 from nhp.data.table_names import table_names
 
 
@@ -21,6 +24,8 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
     df = read_data_with_provider(
         spark, table_names.hes_aae, sitetret_col="procode3"
     ).filter(F.col("fyear") < 201920)
+
+    df = remove_mental_health_providers(spark, df, "provider")
 
     # Frequent Attendners
     freq_attenders = (

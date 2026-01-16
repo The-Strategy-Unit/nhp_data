@@ -8,13 +8,18 @@ from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp.data.nhp_datasets.local_authorities import lsoa11_to_lad23
 from nhp.data.nhp_datasets.providers import read_data_with_provider
-from nhp.data.raw_data.helpers import add_age_group_column, add_tretspef_grouped_column
+from nhp.data.raw_data.helpers import (
+    add_age_group_column,
+    add_tretspef_grouped_column,
+    remove_mental_health_providers,
+)
 from nhp.data.table_names import table_names
 
 
 def get_outpatients_data(spark: SparkSession) -> DataFrame:
     """Get Outpatients Data"""
     df = read_data_with_provider(spark, table_names.hes_opa)
+    df = remove_mental_health_providers(spark, df, "provider")
 
     # Calculate icb column
     df = df.withColumn(
