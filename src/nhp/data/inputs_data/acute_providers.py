@@ -21,7 +21,7 @@ def get_acute_providers(spark: SparkSession) -> DataFrame:
     """
     acute_df = (
         spark.read.table(table_names.reference_ods_trusts)
-        .filter(F.col("org_type").startswith("ACUTE"))  # ty: ignore[missing-argument, invalid-argument-type]
+        .filter(F.col("org_type").startswith("ACUTE"))
         .persist()
     )
 

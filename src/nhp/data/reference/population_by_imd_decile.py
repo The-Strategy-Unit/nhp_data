@@ -37,7 +37,7 @@ def create_population_by_imd_decile(
     lsoa_to_msoa = (
         spark.read.table(table_names.hes_apc)
         .select("lsoa11", "msoa11")
-        .filter(F.col("lsoa11").startswith("E"))  # ty:ignore[missing-argument, invalid-argument-type]
+        .filter(F.col("lsoa11").startswith("E"))
         .filter(F.col("lsoa11") != "E99999999")
         .distinct()
         .persist()
@@ -59,7 +59,7 @@ def create_population_by_imd_decile(
         .filter(F.isnotnull("age"))
         .filter(F.col("sex").isin(["1", "2"]))
         .filter(F.isnotnull("lsoa11"))
-        .filter(F.col("admimeth").startswith("1"))  # ty:ignore[missing-argument, invalid-argument-type]
+        .filter(F.col("admimeth").startswith("1"))
         .join(age_groups, "age")
         .groupBy("lsoa11", "icb", "provider", "age_group", "sex")
         .agg(F.countDistinct("person_id_deid").alias("n"))

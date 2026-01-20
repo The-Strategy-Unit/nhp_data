@@ -58,7 +58,7 @@ def get_ip_activity_avoidance_rates(
             (F.col("type") == "activity_avoidance")
             # sdec is technically an efficiency mitigator, but behaves like an
             # activity avoidance mitigator
-            | F.col("strategy").startswith("same_day_emergency_care_")  # ty: ignore[missing-argument, invalid-argument-type]
+            | F.col("strategy").startswith("same_day_emergency_care_")
         )
         .join(pop, ["fyear", "age", "sex", geography_column], "inner")
         .drop("speldur")
@@ -120,14 +120,14 @@ def get_ip_preop_rates(spark: SparkSession, geography_column: str) -> DataFrame:
 
     opertn_counts = (
         spark.read.table(table_names.raw_data_apc)
-        .filter(F.col("admimeth").startswith("1"))  # ty: ignore[missing-argument, invalid-argument-type]
+        .filter(F.col("admimeth").startswith("1"))
         .groupBy("fyear", geography_column)
         .agg(F.count("has_procedure").alias("d"))
     )
 
     return (
         get_ip_age_sex_data(spark, geography_column)
-        .filter(F.col("strategy").startswith("pre-op_los_"))  # ty: ignore[missing-argument, invalid-argument-type]
+        .filter(F.col("strategy").startswith("pre-op_los_"))
         .join(opertn_counts, ["fyear", geography_column], "inner")
         .drop("speldur")
     )
@@ -160,7 +160,7 @@ def _get_ip_day_procedures_op_denominator(
     """
 
     day_procedures = _get_ip_day_procedures_code_list(spark).filter(
-        F.col("strategy").endswith("op")  # ty: ignore[missing-argument, invalid-argument-type]
+        F.col("strategy").endswith("op")
     )
 
     op_procedures = (
@@ -191,7 +191,7 @@ def _get_ip_day_procedures_dc_denominator(
     """
 
     day_procedures = _get_ip_day_procedures_code_list(spark).filter(
-        F.col("strategy").endswith("dc")  # ty: ignore[missing-argument, invalid-argument-type]
+        F.col("strategy").endswith("dc")
     )
 
     dc_procedures = (

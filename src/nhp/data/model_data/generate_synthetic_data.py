@@ -185,7 +185,7 @@ class SynthData:
     def _birth_factors(self, df: DataFrame) -> pd.DataFrame:
         return (
             df.drop("dataset")
-            .filter(~F.col("variant").startswith("custom_projection_"))  # ty: ignore[missing-argument, invalid-argument-type]
+            .filter(~F.col("variant").startswith("custom_projection_"))
             .toPandas()
             .groupby(["variant", "sex", "age"], as_index=False)
             .mean()
@@ -195,7 +195,7 @@ class SynthData:
     def _demographic_factors(self, df: DataFrame) -> pd.DataFrame:
         return (
             df.drop("dataset")
-            .filter(~F.col("variant").startswith("custom_projection_"))  # ty: ignore[missing-argument, invalid-argument-type]
+            .filter(~F.col("variant").startswith("custom_projection_"))
             .toPandas()
             .groupby(["variant", "sex", "age"], as_index=False)
             .mean()
