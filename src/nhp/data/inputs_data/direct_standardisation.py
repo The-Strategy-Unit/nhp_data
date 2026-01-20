@@ -106,35 +106,35 @@ def directly_standardise(
             )
         )
 
-        df_with_ref_pop = (
-            df.join(ref_pop, ["fyear", "strategy", "age", "sex"], "right")
-            .fillna(0, subset=["n"])
-            .fillna(1, subset=["d"])
-            .filter(F.col(geography_column).isNotNull())
-            .select(
-                "fyear",
-                "strategy",
-                geography_column,
-                "age",
-                "sex",
-                "n",
-                "d",
-                "reference_population",
-            )
+        df_with_ref_pop = df.join(
+            ref_pop, ["fyear", "strategy", "age", "sex"], "right"
+        ).select(
+            "fyear",
+            "strategy",
+            geography_column,
+            "age",
+            "sex",
+            "n",
+            "d",
+            "reference_population",
         )
 
         national_df = (
-            df_with_ref_pop.groupBy("fyear", "strategy", "age", "sex")
+            df_with_ref_pop.groupBy(
+                "fyear", "strategy", "age", "sex", "reference_population"
+            )
             .agg(
                 F.sum("n").alias("n"),
                 F.sum("d").alias("d"),
-                F.sum("reference_population").alias("reference_population"),
             )
             .withColumn(geography_column, F.lit("national"))
         )
 
         return (
-            df_with_ref_pop.unionByName(national_df)
+            df_with_ref_pop.fillna(0, subset=["n"])
+            .fillna(1, subset=["d"])
+            .filter(F.col(geography_column).isNotNull())  # ty: ignore[missing-argument]
+            .unionByName(national_df)
             .groupBy("fyear", "strategy", geography_column)
             .agg(
                 (F.sum("n") / F.sum("d")).alias("crude_rate"),
