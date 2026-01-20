@@ -7,6 +7,7 @@ from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
 from nhp.data.get_spark import get_spark
+from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.ae import get_ae_age_sex_data
 from nhp.data.inputs_data.helpers import inputs_age_group
 from nhp.data.inputs_data.ip import get_ip_age_sex_data
@@ -55,8 +56,13 @@ def save_age_sex(path: str, spark: SparkSession, geography_column: str) -> None:
     :param spark: The spark session to use
     :type spark: SparkSession
     """
-    df = get_age_sex(spark, geography_column).filter(F.col("n") > 5).toPandas()
-    df.to_parquet(f"{path}/age_sex.parquet")
+    df = get_age_sex(spark, geography_column).filter(F.col("n") > 5)
+
+    if geography_column == "provider":
+        df = filter_acute_providers(spark, df, "provider")
+    df = df.filter(F.col(geography_column) != "unknown")
+
+    df.toPandas().to_parquet(f"{path}/age_sex.parquet")
 
 
 def main():

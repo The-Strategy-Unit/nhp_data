@@ -1,11 +1,11 @@
 """A&E Data"""
 
+import logging
 from functools import cache, reduce
 
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
-from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.helpers import inputs_age_group
 from nhp.data.table_names import table_names
 
@@ -19,7 +19,8 @@ def get_ae_df(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
     return (
-        filter_acute_providers(spark, table_names.raw_data_ecds)
+        spark.read.table(table_names.raw_data_ecds)
+        .filter(F.col("fyear") >= 201516)
         .filter(F.isnotnull("age"))
         .drop("age_group")
         .join(inputs_age_group(spark), "age")
@@ -41,6 +42,7 @@ def get_ae_mitigators(spark: SparkSession) -> DataFrame:
     def _create_mitigator(col: str, name: str) -> DataFrame:
         return (
             df.withColumn("strategy", F.concat(F.lit(f"{name}_"), F.col("type")))
+            .withColumn("type", F.lit("activity_avoidance"))
             .withColumn("n", F.col(col).cast("int") * F.col("arrival"))
             .withColumn("d", F.col("arrival"))
         )
@@ -58,6 +60,9 @@ def get_ae_mitigators(spark: SparkSession) -> DataFrame:
     return reduce(DataFrame.unionByName, ae_strategies).persist()
 
 
+_AE_AGE_SEX_DF_CACHE = {}
+
+
 def get_ae_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get the ae age sex table
 
@@ -68,8 +73,20 @@ def get_ae_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame
     :return: The inpatients age/sex data
     :rtype: DataFrame
     """
-    return (
+    if geography_column in _AE_AGE_SEX_DF_CACHE:
+        logging.info("Using cached AE age sex data for %s", geography_column)
+        return _AE_AGE_SEX_DF_CACHE[geography_column]
+
+    logging.info("Creating AE age sex data for %s", geography_column)
+
+    _AE_AGE_SEX_DF_CACHE[geography_column] = df = (
         get_ae_mitigators(spark)
+        .fillna("unknown", [geography_column])
         .groupBy("fyear", "age", "sex", geography_column, "type", "strategy")
         .agg(F.sum("n").alias("n"), F.sum("d").alias("d"))
     )
+
+    df.count()  # materialise the cache
+    logging.info("Materialised AE age sex data for %s", geography_column)
+
+    return df

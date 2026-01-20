@@ -1,11 +1,14 @@
 """Generate Rates Dataframe"""
 
+import logging
 import sys
 from functools import reduce
 
+import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.ae.rates import get_ae_rates
 from nhp.data.inputs_data.ip.rates import (
     get_ip_activity_avoidance_rates,
@@ -49,8 +52,14 @@ def save_rates(path: str, spark: SparkSession, geography_column: str) -> None:
     :param geography_column: The geography column to use
     :type geography_column: str
     """
-    df = get_rates(spark, geography_column).toPandas()
-    df.to_parquet(f"{path}/rates.parquet")
+    df = get_rates(spark, geography_column)
+
+    if geography_column == "provider":
+        df_national = df.filter(F.col("provider") == "national")
+        df = filter_acute_providers(spark, df, "provider").unionByName(df_national)
+    df = df.filter(F.col(geography_column) != "unknown")
+
+    df.toPandas().to_parquet(f"{path}/rates.parquet")
 
 
 def main():
@@ -59,4 +68,12 @@ def main():
 
     path = f"{table_names.inputs_save_path}/{geography_column}"
     spark = get_spark()
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+        handlers=[logging.StreamHandler(sys.stderr)],
+    )
+    logging.getLogger("py4j").setLevel(logging.WARNING)
+
     save_rates(path, spark, geography_column)
