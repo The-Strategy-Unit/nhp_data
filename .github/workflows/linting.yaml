@@ -31,9 +31,10 @@ jobs:
           activate-environment: true
 
       - name: Install dependencies
-        run: uv pip install .
+        run: uv sync
+
+      - name: Show ty version
+        run: uvx ty --version
 
       - name: Generate Report
-        run: |
-          uvx ty --version
-          uvx ty check .
+        run: uvx ty check .
