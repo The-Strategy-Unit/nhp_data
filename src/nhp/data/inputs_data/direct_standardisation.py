@@ -110,7 +110,7 @@ def directly_standardise(
             df.join(ref_pop, ["fyear", "strategy", "age", "sex"], "right")
             .fillna(0, subset=["n"])
             .fillna(1, subset=["d"])
-            .filter(F.col(geography_column).isNotNull())  # ty: ignore[missing-argument]
+            .filter(F.col(geography_column).isNotNull())
             .select(
                 "fyear",
                 "strategy",

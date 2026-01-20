@@ -100,7 +100,7 @@ def create_pop_by_lad23(spark: SparkSession) -> DataFrame:
     pop_by_lsoa21 = get_pop_by_lsoa21(spark)
 
     return (
-        pop_by_lsoa21.filter(F.col("lsoa21cd").startswith("E"))  # ty:ignore[missing-argument, invalid-argument-type]
+        pop_by_lsoa21.filter(F.col("lsoa21cd").startswith("E"))
         .join(lsoa21_to_lad23, "lsoa21cd")
         .groupBy("fyear", "lad23cd", "age", "sex")
         .agg(F.sum("population").alias("population"))

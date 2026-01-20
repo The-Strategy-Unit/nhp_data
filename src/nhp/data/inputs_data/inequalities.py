@@ -49,7 +49,7 @@ def load_inequalities_data(spark: SparkSession) -> DataFrame:
     apc = (
         spark.read.table(table_names.default_apc)
         .withColumn("sushrg_trimmed", F.expr("substring(sushrg, 1, 4)"))
-        .filter(F.col("admimeth").startswith("1"))  # ty: ignore[missing-argument, invalid-argument-type]
+        .filter(F.col("admimeth").startswith("1"))
         .groupby("icb", "provider", "imd_quintile", "sushrg_trimmed", "fyear")
         .agg(F.count("*").alias("count"))
     )

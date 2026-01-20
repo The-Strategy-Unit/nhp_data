@@ -127,7 +127,7 @@ def _ambulatory_care_conditions_chronic():
         ),
         # copd
         df("J4[12347]"),
-        df("J20").admission_has(secondary_diagnosis, "J4[12347]"),  # ty: ignore[call-non-callable]
+        df("J20").admission_has(secondary_diagnosis, "J4[12347]"),
         # diabetes_complications
         nhp_apc.admission_has(any_diagnosis, "E1[0-4][0-8]"),  # ty: ignore[call-non-callable]
         # iron-deficiency_anaemia
@@ -138,7 +138,7 @@ def _ambulatory_care_conditions_chronic():
 
     return (
         reduce(DataFrame.unionByName, conditions)
-        .filter(F.col("admimeth").startswith("2"))  # ty: ignore[missing-argument, invalid-argument-type]
+        .filter(F.col("admimeth").startswith("2"))
         .select("fyear", "provider", "epikey")
         .distinct()
         .withColumn("sample_rate", F.lit(1.0))
@@ -152,14 +152,14 @@ def _ambulatory_care_conditions_vaccine_preventable():
 
     conditions = [
         # influenza_and_pneumonia
-        df("J1([0134]|5[3479]|68|8[18])").admission_not(secondary_diagnosis, "D57"),  # ty: ignore[call-non-callable]
+        df("J1([0134]|5[3479]|68|8[18])").admission_not(secondary_diagnosis, "D57"),
         # other
         df("A(3[567]|80)", "B(0[56]|1(6[19]|8[01])|26)", "G000", "M014"),
     ]
 
     return (
         reduce(DataFrame.unionByName, conditions)
-        .filter(F.col("admimeth").startswith("2"))  # ty: ignore[missing-argument, invalid-argument-type]
+        .filter(F.col("admimeth").startswith("2"))
         .select("fyear", "provider", "epikey")
         .distinct()
         .withColumn("sample_rate", F.lit(1.0))

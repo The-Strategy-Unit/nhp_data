@@ -48,7 +48,7 @@ def get_day_procedure_code_list(
 
     providers = (
         spark.read.table(table_names.reference_ods_trusts)
-        .filter(F.col("org_type").startswith("ACUTE"))  # ty: ignore[missing-argument, invalid-argument-type]
+        .filter(F.col("org_type").startswith("ACUTE"))
         .select(F.col("org_to").alias("provider"))
         .distinct()
         .persist()
@@ -82,7 +82,7 @@ def get_day_procedure_code_list(
         hes_apc.join(providers, "provider", "semi")
         .filter(fyear_criteria)
         .filter(F.col("classpat").isin("1", "2"))
-        .filter(F.col("admimeth").startswith("1"))  # ty: ignore[missing-argument, invalid-argument-type]
+        .filter(F.col("admimeth").startswith("1"))
     )
 
     df_ip = (

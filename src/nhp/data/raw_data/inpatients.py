@@ -49,13 +49,13 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
             .when(F.col("mainspef") == "420", "paeds")
             .when(
                 (
-                    F.col("admimeth").startswith("3")  # ty: ignore[missing-argument, invalid-argument-type]
+                    F.col("admimeth").startswith("3")
                     | F.col("mainspef").isin(["501", "560"])
                 )
                 & (F.col("age") < 56),
                 "maternity",
             )
-            .when(F.col("admimeth").startswith("2"), "emerg")  # ty: ignore[missing-argument, invalid-argument-type]
+            .when(F.col("admimeth").startswith("2"), "emerg")
             .when(F.col("admimeth") == "81", "transfer")
             .when(
                 (F.col("admimeth").isin(["11", "12", "13"]))
@@ -72,8 +72,8 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
         .withColumn("is_wla", F.col("admimeth") == "11")
         .withColumn(
             "group",
-            F.when(F.col("admimeth").startswith("1"), "elective")  # ty: ignore[missing-argument, invalid-argument-type]
-            .when(F.col("admimeth").startswith("3"), "maternity")  # ty: ignore[missing-argument, invalid-argument-type]
+            F.when(F.col("admimeth").startswith("1"), "elective")
+            .when(F.col("admimeth").startswith("3"), "maternity")
             .otherwise("non-elective"),
         )
         # add has_procedure column

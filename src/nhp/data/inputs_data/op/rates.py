@@ -21,7 +21,7 @@ def get_op_rates(spark: SparkSession, geography_column: str) -> DataFrame:
     return get_op_age_sex_data(spark, geography_column).withColumn(
         "d",
         F.when(
-            F.col("strategy").startswith("followup_reduction_"),  # ty: ignore[missing-argument, invalid-argument-type]
+            F.col("strategy").startswith("followup_reduction_"),
             F.col("d") - F.col("n"),
         ).otherwise(F.col("d")),
     )
