@@ -39,11 +39,7 @@ def get_eric_links():
     div = soup.find("div", id="past-publications")
     assert div is not None, "could not find past publications div"
 
-    links = [
-        a.attrs["href"]
-        for a in div.find_all("a")  # ty: ignore[unresolved-attribute]
-        if re.match(pattern, a.text)
-    ]
+    links = [a.attrs["href"] for a in div.find_all("a") if re.match(pattern, a.text)]
 
     # ensure the links are sorted in year order
     return sorted([(year_to_fyear(i[-7:-3]), i) for i in links])
@@ -57,11 +53,7 @@ def get_eric_trust_data(year: int, link: str) -> pd.DataFrame:
     div = soup.find("div", id="resources")
     assert div is not None, "could not find resources div"
 
-    uri = next(
-        a.attrs["href"]
-        for a in div.find_all("a")  # ty: ignore[unresolved-attribute]
-        if "Trust" in a.text
-    )
+    uri = next(a.attrs["href"] for a in div.find_all("a") if "Trust" in a.text)
 
     response = requests.get(uri)
     response.raise_for_status()
