@@ -46,8 +46,8 @@ def _cystocopy():
 
     return (
         nhp_apc.admission_has(primary_procedure, "M45[589]")  # ty: ignore[call-non-callable]
-        .admission_not(secondary_procedure, "M45[1-4]")  # ty: ignore[call-non-callable]
-        .admission_has(any_diagnosis, "F171", "N390", "R3(1|98)")  # ty: ignore[call-non-callable]
+        .admission_not(secondary_procedure, "M45[1-4]")
+        .admission_has(any_diagnosis, "F171", "N390", "R3(1|98)")
         .filter(F.col("sex") == "1")
         .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )
@@ -65,8 +65,8 @@ def _prostatic_hyperplasia():
         nhp_apc.admission_has(
             primary_procedure, "M(6(1[123489]|41|5[1-689]|6[12]|8[13])|7(04|1[189]))"
         )  # ty: ignore[call-non-callable]
-        .admission_has(primary_diagnosis, "N40")  # ty: ignore[call-non-callable]
-        .admission_not(any_diagnosis, "N1([39]|7[01289]|8[1-59])")  # ty: ignore[call-non-callable]
+        .admission_has(primary_diagnosis, "N40")
+        .admission_not(any_diagnosis, "N1([39]|7[01289]|8[1-59])")
         .filter(F.col("sex") == "1")
         .filter((F.col("age") >= 19) & (F.col("age") <= 120))
     )

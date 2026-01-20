@@ -59,7 +59,7 @@ def get_snpp_uris(path: str) -> list[str]:
         },
     )
 
-    return [urljoin(ONS_URL, i["href"]) for i in matches]  # ty: ignore[not-subscriptable, invalid-argument-type]
+    return [urljoin(ONS_URL, i["href"]) for i in matches]  # ty: ignore[not-subscriptable]
 
 
 def snpp_uri_variant_match(uri: str) -> str | None:

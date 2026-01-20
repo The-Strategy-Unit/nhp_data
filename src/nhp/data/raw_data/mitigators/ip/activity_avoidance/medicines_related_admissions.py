@@ -49,8 +49,8 @@ def _medicines_related_admissions_implicit(primary_diags, secondary_diags):
     return (
         nhp_apc.filter(F.col("admimeth").rlike("^2"))
         .admission_has(primary_diagnosis, *primary_diags)  # ty: ignore[call-non-callable]
-        .admission_has(secondary_diagnosis, *secondary_diags)  # ty: ignore[call-non-callable]
-        .admission_not(secondary_diagnosis, "Y(4|5[0-7])")  # ty: ignore[call-non-callable]
+        .admission_has(secondary_diagnosis, *secondary_diags)
+        .admission_not(secondary_diagnosis, "Y(4|5[0-7])")
         .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )

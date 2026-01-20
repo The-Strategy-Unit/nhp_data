@@ -82,7 +82,7 @@ def get_eric_trust_data(year: int, link: str) -> pd.DataFrame:
 
 def get_trust_types() -> pd.DataFrame:
     df = pd.concat(
-        [get_eric_trust_data(*i) for i in get_eric_links()],  # type: ignore
+        [get_eric_trust_data(*i) for i in get_eric_links()],
         ignore_index=True,
     )
 
