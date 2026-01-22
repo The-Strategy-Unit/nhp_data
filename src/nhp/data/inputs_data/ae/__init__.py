@@ -84,6 +84,7 @@ def get_ae_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame
         .fillna("unknown", [geography_column])
         .groupBy("fyear", "age", "sex", geography_column, "type", "strategy")
         .agg(F.sum("n").alias("n"), F.sum("d").alias("d"))
+        .persist()
     )
 
     df.count()  # materialise the cache
