@@ -175,6 +175,7 @@ def _get_ip_day_procedures_op_denominator(
 
     return (
         spark.read.table(table_names.raw_data_opa)
+        .filter(F.col("fyear") >= 201516)
         .join(op_procedures, ["fyear", "attendkey"], "inner")
         .groupBy("fyear", geography_column, "strategy", "age", "sex")
         .agg(F.count("strategy").alias("d"))
@@ -206,6 +207,7 @@ def _get_ip_day_procedures_dc_denominator(
 
     return (
         spark.read.table(table_names.raw_data_apc)
+        .filter(F.col("fyear") >= 201516)
         .join(dc_procedures, ["fyear", "epikey"], "inner")
         .groupBy("fyear", geography_column, "strategy", "age", "sex")
         .agg(F.count("strategy").alias("d"))
