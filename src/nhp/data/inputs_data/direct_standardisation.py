@@ -133,7 +133,7 @@ def directly_standardise(
         return (
             df_with_ref_pop.fillna(0, subset=["n"])
             .fillna(1, subset=["d"])
-            .filter(F.col(geography_column).isNotNull())  # ty: ignore[missing-argument]
+            .filter(F.col(geography_column).isNotNull())
             .unionByName(national_df)
             .groupBy("fyear", "strategy", geography_column)
             .agg(
