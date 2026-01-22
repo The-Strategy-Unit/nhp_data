@@ -47,6 +47,9 @@ def complete_age_sex_rows(
 
     :param spark: The Spark session to use for creating DataFrames
         column. Missing combinations will be added with values filled as 0.
+    :type spark: SparkSession
+    :param df: The DataFrame to be completed with missing age/sex/geography combinations.
+    :type df: DataFrame
     :param geography_column: The name of the column containing geography information
     :type geography_column: str
 
