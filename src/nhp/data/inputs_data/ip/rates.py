@@ -6,8 +6,8 @@ from functools import cache
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
-from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.direct_standardisation import directly_standardise
+from nhp.data.inputs_data.helpers import complete_age_sex_rows
 from nhp.data.inputs_data.ip import get_ip_age_sex_data
 from nhp.data.reference.population_by_lsoa21 import get_pop_by_lad23
 from nhp.data.reference.provider_catchments import get_pop_by_provider
@@ -52,7 +52,7 @@ def get_ip_activity_avoidance_rates(
 
     pop = get_population(spark, geography_column)
 
-    return (
+    df = (
         get_ip_age_sex_data(spark, geography_column)
         .filter(
             (F.col("type") == "activity_avoidance")
@@ -60,9 +60,11 @@ def get_ip_activity_avoidance_rates(
             # activity avoidance mitigator
             | F.col("strategy").startswith("same_day_emergency_care_")
         )
-        .join(pop, ["fyear", "age", "sex", geography_column], "inner")
         .drop("speldur")
     )
+    df = complete_age_sex_rows(spark, df, geography_column)
+
+    return df.join(pop, ["fyear", "age", "sex", geography_column], "left")
 
 
 @directly_standardise
@@ -121,15 +123,17 @@ def get_ip_preop_rates(spark: SparkSession, geography_column: str) -> DataFrame:
     opertn_counts = (
         spark.read.table(table_names.raw_data_apc)
         .filter(F.col("admimeth").startswith("1"))
-        .groupBy("fyear", geography_column)
+        .filter(F.col("has_procedure"))
+        .groupBy("fyear", geography_column, "age", "sex")
         .agg(F.count("has_procedure").alias("d"))
     )
 
     return (
         get_ip_age_sex_data(spark, geography_column)
         .filter(F.col("strategy").startswith("pre-op_los_"))
-        .join(opertn_counts, ["fyear", geography_column], "inner")
         .drop("speldur")
+        .join(opertn_counts, ["fyear", geography_column, "age", "sex"], "right")
+        .fillna(0, subset=["n"])
     )
 
 
@@ -170,7 +174,8 @@ def _get_ip_day_procedures_op_denominator(
     )
 
     return (
-        filter_acute_providers(spark, table_names.raw_data_opa)
+        spark.read.table(table_names.raw_data_opa)
+        .filter(F.col("fyear") >= 201516)
         .join(op_procedures, ["fyear", "attendkey"], "inner")
         .groupBy("fyear", geography_column, "strategy", "age", "sex")
         .agg(F.count("strategy").alias("d"))
@@ -201,7 +206,8 @@ def _get_ip_day_procedures_dc_denominator(
     )
 
     return (
-        filter_acute_providers(spark, table_names.raw_data_apc)
+        spark.read.table(table_names.raw_data_apc)
+        .filter(F.col("fyear") >= 201516)
         .join(dc_procedures, ["fyear", "epikey"], "inner")
         .groupBy("fyear", geography_column, "strategy", "age", "sex")
         .agg(F.count("strategy").alias("d"))
@@ -227,6 +233,9 @@ def get_ip_day_procedures(spark: SparkSession, geography_column: str) -> DataFra
 
     return (
         get_ip_age_sex_data(spark, geography_column)
-        .join(denominator, ["fyear", "strategy", geography_column, "age", "sex"])
+        .join(
+            denominator, ["fyear", "strategy", geography_column, "age", "sex"], "right"
+        )
+        .fillna(0, subset=["n"])
         .withColumn("d", F.col("n") + F.col("d"))
     )

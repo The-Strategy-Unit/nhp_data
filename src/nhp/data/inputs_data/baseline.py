@@ -3,9 +3,11 @@
 import sys
 from functools import reduce
 
+import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.ae.baseline import get_ae_baseline
 from nhp.data.inputs_data.ip.baseline import get_ip_baseline
 from nhp.data.inputs_data.op.baseline import get_op_baseline
@@ -35,8 +37,13 @@ def save_baseline(path: str, spark: SparkSession, geography_column: str) -> None
     :param spark: The spark session to use
     :type spark: SparkSession
     """
-    df = get_baseline(spark, geography_column).toPandas()
-    df.to_parquet(f"{path}/baseline.parquet")
+    df = get_baseline(spark, geography_column)
+
+    if geography_column == "provider":
+        df = filter_acute_providers(spark, df, "provider")
+    df = df.filter(F.col(geography_column) != "unknown")
+
+    df.toPandas().to_parquet(f"{path}/baseline.parquet")
 
 
 def main():

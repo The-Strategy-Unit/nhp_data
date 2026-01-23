@@ -1,9 +1,10 @@
 """Inpatients Data"""
 
+import logging
+
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
-from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.helpers import inputs_age_group
 from nhp.data.table_names import table_names
 
@@ -17,7 +18,8 @@ def get_ip_df(spark: SparkSession) -> DataFrame:
     :rtype: DataFrame
     """
     return (
-        filter_acute_providers(spark, table_names.raw_data_apc)
+        spark.read.table(table_names.raw_data_apc)
+        .filter(F.col("fyear") >= 201516)
         .filter(F.isnotnull("age"))
         .drop("age_group")
         .join(inputs_age_group(spark), "age")
@@ -62,6 +64,9 @@ def get_ip_mitigators(spark: SparkSession) -> DataFrame:
     return DataFrame.unionByName(mitigators_df, general_los_df)
 
 
+_IP_AGE_SEX_DF_CACHE = {}
+
+
 def get_ip_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get the IP age sex table
 
@@ -72,8 +77,15 @@ def get_ip_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame
     :return: The inpatients age/sex data
     :rtype: DataFrame
     """
-    return (
+
+    if geography_column in _IP_AGE_SEX_DF_CACHE:
+        logging.info("Using cached IP age sex data for %s", geography_column)
+        return _IP_AGE_SEX_DF_CACHE[geography_column]
+
+    logging.info("Creating IP age sex data for %s", geography_column)
+    _IP_AGE_SEX_DF_CACHE[geography_column] = df = (
         get_ip_df(spark)
+        .fillna("unknown", [geography_column])
         .join(
             get_ip_mitigators(spark),
             [
@@ -85,4 +97,10 @@ def get_ip_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame
         )
         .groupBy("fyear", "age", "sex", geography_column, "type", "strategy")
         .agg(F.sum("sample_rate").alias("n"), F.sum("speldur").alias("speldur"))
+        .persist()
     )
+
+    df.count()  # materialise the cache
+    logging.info("Materialised IP age sex data for %s", geography_column)
+
+    return df

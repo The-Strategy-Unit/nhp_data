@@ -4,9 +4,11 @@ import logging
 import sys
 from functools import reduce
 
+import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.ae.expat_repat import (
     get_ae_expat_data,
     get_ae_repat_local_data,
@@ -84,8 +86,9 @@ def save_expat_repat_data(path: str, spark: SparkSession) -> None:
     }
 
     for name, fn in fns.items():
-        df = fn(spark).toPandas()
-        df.to_parquet(f"{path}/{name}.parquet")
+        df = filter_acute_providers(spark, fn(spark), "provider")
+        df = df.filter(F.col("provider") != "unknown")
+        df.toPandas().to_parquet(f"{path}/{name}.parquet")
 
 
 def main():

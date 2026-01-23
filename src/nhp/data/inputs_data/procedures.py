@@ -3,9 +3,11 @@
 import sys
 from functools import reduce
 
+import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.ae.procedures import get_ae_procedures
 from nhp.data.inputs_data.ip.procedures import get_ip_procedures
 from nhp.data.inputs_data.op.procedures import get_op_procedures
@@ -37,8 +39,13 @@ def save_procedures(path: str, spark: SparkSession, geography_column: str) -> No
     :param spark: The spark session to use
     :type spark: SparkSession
     """
-    df = get_procedures(spark, geography_column).toPandas()
-    df.to_parquet(f"{path}/procedures.parquet")
+    df = get_procedures(spark, geography_column)
+
+    if geography_column == "provider":
+        df = filter_acute_providers(spark, df, "provider")
+    df = df.filter(F.col(geography_column) != "unknown")
+
+    df.toPandas().to_parquet(f"{path}/procedures.parquet")
 
 
 def main():
