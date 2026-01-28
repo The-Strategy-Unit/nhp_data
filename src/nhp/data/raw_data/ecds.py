@@ -20,7 +20,8 @@ from nhp.data.table_names import table_names
 def get_ecds_data(spark: SparkSession) -> DataFrame:
     """Get ECDS data"""
     df = spark.read.table(table_names.hes_ecds)
-
+    # filter out mental health providers last: some MH providers run urgent care/MIUs
+    # which we want to keep in for the frequent attenders
     df = add_provider(spark, df, "der_provider_code", "der_provider_site_code")
     df = df.select([F.col(c).alias(c.lower()) for c in df.columns])
 

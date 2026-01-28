@@ -24,6 +24,8 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
     df = read_data_with_provider(
         spark, table_names.hes_aae, sitetret_col="procode3"
     ).filter(F.col("fyear") < 201920)
+    # filter out mental health providers last: some MH providers run urgent care/MIUs
+    # which we want to keep in for the frequent attenders
 
     # Frequent Attendners
     freq_attenders = (
