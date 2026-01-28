@@ -25,8 +25,6 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
         spark, table_names.hes_aae, sitetret_col="procode3"
     ).filter(F.col("fyear") < 201920)
 
-    df = remove_mental_health_providers(spark, df, "provider")
-
     # Frequent Attendners
     freq_attenders = (
         df.filter(F.col("aeattendcat") == "1")
@@ -200,7 +198,7 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
         .repartition("fyear", "provider")
     )
 
-    return hes_aae_ungrouped
+    return remove_mental_health_providers(spark, hes_aae_ungrouped, "provider")
 
 
 def generate_aae_data(spark: SparkSession) -> None:
