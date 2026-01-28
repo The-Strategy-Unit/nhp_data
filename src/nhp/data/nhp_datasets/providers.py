@@ -45,7 +45,11 @@ def add_provider(
         "provider",
         F.when(F.col(sitetret_col) == "RW602", "R0A")
         .when(F.col(sitetret_col) == "RM318", "R0A")
-        .otherwise(provider_successors_mapping[F.col(procode3_col)]),
+        .otherwise(
+            F.coalesce(
+                provider_successors_mapping[F.col(procode3_col)], F.col(procode3_col)
+            )
+        ),
     )
 
 
