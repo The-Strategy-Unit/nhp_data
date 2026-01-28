@@ -21,6 +21,10 @@ a score of 7.1 for the first admission and 3.2 for the second giving a total fra
 
 Spells are categorised as either intermediate frailty risk (total score > 5) or high intermediate
 risk (total score > 15).
+
+Due to numerical rounding issues, we multiply the scores by 10 and use integer thresholds of 50 and
+150 instead.
+
 Available breakdowns
 
 - Intermediate level frailty (IP-AA-018)
@@ -58,6 +62,7 @@ def _frail_elderly():
             )
         )
         .csv(table_names.reference_frailty_risk_scores)
+        .withColumn("score", F.round(F.col("score") * 10).cast(T.IntegerType()))
     )
 
     icd10_codes = spark.read.table(table_names.reference_icd10_codes)
@@ -124,8 +129,8 @@ def _frail_elderly():
 def _frail_elderly_intermediate():
     return (
         _frail_elderly()
-        .filter(F.col("score") >= 5)
-        .filter(F.col("score") <= 15)
+        .filter(F.col("score") >= 50)
+        .filter(F.col("score") <= 150)
         .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
@@ -135,7 +140,7 @@ def _frail_elderly_intermediate():
 def _frail_elderly_high():
     return (
         _frail_elderly()
-        .filter(F.col("score") > 15)
+        .filter(F.col("score") > 150)
         .select("fyear", "provider", "epikey")
         .withColumn("sample_rate", F.lit(1.0))
     )
