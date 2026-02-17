@@ -2,14 +2,6 @@ resources:
   jobs:
     Generate_NHP_Data_OP:
       name: Generate NHP Data (OP)
-      webhook_notifications:
-        on_success:
-          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
-        on_failure:
-          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
-      notification_settings:
-        no_alert_for_skipped_runs: true
-        no_alert_for_canceled_runs: true
       tasks:
         - task_key: run_op
           condition_task:
@@ -23,7 +15,7 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: raw_data-outpatients
-          job_cluster_key: generate_nhp_opa
+          job_cluster_key: nhp_data
           libraries:
             - whl: ../dist/*.whl
         - task_key: nhp-raw_data-opa_mitigators
@@ -32,7 +24,7 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: raw_data-outpatients_mitigators
-          job_cluster_key: generate_nhp_opa
+          job_cluster_key: nhp_data
           libraries:
             - whl: ../dist/*.whl
         - task_key: nhp-aggregated_data-opa
@@ -41,7 +33,7 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: aggregated_data-outpatients
-          job_cluster_key: generate_nhp_opa
+          job_cluster_key: nhp_data
           libraries:
             - whl: ../dist/*.whl
         - task_key: nhp-default-opa
@@ -50,20 +42,33 @@ resources:
           python_wheel_task:
             package_name: nhp_data
             entry_point: default-opa
-          job_cluster_key: generate_nhp_opa
+          job_cluster_key: nhp_data
           libraries:
             - whl: ../dist/*.whl
       job_clusters:
-        - job_cluster_key: generate_nhp_opa
+        - job_cluster_key: nhp_data
           new_cluster:
-            cluster_name: ""
-            spark_version: 16.4.x-scala2.13
-            instance_pool_id: 0129-130615-maw351-pool-pss8mvfy
-            data_security_mode: SINGLE_USER
-            runtime_engine: PHOTON
-            autoscale:
-              min_workers: 2
-              max_workers: 8
+            spark_version: 17.3.x-scala2.13
+            spark_conf:
+              spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite: "true"
+              spark.databricks.delta.properties.defaults.autoOptimize.autoCompact: "true"
+              spark.databricks.sql.initial.catalog.namespace: udal_lake_mart
+            azure_attributes:
+              availability: SPOT_WITH_FALLBACK_AZURE
+              spot_bid_max_price: 100
+            node_type_id: Standard_E16_v3
+            custom_tags:
+              Application: UDAL
+              Workload_Type: Job
+              Workload_Size: Small
+            spark_env_vars:
+              PYSPARK_PYTHON: /databricks/python3/bin/python3
+            policy_id: 000816B2986C0B29
+            data_security_mode: USER_ISOLATION
+            runtime_engine: STANDARD
+            kind: CLASSIC_PREVIEW
+            is_single_node: false
+            num_workers: 1
       tags:
         group: nhp_data
         env: ${bundle.target}

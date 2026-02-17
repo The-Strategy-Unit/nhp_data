@@ -2,11 +2,6 @@ resources:
   jobs:
     Extract_NHP_for_containers:
       name: Extract NHP for containers
-      webhook_notifications:
-        on_success:
-          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
-        on_failure:
-          - id: 11be34cb-f1f0-42ca-99d8-e7b3e75e20ca
       tasks:
         - task_key: run_extract_apc_data
           for_each_task:
@@ -19,7 +14,7 @@ resources:
                 parameters:
                   - "{{job.parameters.data_version}}"
                   - "{{input}}"
-              job_cluster_key: run_nhp_extracts_cluster
+              job_cluster_key: nhp_data
               libraries:
                 - whl: ../dist/*.whl
         - task_key: run_extract_opa_data
@@ -35,7 +30,7 @@ resources:
                 parameters:
                   - "{{job.parameters.data_version}}"
                   - "{{input}}"
-              job_cluster_key: run_nhp_extracts_cluster
+              job_cluster_key: nhp_data
               libraries:
                 - whl: ../dist/*.whl
         - task_key: run_extract_ecds_data
@@ -51,7 +46,7 @@ resources:
                 parameters:
                   - "{{job.parameters.data_version}}"
                   - "{{input}}"
-              job_cluster_key: run_nhp_extracts_cluster
+              job_cluster_key: nhp_data
               libraries:
                 - whl: ../dist/*.whl
         - task_key: run_extract_demographic_factors_data
@@ -68,7 +63,7 @@ resources:
                   - "{{job.parameters.data_version}}"
                   - "{{input}}"
                   - "{{job.parameters.projection_year}}"
-              job_cluster_key: run_nhp_extracts_cluster
+              job_cluster_key: nhp_data
               libraries:
                 - whl: ../dist/*.whl
         - task_key: run_extract_birth_factors_data
@@ -85,7 +80,7 @@ resources:
                   - "{{job.parameters.data_version}}"
                   - "{{input}}"
                   - "{{job.parameters.projection_year}}"
-              job_cluster_key: run_nhp_extracts_cluster
+              job_cluster_key: nhp_data
               libraries:
                 - whl: ../dist/*.whl
         - task_key: run_extract_inequalities_data
@@ -101,7 +96,7 @@ resources:
                 parameters:
                   - "{{job.parameters.data_version}}"
                   - "{{input}}"
-              job_cluster_key: run_nhp_extracts_cluster
+              job_cluster_key: nhp_data
               libraries:
                 - whl: ../dist/*.whl
         - task_key: generate_provider_gams
@@ -112,7 +107,7 @@ resources:
             entry_point: model_data-health_status_adjustment-generate_provider_gams
             parameters:
               - "{{job.parameters.data_version}}"
-          job_cluster_key: run_nhp_extracts_cluster
+          job_cluster_key: nhp_data
           libraries:
             - pypi:
                 package: pygam==0.9.1
@@ -125,7 +120,7 @@ resources:
             entry_point: model_data-health_status_adjustment-generate_icb_gams
             parameters:
               - "{{job.parameters.data_version}}"
-          job_cluster_key: run_nhp_extracts_cluster
+          job_cluster_key: nhp_data
           libraries:
             - pypi:
                 package: pygam==0.9.1
@@ -138,7 +133,7 @@ resources:
             entry_point: model_data-health_status_adjustment-generate_national_gams
             parameters:
               - "{{job.parameters.data_version}}"
-          job_cluster_key: run_nhp_extracts_cluster
+          job_cluster_key: nhp_data
           libraries:
             - pypi:
                 package: pygam==0.9.1
@@ -156,7 +151,7 @@ resources:
                 parameters:
                   - "{{input}}"
                   - "20251001"
-              job_cluster_key: run_nhp_extracts_cluster
+              job_cluster_key: nhp_data
               libraries:
                 - whl: ../dist/*.whl
         - task_key: clean_up
@@ -167,32 +162,33 @@ resources:
             entry_point: model_data-clean_up
             parameters:
               - "{{job.parameters.data_version}}"
-          job_cluster_key: run_nhp_extracts_cluster
+          job_cluster_key: nhp_data
           libraries:
             - whl: ../dist/*.whl
       job_clusters:
-        - job_cluster_key: run_nhp_extracts_cluster
+        - job_cluster_key: nhp_data
           new_cluster:
-            cluster_name: ""
-            spark_version: 16.4.x-scala2.13
+            spark_version: 17.3.x-scala2.13
             spark_conf:
-              spark.master: local[*, 4]
-              spark.databricks.cluster.profile: singleNode
+              spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite: "true"
+              spark.databricks.delta.properties.defaults.autoOptimize.autoCompact: "true"
+              spark.databricks.sql.initial.catalog.namespace: udal_lake_mart
             azure_attributes:
-              first_on_demand: 1
-              availability: ON_DEMAND_AZURE
-              spot_bid_max_price: -1
-            node_type_id: Standard_E8ads_v5
-            driver_node_type_id: Standard_E8ads_v5
+              availability: SPOT_WITH_FALLBACK_AZURE
+              spot_bid_max_price: 100
+            node_type_id: Standard_E16_v3
             custom_tags:
-              ResourceClass: SingleNode
-              project: nhp
+              Application: UDAL
+              Workload_Type: Job
+              Workload_Size: Small
             spark_env_vars:
               PYSPARK_PYTHON: /databricks/python3/bin/python3
-            enable_elastic_disk: true
-            data_security_mode: SINGLE_USER
+            policy_id: 000816B2986C0B29
+            data_security_mode: USER_ISOLATION
             runtime_engine: STANDARD
-            num_workers: 0
+            kind: CLASSIC_PREVIEW
+            is_single_node: false
+            num_workers: 1
       tags:
         group: nhp_data_model
         env: ${bundle.target}
