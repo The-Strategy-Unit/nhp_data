@@ -3,7 +3,7 @@ from nhp.data.table_names.table_names import TableNames
 from nhp.data.table_names.udal import udal
 
 # TODO: this should be set via an environment variable or similar when deploying asset bundles
-environment = "mlcsu"  # mlcsu / udal
+environment = "udal"  # mlcsu / udal
 
 
 _selected_table_names: TableNames
