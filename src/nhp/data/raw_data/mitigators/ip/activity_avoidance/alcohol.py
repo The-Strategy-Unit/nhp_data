@@ -76,10 +76,6 @@ def _alcohol_wholly_attributable():
 
 def _alcohol_partially_attributable(condition_group):
     spark = get_spark()
-    assert hasattr(spark, "sparkContext"), (
-        "sparkContext is not available on the SparkSession object."
-    )
-    sc = spark.sparkContext
 
     icd = spark.read.table(table_names.reference_icd10_codes)
 
@@ -108,7 +104,7 @@ def _alcohol_partially_attributable(condition_group):
     ]
 
     aaf = (
-        spark.read.json(sc.parallelize(aaf_list))  # ty: ignore[invalid-argument-type]
+        spark.createDataFrame(aaf_list)
         .join(icd.select("icd10"), F.expr("icd10 rlike regex"))
         .persist()
     )
