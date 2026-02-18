@@ -1,17 +1,18 @@
 from pyspark.sql import SparkSession
+from table_names import table_names
 
 
 def create(spark: SparkSession) -> None:
     spark.sql(
-        """
-    CREATE OR REPLACE VIEW nhp.default.opa
+        f"""
+    CREATE OR REPLACE VIEW {table_names.default_opa}
     AS
     SELECT *
-    FROM   nhp.aggregated_data.opa a
+    FROM   {table_names.aggregated_data_opa} a
     WHERE
       EXISTS (
         SELECT 1
-        FROM   nhp.reference.ods_trusts
+        FROM   {table_names.reference_ods_trusts}
         WHERE  a.provider = org_to
         AND    org_type LIKE 'ACUTE%'
       )
