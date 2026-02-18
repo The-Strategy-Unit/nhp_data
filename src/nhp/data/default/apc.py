@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
-from table_names import table_names
+
+from nhp.data.table_names import table_names
 
 
 def create(spark: SparkSession) -> None:
@@ -24,7 +25,7 @@ def create(spark: SparkSession) -> None:
     CREATE OR REPLACE VIEW {table_names.default_apc_mitigators}
     AS
     SELECT *
-    FROM   {table_names.raw_data_apc_mitigators}s
+    FROM   {table_names.raw_data_apc_mitigators}
     """
     )
 

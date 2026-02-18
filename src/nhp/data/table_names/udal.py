@@ -13,7 +13,7 @@ udal = TableNames(
     hes_apc_procedures="udal_lake_mart.newhospitalprogramme.hes_apc_procedures",
     hes_apc_diagnoses="udal_lake_mart.newhospitalprogramme.hes_apc_diagnoses",
     # ---
-    hes_ecds="udal_silver_resticted.mesh_ecds.ec_core",
+    hes_ecds="udal_silver_restricted.mesh_ecds.ec_core",
     # ---
     hes_opa="udal_lake_mart.newhospitalprogramme.hes_opa",
     hes_opa_procedures="udal_lake_mart.newhospitalprogramme.hes_opa_procedures",

@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
-from table_names import table_names
+
+from nhp.data.table_names import table_names
 
 
 def create(spark: SparkSession) -> None:
