@@ -10,7 +10,7 @@ from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 
 from nhp.data.get_spark import get_spark
-from nhp.data.reference.lsoa_lookups import get_lsoa11_to_lad23_lookup
+from nhp.data.nhp_datasets.apc import hes_apc
 from nhp.data.reference.population_by_lsoa21 import get_pop_by_lad23
 from nhp.data.table_names import table_names
 
@@ -44,13 +44,14 @@ def create_provider_lad23_splits(spark: SparkSession) -> DataFrame:
         - Uses unique patient counts (person_id) to align with OHID methodology
         - Missing age/sex/LAD combinations are assigned to the most popular provider for that LAD
     """
-    lsoa11_to_lad23 = get_lsoa11_to_lad23_lookup(spark)
+    acute_providers = spark.read.table(table_names.reference_ods_trusts).filter(
+        F.col("org_type").startswith("ACUTE")
+    )
 
     df = (
-        spark.read.table(table_names.default_apc)
+        hes_apc.join(acute_providers, F.col("provider") == F.col("org_code"), "semi")
         .filter(F.col("lsoa11").startswith("E"))
         .filter(F.col("lsoa11") != "E99999999")
-        .join(lsoa11_to_lad23, F.col("lsoa11") == F.col("lsoa11cd"))
         # get unique patients; more closely related to OHIDs logic
         # (https://tinyurl.com/ohid-nhs-acute-catchments)
         .select("fyear", "provider", "lad23cd", "age", "sex", "person_id")
