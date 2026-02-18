@@ -48,6 +48,8 @@ def create_population_by_imd_decile(
         .withColumn("age", F.col("age").cast("int"))
         .withColumn("imd19", F.col("imd19").cast("int"))
         .withColumnRenamed("lsoa11cd", "lsoa11")
+        .filter(F.col("pop") != "NA")
+        .withColumn("pop", F.col("pop").cast("int"))
         .join(age_groups, "age")
         .groupBy("lsoa11", "imd19", "sex", "age_group")
         .agg(F.sum("pop").alias("pop"))
