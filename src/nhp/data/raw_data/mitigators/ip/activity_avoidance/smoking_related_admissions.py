@@ -21,6 +21,7 @@ sourced from the above referenced document.
 [1]: https://www.rcplondon.ac.uk/projects/outputs/hiding-plain-sight-treating-tobacco-dependency-nhs
 """
 
+import pandas as pd
 import pyspark.sql.types as T
 from pyspark.sql import functions as F
 
@@ -37,20 +38,7 @@ def _smoking():
 
     filename = get_reference_file_path("smoking_attributable_fractions.csv")
 
-    saf = (
-        spark.read.option("header", "true")
-        .option("delimiter", ",")
-        .schema(
-            T.StructType(
-                [
-                    T.StructField("diagnoses", T.StringType(), False),
-                    T.StructField("sex", T.IntegerType(), False),
-                    T.StructField("value", T.DoubleType(), False),
-                ]
-            )
-        )
-        .csv(f"file:///{filename}")
-    )
+    saf = spark.createDataFrame(pd.read_csv(filename))
 
     icd10_codes = spark.read.table(table_names.reference_icd10_codes)
 

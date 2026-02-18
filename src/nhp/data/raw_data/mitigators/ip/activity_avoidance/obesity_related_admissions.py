@@ -13,6 +13,7 @@ this case the model only selects a proportion of spells based on the obesity att
 randomly selects 36% of spells meeting these criteria. The OAFs are also sourced from the above
 referenced document."""
 
+import pandas as pd
 import pyspark.sql.types as T
 from pyspark.sql import functions as F
 
@@ -27,19 +28,7 @@ def _obesity_related_admissions():
     spark = get_spark()
     filename = get_reference_file_path("obesity_attributable_fractions.csv")
 
-    oaf = (
-        spark.read.option("header", "true")
-        .option("delimiter", ",")
-        .schema(
-            T.StructType(
-                [
-                    T.StructField("diagnosis", T.StringType(), False),
-                    T.StructField("fraction", T.DoubleType(), False),
-                ]
-            )
-        )
-        .csv(f"file:///{filename}")
-    )
+    oaf = spark.createDataFrame(pd.read_csv(filename))
 
     return (
         nhp_apc.join(diagnoses, ["epikey", "fyear"])
