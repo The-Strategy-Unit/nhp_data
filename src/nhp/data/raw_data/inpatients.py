@@ -16,11 +16,40 @@ from nhp.data.raw_data.helpers import (
 from nhp.data.table_names import table_names
 
 
+def add_maternity_episode_type(spark: SparkSession, df: DataFrame) -> DataFrame:
+    epitype_2_5 = F.col("epitype").isin(["2", "5"])
+    epitype_3_6 = F.col("epitype").isin(["3", "6"])
+    delplac_1_5_6 = F.col("delplac").isin(["1", "5", "6"])
+    classpat_3_4 = F.col("classpat").isin(["3", "4"])
+    epistat_3 = F.col("epistat") == "3"
+    delmeth_not_null = F.col("delmeth").isNotNull()
+
+    apc_births = (
+        spark.read.table("udal_lake_mart.newhospitalprogramme.hes_apc_births")
+        .groupBy("epikey", "fyear", "procode3")
+        .agg(F.min("delmeth").alias("delmeth"), F.min("delplac").alias("delplac"))
+    )
+
+    return (
+        df.join(apc_births, ["epikey", "fyear", "procode3"], "left")
+        .withColumn(
+            "maternity_episode_type",
+            F.when(epitype_2_5 & ~delplac_1_5_6 & ~classpat_3_4 & epistat_3, 1)
+            .when(epitype_3_6 & ~delplac_1_5_6 & ~classpat_3_4 & epistat_3, 2)
+            .when(epitype_2_5 & delplac_1_5_6 & ~classpat_3_4 & epistat_3, 3)
+            .when(epitype_3_6 & delplac_1_5_6 & ~classpat_3_4 & epistat_3, 4)
+            .when(delmeth_not_null, 9)
+            .otherwise(99),
+        )
+        .select(*df.columns, "maternity_episode_type")
+    )
+
+
 def get_inpatients_data(spark: SparkSession) -> DataFrame:
     """Get Inpatients Data"""
     # Spell has maternity delivery episode
     mat_delivery_spells = (
-        spark.read.table(table_names.hes_apc)
+        add_maternity_episode_type(spark, spark.read.table(table_names.hes_apc))
         .filter(F.col("fce") == 1)
         .filter(F.col("maternity_episode_type") == 1)
         .select("susspellid")
