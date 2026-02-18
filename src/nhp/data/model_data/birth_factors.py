@@ -26,7 +26,7 @@ def create_custom_birth_factors(
     :param path: where to read the demographics from
     :type path: str
     :type fyear: int
-    :param spark: the spark context to use
+    :param spark: the spark session to use
     :type spark: SparkSession
     :param dataset: the dataset to extract
     :type dataset: str
@@ -90,7 +90,7 @@ def extract_custom_birth_factors(
     :param path: where to read the demographics from
     :type path: str
     :type fyear: int
-    :param spark: the spark context to use
+    :param spark: the spark session to use
     :type spark: SparkSession
     :param dataset: the dataset to extract
     :type dataset: str
@@ -109,7 +109,7 @@ def extract(
 ) -> None:
     """Extract Birth Factors data
 
-    :param spark: the spark context to use
+    :param spark: the spark session to use
     :type spark: SparkSession
     :param save_path: where to save the parquet files
     :type save_path: str

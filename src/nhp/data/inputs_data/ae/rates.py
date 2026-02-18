@@ -10,7 +10,7 @@ from nhp.data.inputs_data.direct_standardisation import directly_standardise
 def get_ae_rates(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get A&E activity avoidance rates
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str

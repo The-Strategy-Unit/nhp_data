@@ -15,7 +15,7 @@ def create_population_by_imd_decile(
 ) -> None:
     """Create Population by IMD Decile
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param base_year: which year of activity to be based on, defaults to 201920
     :type base_year: int, optional

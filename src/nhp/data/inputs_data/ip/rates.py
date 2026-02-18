@@ -17,7 +17,7 @@ from nhp.data.table_names import table_names
 def get_population(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get population data for inpatients rates
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str
@@ -42,7 +42,7 @@ def get_ip_activity_avoidance_rates(
 ) -> DataFrame:
     """Get inpatients activity avoidance rates
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str
@@ -73,7 +73,7 @@ def get_ip_activity_avoidance_rates(
 def get_ip_mean_los(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get inpatients mean length of stay data
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str
@@ -114,7 +114,7 @@ def get_ip_mean_los(spark: SparkSession, geography_column: str) -> DataFrame:
 def get_ip_preop_rates(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get inpatients pre-op rates
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str
@@ -157,7 +157,7 @@ def _get_ip_day_procedures_op_denominator(
 ) -> DataFrame:
     """Get inpatients day procedures (outpatients) denominator
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str
@@ -189,7 +189,7 @@ def _get_ip_day_procedures_dc_denominator(
 ) -> DataFrame:
     """Get inpatients day procedures (daycase) denominator
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str
@@ -220,7 +220,7 @@ def _get_ip_day_procedures_dc_denominator(
 def get_ip_day_procedures(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get inpatients day procedures rates
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str

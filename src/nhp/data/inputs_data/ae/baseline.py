@@ -9,7 +9,7 @@ from nhp.data.inputs_data.ae import get_ae_df
 def get_ae_baseline(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get A&E Baseline Data
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str

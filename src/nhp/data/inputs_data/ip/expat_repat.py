@@ -11,7 +11,7 @@ from nhp.data.inputs_data.ip import get_ip_df
 def get_ip_expat_data(spark: SparkSession) -> DataFrame:
     """Get inpatients expat data
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The inpatients expat data
     :rtype: DataFrame
@@ -50,7 +50,7 @@ def _get_icb_df(spark: SparkSession) -> DataFrame:
 def get_ip_repat_local_data(spark: SparkSession) -> DataFrame:
     """Get inpatients repat (local) data
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The inpatients repat (local) data
     :rtype: DataFrame
@@ -77,7 +77,7 @@ def get_ip_repat_local_data(spark: SparkSession) -> DataFrame:
 def get_ip_repat_nonlocal_data(spark: SparkSession) -> DataFrame:
     """Get inpatients repat (non-local) data
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The inpatients repat (non-local) data
     :rtype: DataFrame

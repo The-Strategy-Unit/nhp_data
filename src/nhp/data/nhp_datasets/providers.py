@@ -28,7 +28,7 @@ def add_provider(
 ) -> DataFrame:
     """Add the provider column
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param df: The data frame
     :type df: DataFrame
@@ -61,7 +61,7 @@ def read_data_with_provider(
 ) -> DataFrame:
     """Read a table and add the provider column
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param table: The table to load
     :type table: str

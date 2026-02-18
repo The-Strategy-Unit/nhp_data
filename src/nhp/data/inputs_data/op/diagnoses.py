@@ -10,7 +10,7 @@ from nhp.data.table_names import table_names
 def get_op_diagnoses(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get outpatients diagnoses
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str

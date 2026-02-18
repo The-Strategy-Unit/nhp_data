@@ -7,7 +7,7 @@ from nhp.data.table_names import table_names
 def lsoa11_to_lad23(spark: SparkSession, df: DataFrame, col_name: str) -> DataFrame:
     """Get the LAD23 code for a given LSOA11 code column
 
-    :param spark: the spark context to use
+    :param spark: the spark session to use
     :type spark: SparkSession
     :param df: the dataframe to add the lad23cd column to
     :type df: DataFrame

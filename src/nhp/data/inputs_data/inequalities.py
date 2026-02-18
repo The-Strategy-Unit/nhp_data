@@ -24,7 +24,7 @@ from nhp.data.table_names import table_names
 def load_inequalities_data(spark: SparkSession) -> DataFrame:
     """
     Load and preprocess inequalities data.
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
 
     :return: The dataframe containing the data required for inequalities analysis

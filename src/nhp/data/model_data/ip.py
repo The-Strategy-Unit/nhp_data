@@ -12,7 +12,7 @@ from nhp.data.table_names import table_names
 def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
     """Extract IP (+mitigators) data
 
-    :param spark: the spark context to use
+    :param spark: the spark session to use
     :type spark: SparkSession
     :param save_path: where to save the parquet files
     :type save_path: str

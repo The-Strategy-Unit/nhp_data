@@ -11,7 +11,7 @@ from nhp.data.inputs_data.ae import get_ae_df
 def get_ae_expat_data(spark: SparkSession) -> DataFrame:
     """Get A&E expat data
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The A&E expat data
     :rtype: DataFrame
@@ -38,7 +38,7 @@ def _get_icb_df(spark: SparkSession) -> DataFrame:
 def get_ae_repat_local_data(spark: SparkSession) -> DataFrame:
     """Get A&E repat (local) data
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The A&E  repat (local) data
     :rtype: DataFrame
@@ -65,7 +65,7 @@ def get_ae_repat_local_data(spark: SparkSession) -> DataFrame:
 def get_ae_repat_nonlocal_data(spark: SparkSession) -> DataFrame:
     """Get A&E repat (non-local) data
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The A&E repat (non-local) data
     :rtype: DataFrame

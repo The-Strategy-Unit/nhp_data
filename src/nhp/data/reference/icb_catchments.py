@@ -15,7 +15,7 @@ def get_icb_catchments(spark: SparkSession) -> DataFrame:
     Uses a lookup of ICB<->LSOA<->LAD to split each Local Authority proportionally into ICBs based
     on the amount of LSOAs each ICB has in that LAD.
 
-    :param spark: The Spark context
+    :param spark: The Spark session
     :type spark: SparkSession
     """
 
@@ -78,7 +78,7 @@ def get_icb_catchments(spark: SparkSession) -> DataFrame:
 def create_icb_catchments(spark: SparkSession) -> None:
     """Create ICB Catchments
 
-    :param spark: The Spark context
+    :param spark: The Spark session
     :type spark: SparkSession
     """
 

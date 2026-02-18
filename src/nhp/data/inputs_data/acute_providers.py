@@ -14,7 +14,7 @@ def get_acute_providers(spark: SparkSession) -> DataFrame:
 
     get the list of acute providers
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: data frame of acute providers
     :rtype: DataFrame
@@ -33,7 +33,7 @@ def filter_acute_providers(
 ) -> DataFrame:
     """Filter a data frame to the acute providers
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param df: the data frame to filter
     :type df: DataFrame
