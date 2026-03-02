@@ -24,6 +24,7 @@ from nhp.data.inputs_data.op.expat_repat import (
     get_op_repat_local_data,
     get_op_repat_nonlocal_data,
 )
+from nhp.data.inputs_data.save_parquet import save_parquet
 from nhp.data.table_names import table_names
 
 
@@ -88,7 +89,8 @@ def save_expat_repat_data(path: str, spark: SparkSession) -> None:
     for name, fn in fns.items():
         df = filter_acute_providers(spark, fn(spark), "provider")
         df = df.filter(F.col("provider") != "unknown")
-        df.toPandas().to_parquet(f"{path}/{name}.parquet")
+
+        save_parquet(df, f"{path}/{name}")
 
 
 def main():

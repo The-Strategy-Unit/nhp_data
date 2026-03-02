@@ -11,6 +11,7 @@ from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.ae.diagnoses import get_ae_diagnoses
 from nhp.data.inputs_data.ip.diagnoses import get_ip_diagnoses
 from nhp.data.inputs_data.op.diagnoses import get_op_diagnoses
+from nhp.data.inputs_data.save_parquet import save_parquet
 from nhp.data.table_names import table_names
 
 
@@ -30,7 +31,7 @@ def get_diagnoses(spark: SparkSession, geography_column: str) -> DataFrame:
 
 
 def save_diagnoses(path: str, spark: SparkSession, geography_column: str) -> None:
-    """Save baseline data.
+    """Save diagnoses data.
 
     :param path: The path to save the data to
     :type path: str
@@ -45,7 +46,7 @@ def save_diagnoses(path: str, spark: SparkSession, geography_column: str) -> Non
         df = filter_acute_providers(spark, df, "provider")
     df = df.filter(F.col(geography_column) != "unknown")
 
-    df.toPandas().to_parquet(f"{path}/diagnoses.parquet")
+    save_parquet(df, f"{path}/diagnoses")
 
 
 def main():

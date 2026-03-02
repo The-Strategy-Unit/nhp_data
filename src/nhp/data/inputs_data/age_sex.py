@@ -12,6 +12,7 @@ from nhp.data.inputs_data.ae import get_ae_age_sex_data
 from nhp.data.inputs_data.helpers import inputs_age_group
 from nhp.data.inputs_data.ip import get_ip_age_sex_data
 from nhp.data.inputs_data.op import get_op_age_sex_data
+from nhp.data.inputs_data.save_parquet import save_parquet
 from nhp.data.table_names import table_names
 
 
@@ -62,7 +63,7 @@ def save_age_sex(path: str, spark: SparkSession, geography_column: str) -> None:
         df = filter_acute_providers(spark, df, "provider")
     df = df.filter(F.col(geography_column) != "unknown")
 
-    df.toPandas().to_parquet(f"{path}/age_sex.parquet")
+    save_parquet(df, f"{path}/age_sex")
 
 
 def main():

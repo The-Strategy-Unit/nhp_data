@@ -17,6 +17,7 @@ from nhp.data.inputs_data.ip.rates import (
     get_ip_preop_rates,
 )
 from nhp.data.inputs_data.op.rates import get_op_rates
+from nhp.data.inputs_data.save_parquet import save_parquet
 from nhp.data.table_names import table_names
 
 
@@ -59,7 +60,7 @@ def save_rates(path: str, spark: SparkSession, geography_column: str) -> None:
         df = filter_acute_providers(spark, df, "provider").unionByName(df_national)
     df = df.filter(F.col(geography_column) != "unknown")
 
-    df.toPandas().to_parquet(f"{path}/rates.parquet")
+    save_parquet(df, f"{path}/rates")
 
 
 def main():

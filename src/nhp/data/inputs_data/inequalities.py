@@ -17,6 +17,7 @@ from pyspark.sql.types import (
 )
 
 from nhp.data.get_spark import get_spark
+from nhp.data.inputs_data.save_parquet import save_parquet
 from nhp.data.table_names import table_names
 
 
@@ -232,13 +233,13 @@ def save_inequalities(path: str, spark: SparkSession) -> None:
         .mode("overwrite")
         .saveAsTable(table_names.default_inequalities)
     )
-    inequalities.toPandas().to_parquet(f"{path}/inequalities.parquet")
+    save_parquet(inequalities, f"{path}/inequalities")
 
 
 def main():
     geography_column = sys.argv[1]
     if geography_column != "provider":
-        logging.info("skipping expat_repat data generation for non-provider geography")
+        logging.info("skipping inequalities data generation for non-provider geography")
         return
 
     path = f"{table_names.inputs_save_path}/{geography_column}"

@@ -11,6 +11,7 @@ from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.ae.procedures import get_ae_procedures
 from nhp.data.inputs_data.ip.procedures import get_ip_procedures
 from nhp.data.inputs_data.op.procedures import get_op_procedures
+from nhp.data.inputs_data.save_parquet import save_parquet
 from nhp.data.table_names import table_names
 
 
@@ -45,7 +46,7 @@ def save_procedures(path: str, spark: SparkSession, geography_column: str) -> No
         df = filter_acute_providers(spark, df, "provider")
     df = df.filter(F.col(geography_column) != "unknown")
 
-    df.toPandas().to_parquet(f"{path}/procedures.parquet")
+    save_parquet(df, f"{path}/procedures")
 
 
 def main():
