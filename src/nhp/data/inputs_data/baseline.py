@@ -27,7 +27,9 @@ def get_baseline(spark: SparkSession, geography_column: str) -> DataFrame:
     """
     fns = [get_ae_baseline, get_ip_baseline, get_op_baseline]
 
-    return reduce(DataFrame.unionByName, [f(spark, geography_column) for f in fns])
+    return reduce(
+        DataFrame.unionByName, [f(spark, geography_column) for f in fns]
+    ).orderBy("fyear", geography_column, "activity_type", "group", "tretspef")
 
 
 def save_baseline(path: str, spark: SparkSession, geography_column: str) -> None:

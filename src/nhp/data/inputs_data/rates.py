@@ -40,7 +40,9 @@ def get_rates(spark: SparkSession, geography_column: str) -> DataFrame:
         get_op_rates,
     ]
 
-    return reduce(DataFrame.unionByName, [f(spark, geography_column) for f in fns])
+    return reduce(
+        DataFrame.unionByName, [f(spark, geography_column) for f in fns]
+    ).orderBy("fyear", geography_column, "strategy")
 
 
 def save_rates(path: str, spark: SparkSession, geography_column: str) -> None:

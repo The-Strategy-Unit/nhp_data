@@ -27,7 +27,9 @@ def get_diagnoses(spark: SparkSession, geography_column: str) -> DataFrame:
     """
     fns = [get_ae_diagnoses, get_ip_diagnoses, get_op_diagnoses]
 
-    return reduce(DataFrame.unionByName, [f(spark, geography_column) for f in fns])
+    return reduce(
+        DataFrame.unionByName, [f(spark, geography_column) for f in fns]
+    ).orderBy("fyear", geography_column, "strategy", "rn")
 
 
 def save_diagnoses(path: str, spark: SparkSession, geography_column: str) -> None:
