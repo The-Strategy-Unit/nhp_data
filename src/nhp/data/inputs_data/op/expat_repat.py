@@ -33,6 +33,7 @@ def _get_icb_df(spark: SparkSession) -> DataFrame:
         .withColumn("group", F.lit(""))
         .groupBy("fyear", "icb", "is_main_icb", "provider", "group", "tretspef")
         .agg(F.sum("attendance").alias("count"))
+        .filter(F.col("count") > 0)
         .persist()
     )
 

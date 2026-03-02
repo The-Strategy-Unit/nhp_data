@@ -37,6 +37,7 @@ def load_inequalities_data(spark: SparkSession) -> DataFrame:
         .drop("imd19")
         .groupby("icb", "provider", "imd_quintile")
         .agg(F.sum("pop").alias("pop"))
+        .filter(F.col("pop") > 0)
         .withColumn(
             "population_share",
             F.col("pop") / F.sum("pop").over(Window.partitionBy(["icb", "provider"])),
