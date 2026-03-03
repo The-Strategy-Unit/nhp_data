@@ -84,4 +84,5 @@ reference-population_by_imd_decile = "nhp.data.reference.population_by_imd_decil
 reference-lsoa_lookups = "nhp.data.reference.lsoa_lookups:main"
 reference-population_by_lsoa21 = "nhp.data.reference.population_by_lsoa21:main"
 reference-provider_catchments = "nhp.data.reference.provider_catchments:main"
+reference-icb_catchments = "nhp.data.reference.icb_catchments:main"
 

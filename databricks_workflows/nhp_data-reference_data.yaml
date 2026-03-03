@@ -65,9 +65,18 @@ resources:
           job_cluster_key: nhp_data
           libraries:
             - whl: ../dist/*.whl
-        - task_key: create_day_procedure_code_list
+        - task_key: create_icb_catchments
           depends_on:
             - task_key: create_provider_catchments
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: reference-icb_catchments
+          job_cluster_key: nhp_data
+          libraries:
+            - whl: ../dist/*.whl
+        - task_key: create_day_procedure_code_list
+          depends_on:
+            - task_key: create_icb_catchments
           python_wheel_task:
             package_name: nhp_data
             entry_point: reference-day_procedures
