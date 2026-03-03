@@ -14,7 +14,6 @@ randomly selects 36% of spells meeting these criteria. The OAFs are also sourced
 referenced document."""
 
 import pandas as pd
-import pyspark.sql.types as T
 from pyspark.sql import functions as F
 
 from nhp.data.get_spark import get_spark

@@ -3,7 +3,6 @@ import io
 import bs4
 import numpy as np
 import pandas as pd
-import progressbar
 import requests
 from bs4 import BeautifulSoup
 from pyspark.sql import DataFrame, SparkSession

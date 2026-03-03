@@ -28,7 +28,6 @@ Trim Points are updated annually and can be found in the [National Tariff workbo
 # pylint: enable=line-too-long
 
 import pandas as pd
-import pyspark.sql.types as T
 from pyspark.sql import functions as F
 
 from nhp.data.get_spark import get_spark
