@@ -64,7 +64,9 @@ def get_ip_activity_avoidance_rates(
     )
     df = complete_age_sex_rows(spark, df, geography_column)
 
-    return df.join(pop, ["fyear", "age", "sex", geography_column], "left")
+    return df.join(pop, ["fyear", "age", "sex", geography_column], "left").filter(
+        F.col("d") > 0
+    )
 
 
 @directly_standardise
