@@ -42,7 +42,7 @@ def get_eric_links():
     links = [a.attrs["href"] for a in div.find_all("a") if re.match(pattern, a.text)]
 
     # ensure the links are sorted in year order
-    return sorted([(year_to_fyear(i[-7:-3]), i) for i in links])
+    return sorted([(year_to_fyear(i[-7:-3]), i) for i in links if isinstance(i, str)])
 
 
 def get_eric_trust_data(year: int, link: str) -> pd.DataFrame:
