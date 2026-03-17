@@ -109,17 +109,21 @@ def get_day_procedure_code_list(
         )
         .assign(
             prob_usually=lambda x: x.apply(
-                lambda y: binomtest(
-                    y.value, y.total, p=P_USUALLY, alternative="greater"
-                ).pvalue,
+                lambda y: (
+                    binomtest(
+                        y.value, y.total, p=P_USUALLY, alternative="greater"
+                    ).pvalue
+                ),
                 axis=1,
             )
         )
         .assign(
             prob_occasionally=lambda x: x.apply(
-                lambda y: binomtest(
-                    y.value, y.total, p=P_OCCASIONALLY, alternative="greater"
-                ).pvalue,
+                lambda y: (
+                    binomtest(
+                        y.value, y.total, p=P_OCCASIONALLY, alternative="greater"
+                    ).pvalue
+                ),
                 axis=1,
             )
         )
