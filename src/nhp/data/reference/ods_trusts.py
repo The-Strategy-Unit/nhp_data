@@ -77,7 +77,7 @@ def _get_text(elem: ET.Element, path: str) -> str | None:
     return e.text
 
 
-def process_successor(x: ET.Element, org_code: str) -> dict:
+def process_successor(x: ET.Element, org_code: str) -> dict[str, str | None]:
     """Process successor records
 
     :param x: xml element
@@ -98,7 +98,9 @@ def process_successor(x: ET.Element, org_code: str) -> dict:
     }
 
 
-def process_organisation(org: ET.Element) -> dict:
+def process_organisation(
+    org: ET.Element,
+) -> dict[str, str | list[dict[str, str | None]] | None]:
     """Process an organisation record
 
     :param org: xml element
@@ -132,12 +134,13 @@ def process_organisation(org: ET.Element) -> dict:
     if postcode is not None:
         org_dict["postcode"] = postcode.text
 
-    org_dict["successors"] = [
-        process_successor(i, org_code)
-        for i in org.findall("Succs/Succ[Type='Predecessor']")
-    ]
-
-    return org_dict
+    return {
+        **org_dict,
+        "successors": [
+            process_successor(i, org_code)
+            for i in org.findall("Succs/Succ[Type='Predecessor']")
+        ],
+    }
 
 
 def get_successors_df(processed_orgs: list, ods_df: pd.DataFrame) -> pd.DataFrame:
@@ -191,7 +194,7 @@ def get_successors_df(processed_orgs: list, ods_df: pd.DataFrame) -> pd.DataFram
                     }
                 )
                 if k:
-                    q.append((k, end_date))
+                    q.append((k, end_date))  # ty: ignore[invalid-argument-type]
 
     successors_df = pd.DataFrame(transitive_closure).drop_duplicates()
 

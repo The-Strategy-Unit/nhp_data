@@ -214,7 +214,7 @@ def save_inequalities(path: str, spark: SparkSession) -> None:
     :param spark: The spark session to use
     :type spark: SparkSession
     """
-    mlflow.autolog(  # ty: ignore[possibly-missing-attribute]
+    mlflow.autolog(
         log_input_examples=False,
         log_model_signatures=False,
         log_models=False,
