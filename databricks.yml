@@ -30,3 +30,7 @@ targets:
     mode: production
     workspace:
       host: https://adb-6450443583208388.8.azuredatabricks.net
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    permissions:
+      - group_name: UDAL - Databricks - NewHospitalProgramme - PROD
+        level: CAN_MANAGE
