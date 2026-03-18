@@ -34,6 +34,7 @@ def create_pop_by_lsoa21(spark: SparkSession, table: str) -> None:
     def year_to_fyear(year):
         return year * 100 + (year + 1) % 100
 
+    spark.sql(f"DROP TABLE IF EXISTS {table}")
     for file_title, years in [
         ("Mid-2011 to mid-2014", [2011, 2012, 2013, 2014]),
         ("Mid-2015 to mid-2018", [2015, 2016, 2017, 2018]),
@@ -55,7 +56,6 @@ def create_pop_by_lsoa21(spark: SparkSession, table: str) -> None:
 
         file = io.BytesIO(response.content)
 
-        spark.sql(f"DROP TABLE IF EXISTS {table}")
         for year in years:
             print(f"> {year}")
             df = (
