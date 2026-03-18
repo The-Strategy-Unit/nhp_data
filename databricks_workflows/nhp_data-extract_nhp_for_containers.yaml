@@ -165,6 +165,15 @@ resources:
           job_cluster_key: nhp_data
           libraries:
             - whl: ../dist/*.whl
+        - task_key: move_data
+          depends_on:
+            - task_key: clean_up
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: extract_data
+          job_cluster_key: nhp_data
+          libraries:
+            - whl: ../dist/*.whl
       job_clusters:
         - job_cluster_key: nhp_data
           new_cluster:
