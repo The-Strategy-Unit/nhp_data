@@ -18,10 +18,14 @@ def get_op_rates(spark: SparkSession, geography_column: str) -> DataFrame:
     :return: The outpatients activity avoidances rates
     :rtype: DataFrame
     """
-    return get_op_age_sex_data(spark, geography_column).withColumn(
-        "d",
-        F.when(
-            F.col("strategy").startswith("followup_reduction_"),
-            F.col("d") - F.col("n"),
-        ).otherwise(F.col("d")),
+    return (
+        get_op_age_sex_data(spark, geography_column)
+        .withColumn(
+            "d",
+            F.when(
+                F.col("strategy").startswith("followup_reduction_"),
+                F.col("d") - F.col("n"),
+            ).otherwise(F.col("d")),
+        )
+        .filter(F.col("d") > 0)
     )

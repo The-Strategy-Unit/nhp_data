@@ -63,8 +63,8 @@ def _arthroscopic_meniscal_tear():
     # either there is a diagnosis of M323, or they have both M233 and M238 diagnoses
     diags = [
         lambda x: x.admission_has(any_diagnosis, "M232"),
-        lambda x: (
-            x.admission_has(any_diagnosis, "M233").admission_has(any_diagnosis, "M238")
+        lambda x: x.admission_has(any_diagnosis, "M233").admission_has(
+            any_diagnosis, "M238"
         ),
     ]
 

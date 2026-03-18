@@ -13,7 +13,7 @@ from nhp.data.reference.lsoa_lookups import get_lsoa21_to_lad23
 from nhp.data.table_names import table_names
 
 
-def create_pop_by_lsoa21():
+def create_pop_by_lsoa21(spark: SparkSession, table: str) -> None:
     BASE_URL = "https://www.ons.gov.uk"
 
     url = "/".join(
@@ -31,10 +31,17 @@ def create_pop_by_lsoa21():
 
     soup = BeautifulSoup(resp.text, "html.parser")
 
-    def get_pop_by_lsoa_file(file_title: str, years: list[int]) -> pd.DataFrame:
-        def year_to_fyear(year):
-            return year * 100 + (year + 1) % 100
+    def year_to_fyear(year):
+        return year * 100 + (year + 1) % 100
 
+    spark.sql(f"DROP TABLE IF EXISTS {table}")
+    for file_title, years in [
+        ("Mid-2011 to mid-2014", [2011, 2012, 2013, 2014]),
+        ("Mid-2015 to mid-2018", [2015, 2016, 2017, 2018]),
+        ("Mid-2019 to mid-2022", [2019, 2020, 2021]),
+        ("Mid-2022 revised (Nov 2025) to mid-2024", [2022, 2023, 2024]),
+    ]:
+        print(f"Processing file: {file_title}")
         file_link = soup.find(
             "a", attrs={"aria-label": lambda x: x and file_title in x}
         )
@@ -49,48 +56,33 @@ def create_pop_by_lsoa21():
 
         file = io.BytesIO(response.content)
 
-        return pd.concat(
-            [
-                (
-                    pd.read_excel(file, sheet_name=f"Mid-{year} LSOA 2021", skiprows=3)
-                    .rename(columns={"LSOA 2021 Code": "lsoa21cd"})
-                    .melt(
-                        id_vars="lsoa21cd",
-                        value_vars=[f"{s}{i}" for s in "FM" for i in range(0, 91)],
-                        var_name="sex_age",
-                        value_name="population",
-                    )
-                    .assign(
-                        sex=lambda x: np.where(x["sex_age"].str[0] == "M", 1, 2),
-                        age=lambda x: x["sex_age"].str[1:].astype("int"),
-                        fyear=year_to_fyear(year),
-                    )
-                    .drop(columns=["sex_age"])
+        for year in years:
+            print(f"> {year}")
+            df = (
+                pd.read_excel(file, sheet_name=f"Mid-{year} LSOA 2021", skiprows=3)
+                .rename(columns={"LSOA 2021 Code": "lsoa21cd"})
+                .melt(
+                    id_vars="lsoa21cd",
+                    value_vars=[f"{s}{i}" for s in "FM" for i in range(0, 91)],
+                    var_name="sex_age",
+                    value_name="population",
                 )
-                for year in years
-            ]
-        )
-
-    df = pd.concat(
-        [
-            get_pop_by_lsoa_file(*f)  # ty: ignore[invalid-argument-type]
-            for f in [
-                ("Mid-2011 to mid-2014", [2011, 2012, 2013, 2014]),
-                ("Mid-2015 to mid-2018", [2015, 2016, 2017, 2018]),
-                ("Mid-2019 to mid-2022", [2019, 2020, 2021]),
-                ("Mid-2022 revised (Nov 2025) to mid-2024", [2022, 2023, 2024]),
-            ]
-        ]
-    )
-
-    return df[["fyear", "lsoa21cd", "sex", "age", "population"]]
+                .assign(
+                    sex=lambda x: np.where(x["sex_age"].str[0] == "M", 1, 2),
+                    age=lambda x: x["sex_age"].str[1:].astype("int"),
+                    fyear=year_to_fyear(year),
+                )
+                .drop(columns=["sex_age"])
+            )
+            spark.createDataFrame(df).repartition(1).write.mode("append").saveAsTable(
+                table
+            )
 
 
 def get_pop_by_lsoa21(spark: SparkSession) -> DataFrame:
     table = table_names.reference_pop_by_lsoa21
     if not spark.catalog.tableExists(table):
-        pop_by_lsoa21 = create_pop_by_lsoa21()
-        spark.createDataFrame(pop_by_lsoa21).write.mode("overwrite").saveAsTable(table)
+        create_pop_by_lsoa21(spark, table)
 
     return spark.read.table(table)
 

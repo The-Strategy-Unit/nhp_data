@@ -17,6 +17,7 @@ from pyspark.sql.types import (
 )
 
 from nhp.data.get_spark import get_spark
+from nhp.data.inputs_data.save_parquet import save_parquet
 from nhp.data.table_names import table_names
 
 
@@ -36,6 +37,7 @@ def load_inequalities_data(spark: SparkSession) -> DataFrame:
         .drop("imd19")
         .groupby("icb", "provider", "imd_quintile")
         .agg(F.sum("pop").alias("pop"))
+        .filter(F.col("pop") > 0)
         .withColumn(
             "population_share",
             F.col("pop") / F.sum("pop").over(Window.partitionBy(["icb", "provider"])),
@@ -212,7 +214,7 @@ def save_inequalities(path: str, spark: SparkSession) -> None:
     :param spark: The spark session to use
     :type spark: SparkSession
     """
-    mlflow.autolog(  # ty: ignore[possibly-missing-attribute]
+    mlflow.autolog(
         log_input_examples=False,
         log_model_signatures=False,
         log_models=False,
@@ -232,13 +234,13 @@ def save_inequalities(path: str, spark: SparkSession) -> None:
         .mode("overwrite")
         .saveAsTable(table_names.default_inequalities)
     )
-    inequalities.toPandas().to_parquet(f"{path}/inequalities.parquet")
+    save_parquet(inequalities, f"{path}/inequalities")
 
 
 def main():
     geography_column = sys.argv[1]
     if geography_column != "provider":
-        logging.info("skipping expat_repat data generation for non-provider geography")
+        logging.info("skipping inequalities data generation for non-provider geography")
         return
 
     path = f"{table_names.inputs_save_path}/{geography_column}"

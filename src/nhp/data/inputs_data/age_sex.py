@@ -12,6 +12,7 @@ from nhp.data.inputs_data.ae import get_ae_age_sex_data
 from nhp.data.inputs_data.helpers import inputs_age_group
 from nhp.data.inputs_data.ip import get_ip_age_sex_data
 from nhp.data.inputs_data.op import get_op_age_sex_data
+from nhp.data.inputs_data.save_parquet import save_parquet
 from nhp.data.table_names import table_names
 
 
@@ -31,18 +32,22 @@ def get_age_sex(spark: SparkSession, geography_column: str) -> DataFrame:
         get_op_age_sex_data,
     ]
 
+    age_groups = inputs_age_group(spark)
     cols = ["fyear", geography_column, "strategy", "sex", "age", "n"]
 
-    df = reduce(
-        DataFrame.unionByName, [f(spark, geography_column).select(*cols) for f in fns]
-    )
+    def get_data(fn):
+        df = (
+            fn(spark, geography_column)
+            .join(age_groups, "age")
+            .groupBy(*cols[:-2], "age_group")
+            .agg(F.sum("n").alias("n"))
+            .cache()
+        )
+        df.count()  # materialise
+        return df
 
-    age_groups = inputs_age_group(spark)
-
-    return (
-        df.join(age_groups, "age")
-        .groupBy(*cols[:-2], "age_group")
-        .agg(F.sum("n").alias("n"))
+    return reduce(DataFrame.unionByName, map(get_data, fns)).orderBy(
+        *cols[:-2], "age_group"
     )
 
 
@@ -62,7 +67,7 @@ def save_age_sex(path: str, spark: SparkSession, geography_column: str) -> None:
         df = filter_acute_providers(spark, df, "provider")
     df = df.filter(F.col(geography_column) != "unknown")
 
-    df.toPandas().to_parquet(f"{path}/age_sex.parquet")
+    save_parquet(df, f"{path}/age_sex")
 
 
 def main():

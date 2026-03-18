@@ -11,6 +11,7 @@ from nhp.data.inputs_data.acute_providers import filter_acute_providers
 from nhp.data.inputs_data.ae.baseline import get_ae_baseline
 from nhp.data.inputs_data.ip.baseline import get_ip_baseline
 from nhp.data.inputs_data.op.baseline import get_op_baseline
+from nhp.data.inputs_data.save_parquet import save_parquet
 from nhp.data.table_names import table_names
 
 
@@ -26,7 +27,9 @@ def get_baseline(spark: SparkSession, geography_column: str) -> DataFrame:
     """
     fns = [get_ae_baseline, get_ip_baseline, get_op_baseline]
 
-    return reduce(DataFrame.unionByName, [f(spark, geography_column) for f in fns])
+    return reduce(
+        DataFrame.unionByName, [f(spark, geography_column) for f in fns]
+    ).orderBy("fyear", geography_column, "activity_type", "group", "tretspef")
 
 
 def save_baseline(path: str, spark: SparkSession, geography_column: str) -> None:
@@ -43,7 +46,7 @@ def save_baseline(path: str, spark: SparkSession, geography_column: str) -> None
         df = filter_acute_providers(spark, df, "provider")
     df = df.filter(F.col(geography_column) != "unknown")
 
-    df.toPandas().to_parquet(f"{path}/baseline.parquet")
+    save_parquet(df, f"{path}/baseline")
 
 
 def main():

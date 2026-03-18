@@ -77,7 +77,7 @@ def _get_text(elem: ET.Element, path: str) -> str | None:
     return e.text
 
 
-def process_successor(x: ET.Element, org_code: str) -> dict:
+def process_successor(x: ET.Element, org_code: str) -> dict[str, str | None]:
     """Process successor records
 
     :param x: xml element
@@ -98,7 +98,9 @@ def process_successor(x: ET.Element, org_code: str) -> dict:
     }
 
 
-def process_organisation(org: ET.Element) -> dict:
+def process_organisation(
+    org: ET.Element,
+) -> dict[str, str | list[dict[str, str | None]] | None]:
     """Process an organisation record
 
     :param org: xml element
@@ -121,7 +123,9 @@ def process_organisation(org: ET.Element) -> dict:
         for i in org.findall("Date")
         if _get_attrib(i, "Type", "value") == "Operational"
     ][0]
-    org_dict["start_date"] = operational_date.find("Start").get("value")  # ty: ignore[possibly-missing-attribute]
+    start_date = operational_date.find("Start")
+    assert start_date is not None, "Operational date must have a start date"
+    org_dict["start_date"] = start_date.get("value")
     end_date = operational_date.find("End")
     if end_date is not None:
         org_dict["end_date"] = end_date.get("value")
@@ -130,12 +134,13 @@ def process_organisation(org: ET.Element) -> dict:
     if postcode is not None:
         org_dict["postcode"] = postcode.text
 
-    org_dict["successors"] = [
-        process_successor(i, org_code)
-        for i in org.findall("Succs/Succ[Type='Predecessor']")
-    ]
-
-    return org_dict
+    return {
+        **org_dict,
+        "successors": [
+            process_successor(i, org_code)
+            for i in org.findall("Succs/Succ[Type='Predecessor']")
+        ],
+    }
 
 
 def get_successors_df(processed_orgs: list, ods_df: pd.DataFrame) -> pd.DataFrame:
@@ -189,7 +194,7 @@ def get_successors_df(processed_orgs: list, ods_df: pd.DataFrame) -> pd.DataFram
                     }
                 )
                 if k:
-                    q.append((k, end_date))
+                    q.append((k, end_date))  # ty: ignore[invalid-argument-type]
 
     successors_df = pd.DataFrame(transitive_closure).drop_duplicates()
 

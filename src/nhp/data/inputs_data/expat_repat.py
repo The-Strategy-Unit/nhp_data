@@ -24,6 +24,7 @@ from nhp.data.inputs_data.op.expat_repat import (
     get_op_repat_local_data,
     get_op_repat_nonlocal_data,
 )
+from nhp.data.inputs_data.save_parquet import save_parquet
 from nhp.data.table_names import table_names
 
 
@@ -37,7 +38,9 @@ def get_expat_data(spark: SparkSession) -> DataFrame:
     """
     fns = [get_ae_expat_data, get_ip_expat_data, get_op_expat_data]
 
-    return reduce(DataFrame.unionByName, [f(spark) for f in fns])
+    return reduce(DataFrame.unionByName, [f(spark) for f in fns]).orderBy(
+        "fyear", "provider", "activity_type", "group", "tretspef"
+    )
 
 
 def get_repat_local_data(spark: SparkSession) -> DataFrame:
@@ -50,7 +53,9 @@ def get_repat_local_data(spark: SparkSession) -> DataFrame:
     """
     fns = [get_ae_repat_local_data, get_ip_repat_local_data, get_op_repat_local_data]
 
-    return reduce(DataFrame.unionByName, [f(spark) for f in fns])
+    return reduce(DataFrame.unionByName, [f(spark) for f in fns]).orderBy(
+        "fyear", "icb", "provider", "activity_type", "group", "tretspef"
+    )
 
 
 def get_repat_nonlocal_data(spark: SparkSession) -> DataFrame:
@@ -67,7 +72,9 @@ def get_repat_nonlocal_data(spark: SparkSession) -> DataFrame:
         get_op_repat_nonlocal_data,
     ]
 
-    return reduce(DataFrame.unionByName, [f(spark) for f in fns])
+    return reduce(DataFrame.unionByName, [f(spark) for f in fns]).orderBy(
+        "fyear", "icb", "is_main_icb", "provider", "activity_type", "group", "tretspef"
+    )
 
 
 def save_expat_repat_data(path: str, spark: SparkSession) -> None:
@@ -88,7 +95,8 @@ def save_expat_repat_data(path: str, spark: SparkSession) -> None:
     for name, fn in fns.items():
         df = filter_acute_providers(spark, fn(spark), "provider")
         df = df.filter(F.col("provider") != "unknown")
-        df.toPandas().to_parquet(f"{path}/{name}.parquet")
+
+        save_parquet(df, f"{path}/{name}")
 
 
 def main():

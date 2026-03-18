@@ -27,7 +27,7 @@ Trim Points are updated annually and can be found in the [National Tariff workbo
 """
 # pylint: enable=line-too-long
 
-import pyspark.sql.types as T
+import pandas as pd
 from pyspark.sql import functions as F
 
 from nhp.data.get_spark import get_spark
@@ -41,16 +41,13 @@ def _excess_beddays(group):
     filename = get_reference_file_path("hrg_trimpoints.csv")
 
     ebd = (
-        spark.read.schema(
-            T.StructType(
-                [
-                    T.StructField("sushrg", T.StringType(), False),
-                    T.StructField("elective", T.IntegerType(), True),
-                    T.StructField("emergency", T.IntegerType(), True),
-                ]
+        spark.createDataFrame(
+            pd.read_csv(
+                filename,
+                na_values="-",
+                dtype={"sushrg": "str", "elective": "Int64", "emergency": "Int64"},
             )
         )
-        .csv(f"file:///{filename}", sep=",", header=True, nullValue="-")
         .select("sushrg", F.col(group).alias("trimpoint"))
         .dropna()
     )

@@ -59,6 +59,11 @@ class SynthData:
     def save_synth_file(self, file: str, df: pd.DataFrame) -> None:
         p = f"{self._synth_path}/{file}/fyear={self._fyear}/dataset=synthetic"
         os.makedirs(p, exist_ok=True)
+        df.attrs = {
+            k: v
+            for k, v in df.attrs.items()
+            if k not in ["metrics", "observed_metrics"]
+        }
         df.to_parquet(f"{p}/0.parquet")
 
     def generate(self) -> None:
