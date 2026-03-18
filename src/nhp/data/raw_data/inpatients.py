@@ -24,8 +24,9 @@ def add_maternity_episode_type(spark: SparkSession, df: DataFrame) -> DataFrame:
     epistat_3 = F.col("epistat") == "3"
     delmeth_not_null = F.col("delmeth").isNotNull()
 
+    apc_births_table = f"{table_names.hes_apc}_births"
     apc_births = (
-        spark.read.table("udal_lake_mart.newhospitalprogramme.hes_apc_births")
+        spark.read.table(apc_births_table)
         .groupBy("epikey", "fyear", "procode3")
         .agg(F.min("delmeth").alias("delmeth"), F.min("delplac").alias("delplac"))
     )

@@ -4,7 +4,7 @@ import shutil
 
 def save_parquet(df, path):
     # save the dataframe
-    df.repartition(1).write.parquet(path)
+    df.coalesce(1).write.mode("overwrite").parquet(path)
     # find the created files
     files = os.listdir(path)
     # find just the parquet file
