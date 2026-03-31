@@ -1,9 +1,11 @@
+from pyspark.dbutils import DBUtils
 from pyspark.sql import SparkSession
 
+from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
 
 
-def create(spark: SparkSession) -> None:
+def create(spark: SparkSession, object_owner_group: str) -> None:
     spark.sql(
         f"""
     CREATE OR REPLACE VIEW {table_names.default_opa}
@@ -20,8 +22,18 @@ def create(spark: SparkSession) -> None:
       """
     )
 
+    spark.sql(
+        f"""
+    ALTER VIEW {table_names.default_opa}
+    OWNER TO `{object_owner_group}`
+    """
+    )
+
 
 def main() -> None:
-    """Main method to create the apc view"""
-    spark = SparkSession.builder.getOrCreate()
-    create(spark)
+    """Main method to create the opa view"""
+    spark = get_spark()
+    dbutils = DBUtils(spark)
+
+    object_owner_group = dbutils.secrets.get(scope="nhp", key="object_owner_group")
+    create(spark, object_owner_group)
