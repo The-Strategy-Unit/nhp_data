@@ -1,6 +1,6 @@
 from pyspark.dbutils import DBUtils
 
-from nhp.data.default._default_view import create_default_view
+from nhp.data.default._default_view import create_default_view, get_object_owner_group
 from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
 
@@ -10,7 +10,7 @@ def main() -> None:
     spark = get_spark()
     dbutils = DBUtils(spark)
 
-    object_owner_group = dbutils.secrets.get(scope="nhp", key="object_owner_group")
+    object_owner_group = get_object_owner_group(dbutils)
 
     create_default_view(
         spark, table_names.raw_data_apc, table_names.default_apc, object_owner_group

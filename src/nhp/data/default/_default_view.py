@@ -1,8 +1,20 @@
 import re
+from typing import Any
 
 from pyspark.sql import SparkSession
 
 from nhp.data.table_names import table_names
+
+
+def get_object_owner_group(dbutils: Any) -> str:
+    try:
+        return dbutils.secrets.get(scope="nhp", key="object_owner_group")
+    except Exception as exc:
+        raise RuntimeError(
+            "Failed to retrieve Databricks secret 'object_owner_group' from scope 'nhp'. "
+            "Ensure that the secret scope 'nhp' exists, that the key 'object_owner_group' "
+            "is provisioned, and that this job has permission to access it."
+        ) from exc
 
 
 def safe_ident(name: str) -> str:
