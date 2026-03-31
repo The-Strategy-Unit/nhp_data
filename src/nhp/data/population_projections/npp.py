@@ -76,7 +76,7 @@ def process_npp_variant(
 
     Process the national projections at subnational level.
 
-    :param spark: The Spark context
+    :param spark: The Spark session
     :type spark: SparkSession
     :param path: The path to the data
     :type path: str

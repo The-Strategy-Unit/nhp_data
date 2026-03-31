@@ -13,7 +13,7 @@ from nhp.data.table_names import table_names
 def get_op_df(spark: SparkSession) -> DataFrame:
     """Get Outpatients DataFrame
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The outpatients data
     :rtype: DataFrame
@@ -33,7 +33,7 @@ def get_op_df(spark: SparkSession) -> DataFrame:
 def get_op_mitigators(spark: SparkSession) -> DataFrame:
     """Get Outpatients Mitigators DataFrame
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The outpatients mitigators data
     :rtype: DataFrame
@@ -85,7 +85,7 @@ _OP_AGE_SEX_DF_CACHE = {}
 def get_op_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get the op age sex table
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str

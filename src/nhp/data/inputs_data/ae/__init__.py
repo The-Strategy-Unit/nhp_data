@@ -13,7 +13,7 @@ from nhp.data.table_names import table_names
 def get_ae_df(spark: SparkSession) -> DataFrame:
     """Get A&E DataFrame
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The outpatients data
     :rtype: DataFrame
@@ -31,7 +31,7 @@ def get_ae_df(spark: SparkSession) -> DataFrame:
 def get_ae_mitigators(spark: SparkSession) -> DataFrame:
     """Get A&E Mitigators DataFrame
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The outpatients mitigators data
     :rtype: DataFrame
@@ -66,7 +66,7 @@ _AE_AGE_SEX_DF_CACHE = {}
 def get_ae_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get the ae age sex table
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str

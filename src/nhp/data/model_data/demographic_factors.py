@@ -18,7 +18,7 @@ from nhp.data.table_names import table_names
 def _create_custom_demographic_factors_RD8(spark: SparkSession) -> DataFrame:
     """Create custom demographic factors file for RD8 using agreed methodology
 
-    :param spark: the spark context to use
+    :param spark: the spark session to use
     :type spark: SparkSession
     """
     # Load demographics - principal projection only
@@ -46,7 +46,7 @@ def _create_custom_demographic_factors_RD8(spark: SparkSession) -> DataFrame:
 def _create_custom_demographic_factors_R0A66(spark: SparkSession) -> DataFrame:
     """Create custom demographic factors file for R0A66 using agreed methodology
 
-    :param spark: the spark context to use
+    :param spark: the spark session to use
     :type spark: SparkSession
     """
     # Load demographics - principal projection only
@@ -113,7 +113,7 @@ def extract(
 ) -> None:
     """Extract Demographic Factors data
 
-    :param spark: the spark context to use
+    :param spark: the spark session to use
     :type spark: SparkSession
     :param save_path: where to save the parquet files
     :type save_path: str

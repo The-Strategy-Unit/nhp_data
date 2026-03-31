@@ -18,7 +18,7 @@ icb_mapping = F.create_map([F.lit(x) for x in chain(*ccg_to_icb.items())])
 def add_main_icb(spark: SparkSession, df: DataFrame) -> DataFrame:
     """Add Main ICB column
 
-    :param spark: the spark context
+    :param spark: the spark session
     :type spark: SparkSession
     :param df: the dataframe to add the main icb column to
     :type df: DataFrame

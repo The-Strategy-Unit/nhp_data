@@ -31,7 +31,7 @@ from nhp.data.table_names import table_names
 def get_expat_data(spark: SparkSession) -> DataFrame:
     """Get expat data (combined)
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The expat data
     :rtype: DataFrame
@@ -46,7 +46,7 @@ def get_expat_data(spark: SparkSession) -> DataFrame:
 def get_repat_local_data(spark: SparkSession) -> DataFrame:
     """Get repat (local) data (combined)
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The repat (local) data
     :rtype: DataFrame
@@ -61,7 +61,7 @@ def get_repat_local_data(spark: SparkSession) -> DataFrame:
 def get_repat_nonlocal_data(spark: SparkSession) -> DataFrame:
     """Get repat (non-local) data (combined)
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The repat (non-local) data
     :rtype: DataFrame

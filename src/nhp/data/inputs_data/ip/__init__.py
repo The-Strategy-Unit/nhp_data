@@ -12,7 +12,7 @@ from nhp.data.table_names import table_names
 def get_ip_df(spark: SparkSession) -> DataFrame:
     """Get Inpatients DataFrame
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The inpatients data
     :rtype: DataFrame
@@ -31,7 +31,7 @@ def get_ip_df(spark: SparkSession) -> DataFrame:
 def get_ip_mitigators(spark: SparkSession) -> DataFrame:
     """Get Inpatients Mitigators DataFrame
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :return: The inpatients mitigators data
     :rtype: DataFrame
@@ -70,7 +70,7 @@ _IP_AGE_SEX_DF_CACHE = {}
 def get_ip_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame:
     """Get the IP age sex table
 
-    :param spark: The spark context to use
+    :param spark: The spark session to use
     :type spark: SparkSession
     :param geography_column: The geography column to use
     :type geography_column: str
