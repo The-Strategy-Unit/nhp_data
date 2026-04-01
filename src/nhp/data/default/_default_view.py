@@ -21,7 +21,7 @@ def safe_ident(name: str) -> str:
     IDENTIFIER_RE = re.compile(r"^[A-Za-z0-9_\.]+$")
     if not IDENTIFIER_RE.match(name):
         raise ValueError(f"Invalid identifier: {name}")
-    return f"`{name}`"
+    return name
 
 
 def create_default_view(
