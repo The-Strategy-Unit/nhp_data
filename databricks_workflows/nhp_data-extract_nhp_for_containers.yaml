@@ -207,6 +207,6 @@ resources:
         - name: data_version
           default: dev
         - name: years
-          default: "[202324]"
+          default: "[202324, 202425]"
         - name: projection_year
           default: "2022"
