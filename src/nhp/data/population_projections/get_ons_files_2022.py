@@ -53,7 +53,7 @@ def get_snpp_uris(path: str) -> list[str]:
     matches = soup.find_all(
         "a",
         attrs={
-            "aria-label": lambda x: (
+            "aria-label": lambda x: bool(
                 x
                 and "2022-based" in x
                 and re.match("^Download (Population|Birth) projections", x)
@@ -61,7 +61,8 @@ def get_snpp_uris(path: str) -> list[str]:
         },
     )
 
-    return [urljoin(ONS_URL, i["href"]) for i in matches]  # ty: ignore[invalid-argument-type]
+    hrefs = [i.get("href") for i in matches]
+    return [urljoin(ONS_URL, href) for href in hrefs if isinstance(href, str)]
 
 
 def snpp_uri_variant_match(uri: str) -> str | None:
@@ -173,7 +174,7 @@ def get_npp_uri(path: str) -> str:
     pattern = "Download Zipped population projections data files, .*: 2022 based in zip format"
     match = soup.find(
         "a",
-        attrs={"aria-label": lambda x: x and re.match(pattern, x)},
+        attrs={"aria-label": lambda x: bool(x and re.match(pattern, x))},
     )
     assert match is not None, "could not find NPP zip file link"
     assert isinstance(match["href"], str), "unexpected href type for NPP zip file link"
