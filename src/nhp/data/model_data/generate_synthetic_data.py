@@ -2,6 +2,8 @@ import logging
 import os
 import sys
 import uuid
+from datetime import datetime
+from random import Random
 from typing import Callable
 
 import numpy as np
@@ -40,6 +42,7 @@ class SynthData:
         self._dev_path = f"{path}/dev"
         self._synth_path = f"{path}/synth"
         self._seed = seed
+        self._rng = Random(seed)
 
         self._spark = spark
 
@@ -70,8 +73,6 @@ class SynthData:
 
     def generate(self) -> None:
         self._ip()
-        self._ip_activity_avoidance_stratgegies()
-        self._ip_efficiencies_strategies()
         self._inequalities()
         self._aae()
         self._op()
@@ -100,28 +101,168 @@ class SynthData:
 
     # synth methods
 
-    @generate_data("ip")
-    def _ip(self, df: DataFrame) -> pd.DataFrame:
-        ip_R = self.IP_N / df.count()
+    def _ip(self) -> None:
+        # get the raw inpatients data for the whole year, all providers
+        df_raw = (
+            self.read_dev_file("ip")
+            .filter(F.col("fyear") == self._fyear)
+            .drop(
+                "procode3",
+                "person_id",
+                "admiage",
+                "admidate",
+                "disdate",
+                "imd_decile",
+                "ethnos",
+                "resgor_ons",
+                "lsoa11",
+                "lad23cd",
+                "primary_diagnosis",
+                "primary_procedure",
+                "sushrg",
+                "dismeth",
+                "operstat",
+                "epitype",
+                "dataset",
+                "sitetret",
+            )
+            .withColumn("dataset", F.lit("synthetic"))
+            .withColumn("icb", F.when(F.col("is_main_icb"), "A").otherwise("B"))
+            .withColumn("mainspef", F.col("tretspef"))
+            .filter(~F.col("tretspef_grouped").startswith("Other"))
+            .orderBy("rn")
+            .persist()
+        )
 
-        df = df.sample(False, ip_R, self._seed)
+        grouping_cols = ["age_group", "sex", "classpat", "tretspef", "hsagrp", "group"]
 
-        ip = df.drop("dataset", "fyear").toPandas()
-        ip = ip.assign(sitetret=np.random.choice(["a", "b", "c"], len(ip)))
+        # count how many times each combination of the grouping columns appears, and filter out those that appear less
+        # than 10 times
+        df_counts = (
+            df_raw.groupBy(grouping_cols).count().filter(F.col("count") >= 10).persist()
+        )
 
-        ip["sushrg_trimmed"] = self._hrg_remapping(ip["sushrg_trimmed"])
+        # now filter the raw data to only include the rows that appear 10 times in the counts
+        df_raw = df_raw.join(df_counts, grouping_cols, "semi").persist()
 
-        return ip
+        # calculate the mean los for each subgroup
+        mean_los = df_raw.groupBy(grouping_cols).agg(
+            F.mean("speldur").alias("mean_los")
+        )
 
-    @generate_data("ip_activity_avoidance_strategies")
-    def _ip_activity_avoidance_stratgegies(self, df: DataFrame) -> pd.DataFrame:
-        ip_df = self.read_synth_file("ip")
-        return df.join(ip_df, "rn", "semi").toPandas()
+        # sample the rows
+        ip_R = 100_000 / df_raw.count()
+        df = df_raw.sample(False, ip_R, 123).persist()
 
-    @generate_data("ip_efficiencies_strategies")
-    def _ip_efficiencies_strategies(self, df: DataFrame) -> pd.DataFrame:
-        ip_df = self.read_synth_file("ip")
-        return df.join(ip_df, "rn", "semi").toPandas()
+        # generate the avoidance strategies
+        df_ip_aa = (
+            self.read_dev_file("ip_activity_avoidance_strategies")
+            .filter(F.col("fyear") == self._fyear)
+            .drop("dataset")
+        )
+
+        df_ip_aa_summary = (
+            df_raw.join(df_ip_aa, ["rn", "fyear"])
+            .groupBy(grouping_cols + ["strategy"])
+            .agg(
+                F.count("sample_rate").alias("n"),
+                F.mode("sample_rate").alias("mode"),
+                F.min("sample_rate").alias("min"),
+                F.max("sample_rate").alias("max"),
+            )
+            .join(df_counts, grouping_cols)
+            .withColumn("r", F.col("n") / F.col("count"))
+            .drop("n", "count")
+            .orderBy(F.desc("r"))
+        )
+
+        df_ip_aa = (
+            df_ip_aa_summary.join(df[["rn"] + grouping_cols], grouping_cols)
+            .drop(*grouping_cols)
+            .toPandas()
+        )
+
+        df_ip_aa = df_ip_aa[
+            np.random.binomial(1, df_ip_aa["r"].to_numpy()).astype(bool)
+        ]
+
+        df_ip_aa["sample_rate"] = df_ip_aa["mode"]
+        df_ip_aa_fractions = df_ip_aa["min"] < df_ip_aa["max"]
+        df_ip_aa.loc[df_ip_aa_fractions, "sample_rate"] = np.random.triangular(
+            df_ip_aa.loc[df_ip_aa_fractions, "min"],
+            df_ip_aa.loc[df_ip_aa_fractions, "mode"],
+            df_ip_aa.loc[df_ip_aa_fractions, "max"],
+        )
+
+        df_ip_aa = df_ip_aa[["rn", "strategy", "sample_rate"]]
+
+        # generate the efficiencies strategies
+        df_ip_ef = (
+            self.read_dev_file("ip_efficiencies_strategies")
+            .filter(F.col("fyear") == self._fyear)
+            .drop("dataset")
+        )
+
+        df_ip_ef_summary = (
+            df_raw.join(df_ip_ef, ["rn", "fyear"])
+            .groupBy(grouping_cols + ["strategy"])
+            .agg(
+                F.count("sample_rate").alias("n"),
+            )
+            .join(df_counts, grouping_cols)
+            .withColumn("r", F.col("n") / F.col("count"))
+            .drop("n", "count")
+            .orderBy(F.desc("r"))
+        )
+
+        df_ip_ef = (
+            df_ip_ef_summary.join(df[["rn"] + grouping_cols], grouping_cols)
+            .drop(*grouping_cols)
+            .toPandas()
+        )
+
+        df_ip_ef = df_ip_ef[
+            np.random.binomial(1, df_ip_ef["r"].to_numpy()).astype(bool)
+        ]
+
+        df_ip_ef["sample_rate"] = 1
+
+        df_ip_ef = df_ip_ef[["rn", "strategy", "sample_rate"]]
+
+        # now generate the sample ip data
+        df_p = df.join(mean_los, grouping_cols).toPandas()
+
+        df_p["speldur"] = np.random.poisson(df_p["mean_los"])
+        df_p.loc[df_p["pod"] == "ip_elective_daycase", "speldur"] = 0
+
+        df_p["disdate"] = pd.Series(
+            [datetime(self._fyear, 4, 1)] * len(df_p)
+        ) + pd.to_timedelta(np.random.choice(range(0, 365), len(df_p)), unit="D")
+        df_p["admidate"] = df_p["disdate"] - pd.to_timedelta(df_p["speldur"], unit="d")
+        # convert the date columns to just date, otherwise pyspark can't read
+        df_p["disdate"] = df_p["disdate"].dt.date
+        df_p["admidate"] = df_p["admidate"].dt.date
+
+        df_p = df_p.drop(columns=["mean_los"])
+
+        new_rn = list(range(len(df_p)))
+        self._rng.shuffle(new_rn)
+        new_rn = dict(zip(df_p["rn"], new_rn))
+
+        df_p["rn"] = df_p["rn"].map(new_rn)
+
+        df_p = df_p.assign(sitetret=np.random.choice(["a", "b", "c"], len(df_p)))
+
+        df_p["sushrg_trimmed"] = self._hrg_remapping(df_p["sushrg_trimmed"])
+
+        # remap the rn column in the strategies tables
+        df_ip_aa["rn"] = df_ip_aa["rn"].map(new_rn)
+        df_ip_ef["rn"] = df_ip_ef["rn"].map(new_rn)
+
+        # save the dataframes
+        self.save_synth_file("ip", df_p)
+        self.save_synth_file("ip_activity_avoidance_strategies", df_ip_aa)
+        self.save_synth_file("ip_efficiencies_strategies", df_ip_ef)
 
     @generate_data("inequalities")
     def _inequalities(self, df: DataFrame) -> pd.DataFrame:
