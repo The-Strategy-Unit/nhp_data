@@ -1,6 +1,6 @@
 """Move data to NHP storage for use in the model.
 
-You will need to manaually generate a SAS token for both the data and the inputs
+You will need to manually generate a SAS token for both the data and the inputs
 data containers, and store these in databricks secrets.
 
 The SAS tokens should have create, write, and delete permissions, and should
