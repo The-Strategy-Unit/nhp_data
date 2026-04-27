@@ -30,8 +30,10 @@ def generate_data(name: str):
 
 
 class SynthData:
-    # how many inpatients rows should we target?
-    IP_N = 100000
+    # how many rows should we target?
+    IP_N = 100_000
+    AAE_N = IP_N * 1.2
+    OP_N = IP_N * 10
 
     def __init__(self, fyear: int, path: str, seed: int, spark: SparkSession):
         self._fyear = fyear
@@ -64,7 +66,7 @@ class SynthData:
             for k, v in df.attrs.items()
             if k not in ["metrics", "observed_metrics"]
         }
-        df.to_parquet(f"{p}/0.parquet")
+        df.to_parquet(f"{p}/0.parquet", index=False)
 
     def generate(self) -> None:
         self._ip()
@@ -134,7 +136,6 @@ class SynthData:
     @generate_data("aae")
     def _aae(self, df: DataFrame) -> pd.DataFrame:
         rng = np.random.default_rng(self._seed)
-        n_aae_datasets = df.select("dataset").distinct().count()
 
         df = (
             df.drop("index", "dataset")
@@ -142,11 +143,18 @@ class SynthData:
             .withColumn("icb", F.when(F.col("is_main_icb"), "A").otherwise("B"))
         )
 
-        aae = (
+        df = (
             df.groupBy(df.drop("arrivals").columns)
             .agg(F.sum("arrivals").alias("arrivals"))
-            .toPandas()
-            .assign(arrivals=lambda r: rng.poisson(r["arrivals"] / n_aae_datasets))
+            .filter(F.col("arrivals") >= 10)
+        )
+
+        aae_R = self.AAE_N / df.agg(F.sum("arrivals")).collect()[0][0]
+        assert 0 < aae_R < 1, f"A&E Scaling factor must be between 0 and 1, got {aae_R}"
+
+        aae = (
+            df.toPandas()
+            .assign(arrivals=lambda r: rng.poisson(r["arrivals"] * aae_R))
             .query("arrivals > 0")
         )
 
@@ -157,7 +165,6 @@ class SynthData:
     @generate_data("op")
     def _op(self, df: DataFrame) -> pd.DataFrame:
         rng = np.random.default_rng(self._seed)
-        n_op_datasets = df.select("dataset").distinct().count()
 
         df = (
             df.drop("index", "dataset")
@@ -165,23 +172,28 @@ class SynthData:
             .withColumn("icb", F.when(F.col("is_main_icb"), "A").otherwise("B"))
         )
 
-        op = (
+        df = (
             df.groupBy(df.drop("attendances", "tele_attendances").columns)
             .agg(
                 F.sum("attendances").alias("attendances"),
                 F.sum("tele_attendances").alias("tele_attendances"),
             )
-            .toPandas()
+            .filter(F.col("attendances") >= 10)
+            .persist()
+        )
+
+        op_R = self.OP_N / df.agg(F.sum("attendances")).collect()[0][0]
+
+        op = (
+            df.toPandas()
             .assign(
-                attendances=lambda r: rng.poisson(r["attendances"] / n_op_datasets),
-                tele_attendances=lambda r: rng.poisson(
-                    r["tele_attendances"] / n_op_datasets
-                ),
+                attendances=lambda r: rng.poisson(r["attendances"] * op_R),
+                tele_attendances=lambda r: rng.poisson(r["tele_attendances"] * op_R),
             )
             .query("(attendances > 0) or (tele_attendances > 0)")
         )
-        op["sushrg_trimmed"] = self._hrg_remapping(op["sushrg_trimmed"])
 
+        op["sushrg_trimmed"] = self._hrg_remapping(op["sushrg_trimmed"])
         op["rn"] = [str(uuid.uuid4()) for _ in op.index]
 
         return op
