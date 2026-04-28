@@ -75,7 +75,6 @@ class SynthData:
         self._op()
         self._birth_factors()
         self._demographic_factors()
-        self._hsa_activity_tables()
 
     @property
     def hrgs(self) -> list:
@@ -203,15 +202,6 @@ class SynthData:
             .filter(~F.col("variant").startswith("custom_projection_"))
             .toPandas()
             .groupby(["variant", "sex", "age"], as_index=False)
-            .mean()
-        )
-
-    @generate_data("hsa_activity_tables")
-    def _hsa_activity_tables(self, df: DataFrame) -> pd.DataFrame:
-        return (
-            df.drop("dataset")
-            .toPandas()
-            .groupby(["hsagrp", "sex", "age"], as_index=False)
             .mean()
         )
 

@@ -1,16 +1,18 @@
 """Generate GAMs and HSA activity tables"""
 
 import json
-import os
-import pickle as pkl
 import sys
 from functools import reduce
 
+import joblib
 import numpy as np
 import pandas as pd
 import pyspark.sql.functions as F
-from pygam import GAM
 from pyspark.sql import DataFrame, SparkSession
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import GridSearchCV, KFold
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import SplineTransformer
 
 from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
@@ -69,77 +71,70 @@ def _get_data(spark: SparkSession, save_path: str, years: list[int]) -> pd.DataF
     )
 
 
-def _generate_gams(spark: SparkSession, save_path: str, years: list[int]) -> dict:
+def _create_spline_ridge_model(ages: np.ndarray, rates: np.ndarray) -> Pipeline:
+    """Create spline ridge model for activity rate by age.
+
+    Args:
+        ages (np.ndarray): Array of ages.
+        rates (np.ndarray): Array of activity rates corresponding to the ages.
+
+    Returns:
+        Pipeline: Fitted spline ridge model pipeline.
+    """
+    # spline + ridge model
+    pipe = Pipeline(
+        [
+            (
+                "spline",
+                SplineTransformer(degree=3, include_bias=False, extrapolation="linear"),
+            ),
+            ("ridge", Ridge()),
+        ]
+    )
+
+    # tune flexibility (n_knots) and smoothness (ridge alpha)
+    param_grid = {
+        "spline__n_knots": [5, 7, 9, 11, 13],
+        "ridge__alpha": np.logspace(-4, 3, 20),
+    }
+
+    n_splits = max(2, min(5, len(ages)))
+    cv = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+
+    search = GridSearchCV(
+        estimator=pipe,
+        param_grid=param_grid,
+        scoring="neg_mean_squared_error",
+        cv=cv,
+        n_jobs=-1,
+    )
+    search.fit(ages, rates)
+
+    return search.best_estimator_
+
+
+def _generate_models(spark: SparkSession, save_path: str, years: list[int]) -> dict:
     dfr = _get_data(spark, save_path, years)
 
-    # generate the GAMs as a nested dictionary by dataset/year/(HSA group, sex).
-    # This may be amenable to some parallelisation? or other speed tricks possible with pygam?
-
-    all_gams = {"NATIONAL": {}}
+    models = {}
     for fyear, v2 in list(dfr.groupby("fyear")):
-        g = {
-            k: GAM().gridsearch(
-                v[["age"]].to_numpy(), v["activity_rate"].to_numpy(), progress=False
+        models[fyear] = {
+            k: _create_spline_ridge_model(
+                v[["age"]].to_numpy(), v["activity_rate"].to_numpy()
             )
             for k, v in list(v2.groupby(["hsagrp", "sex"]))
         }
-        all_gams["NATIONAL"][fyear] = g
 
-        path = f"{save_path}/hsa_gams/{fyear=}/dataset=NATIONAL"
-        os.makedirs(path, exist_ok=True)
-        with open(f"{path}/hsa_gams.pkl", "wb") as f:
-            pkl.dump(g, f)
-    return all_gams
-
-
-def _generate_activity_tables(spark: SparkSession, all_gams: dict) -> None:
-    # Generate activity tables
-    #
-    # we usually rely on interpolated values in the model for efficiency, generate these tables and
-    # store in a table in databricks
-    all_ages = np.arange(0, 101)
-
-    def to_fyear(year):
-        return year * 100 + (year + 1) % 100
-
-    hsa_activity_tables = spark.createDataFrame(
-        pd.concat(
-            {
-                dataset: pd.concat(
-                    {
-                        to_fyear(year): pd.concat(
-                            {
-                                k: pd.Series(
-                                    g.predict(all_ages), index=all_ages, name="activity"
-                                )
-                                for k, g in v2.items()
-                            }
-                        )
-                        for year, v2 in v1.items()
-                    }
-                )
-                for dataset, v1 in all_gams.items()
-            }
-        )
-        .rename_axis(["dataset", "fyear", "hsagrp", "sex", "age"])
-        .reset_index()
-    )
-
-    for i in ["fyear", "sex", "age"]:
-        hsa_activity_tables = hsa_activity_tables.withColumn(i, F.col(i).cast("int"))
-
-    hsa_activity_tables.write.mode("overwrite").saveAsTable(
-        table_names.default_hsa_activity_tables_national
-    )
+    return models
 
 
 def main() -> None:
-    """Generate GAMs and HSA activity tables"""
+    """Generate HSA Activity Rates models"""
     data_version = sys.argv[1]
     years = [i // 100 for i in json.loads(sys.argv[2])]
     save_path = f"{table_names.model_data_path}/{data_version}"
 
     spark = get_spark()
 
-    all_gams = _generate_gams(spark, save_path, years)
-    _generate_activity_tables(spark, all_gams)
+    models = _generate_models(spark, save_path, years)
+    joblib.dump(models, f"{save_path}/hsa_activity_rates_models.joblib")
