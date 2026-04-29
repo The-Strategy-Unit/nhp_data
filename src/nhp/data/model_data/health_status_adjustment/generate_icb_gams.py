@@ -21,11 +21,20 @@ def _get_data(spark: SparkSession, save_path: str) -> DataFrame:
             DataFrame.unionByName,
             [
                 (
-                    spark.read.parquet(f"{save_path}/{ds}")
+                    spark.read.parquet(f"{save_path}/ip")
                     .groupBy("fyear", "icb", "age", "sex", "hsagrp")
                     .count()
-                )
-                for ds in ["ip", "op", "aae"]
+                ),
+                (
+                    spark.read.parquet(f"{save_path}/op")
+                    .groupBy("fyear", "icb", "age", "sex", "hsagrp")
+                    .agg(F.sum("attendances").alias("count"))
+                ),
+                (
+                    spark.read.parquet(f"{save_path}/aae")
+                    .groupBy("fyear", "icb", "age", "sex", "hsagrp")
+                    .agg(F.sum("arrivals").alias("count"))
+                ),
             ],
         )
         .filter(~F.col("hsagrp").isin(["birth", "maternity", "paeds", "unknown"]))
