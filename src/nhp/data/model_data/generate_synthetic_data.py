@@ -3,7 +3,6 @@ import os
 import sys
 import uuid
 from datetime import datetime
-from random import Random
 from typing import Callable
 
 import numpy as np
@@ -42,7 +41,7 @@ class SynthData:
         self._dev_path = f"{path}/dev"
         self._synth_path = f"{path}/synth"
         self._seed = seed
-        self._rng = Random(seed)
+        self._rng = np.random.default_rng(self._seed)
 
         self._spark = spark
 
@@ -152,17 +151,17 @@ class SynthData:
 
         # sample the rows
         ip_R = 100_000 / df_raw.count()
-        df = df_raw.sample(False, ip_R, 123).persist()
+        df = df_raw.sample(False, ip_R, self._seed).persist()
 
         # generate the avoidance strategies
         df_ip_aa = (
             self.read_dev_file("ip_activity_avoidance_strategies")
             .filter(F.col("fyear") == self._fyear)
-            .drop("dataset")
+            .drop("dataset", "fyear")
         )
 
         df_ip_aa_summary = (
-            df_raw.join(df_ip_aa, ["rn", "fyear"])
+            df_raw.join(df_ip_aa, ["rn"])
             .groupBy(grouping_cols + ["strategy"])
             .agg(
                 F.count("sample_rate").alias("n"),
@@ -183,12 +182,12 @@ class SynthData:
         )
 
         df_ip_aa = df_ip_aa[
-            np.random.binomial(1, df_ip_aa["r"].to_numpy()).astype(bool)
+            self._rng.binomial(1, df_ip_aa["r"].to_numpy()).astype(bool)
         ]
 
         df_ip_aa["sample_rate"] = df_ip_aa["mode"]
         df_ip_aa_fractions = df_ip_aa["min"] < df_ip_aa["max"]
-        df_ip_aa.loc[df_ip_aa_fractions, "sample_rate"] = np.random.triangular(
+        df_ip_aa.loc[df_ip_aa_fractions, "sample_rate"] = self._rng.triangular(
             df_ip_aa.loc[df_ip_aa_fractions, "min"],
             df_ip_aa.loc[df_ip_aa_fractions, "mode"],
             df_ip_aa.loc[df_ip_aa_fractions, "max"],
@@ -200,11 +199,11 @@ class SynthData:
         df_ip_ef = (
             self.read_dev_file("ip_efficiencies_strategies")
             .filter(F.col("fyear") == self._fyear)
-            .drop("dataset")
+            .drop("dataset", "fyear")
         )
 
         df_ip_ef_summary = (
-            df_raw.join(df_ip_ef, ["rn", "fyear"])
+            df_raw.join(df_ip_ef, ["rn"])
             .groupBy(grouping_cols + ["strategy"])
             .agg(
                 F.count("sample_rate").alias("n"),
@@ -222,7 +221,7 @@ class SynthData:
         )
 
         df_ip_ef = df_ip_ef[
-            np.random.binomial(1, df_ip_ef["r"].to_numpy()).astype(bool)
+            self._rng.binomial(1, df_ip_ef["r"].to_numpy()).astype(bool)
         ]
 
         df_ip_ef["sample_rate"] = 1
@@ -232,12 +231,12 @@ class SynthData:
         # now generate the sample ip data
         df_p = df.join(mean_los, grouping_cols).toPandas()
 
-        df_p["speldur"] = np.random.poisson(df_p["mean_los"])
+        df_p["speldur"] = self._rng.poisson(df_p["mean_los"])
         df_p.loc[df_p["pod"] == "ip_elective_daycase", "speldur"] = 0
 
         df_p["disdate"] = pd.Series(
             [datetime(self._fyear, 4, 1)] * len(df_p)
-        ) + pd.to_timedelta(np.random.choice(range(0, 365), len(df_p)), unit="D")
+        ) + pd.to_timedelta(self._rng.choice(range(0, 365), len(df_p)), unit="D")
         df_p["admidate"] = df_p["disdate"] - pd.to_timedelta(df_p["speldur"], unit="d")
         # convert the date columns to just date, otherwise pyspark can't read
         df_p["disdate"] = df_p["disdate"].dt.date
@@ -251,7 +250,7 @@ class SynthData:
 
         df_p["rn"] = df_p["rn"].map(new_rn)
 
-        df_p = df_p.assign(sitetret=np.random.choice(["a", "b", "c"], len(df_p)))
+        df_p = df_p.assign(sitetret=self._rng.choice(["a", "b", "c"], len(df_p)))
 
         df_p["sushrg_trimmed"] = self._hrg_remapping(df_p["sushrg_trimmed"])
 
@@ -276,8 +275,6 @@ class SynthData:
 
     @generate_data("aae")
     def _aae(self, df: DataFrame) -> pd.DataFrame:
-        rng = np.random.default_rng(self._seed)
-
         df = (
             df.drop("index", "dataset")
             .withColumn("sitetret", F.lit("a"))
@@ -295,7 +292,7 @@ class SynthData:
 
         aae = (
             df.toPandas()
-            .assign(arrivals=lambda r: rng.poisson(r["arrivals"] * aae_R))
+            .assign(arrivals=lambda r: self._rng.poisson(r["arrivals"] * aae_R))
             .query("arrivals > 0")
         )
 
@@ -305,8 +302,6 @@ class SynthData:
 
     @generate_data("op")
     def _op(self, df: DataFrame) -> pd.DataFrame:
-        rng = np.random.default_rng(self._seed)
-
         df = (
             df.drop("index", "dataset")
             .withColumn("sitetret", F.lit("a"))
@@ -328,8 +323,10 @@ class SynthData:
         op = (
             df.toPandas()
             .assign(
-                attendances=lambda r: rng.poisson(r["attendances"] * op_R),
-                tele_attendances=lambda r: rng.poisson(r["tele_attendances"] * op_R),
+                attendances=lambda r: self._rng.poisson(r["attendances"] * op_R),
+                tele_attendances=lambda r: self._rng.poisson(
+                    r["tele_attendances"] * op_R
+                ),
             )
             .query("(attendances > 0) or (tele_attendances > 0)")
         )
