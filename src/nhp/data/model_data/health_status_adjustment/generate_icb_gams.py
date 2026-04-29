@@ -1,5 +1,6 @@
 """Generate GAMs and HSA activity tables"""
 
+import json
 import sys
 from functools import reduce
 from typing import Any
@@ -8,14 +9,14 @@ import numpy as np
 import pandas as pd
 import pyspark.sql.functions as F
 from pygam import GAM
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import DataFrame, SparkSession, Window
 
 from nhp.data.get_spark import get_spark
 from nhp.data.model_data.helpers import create_icb_population_projections
 from nhp.data.table_names import table_names
 
 
-def _get_data(spark: SparkSession, save_path: str) -> DataFrame:
+def _get_data(spark: SparkSession, save_path: str, years: list[int]) -> DataFrame:
     dfr = (
         reduce(
             DataFrame.unionByName,
@@ -38,7 +39,8 @@ def _get_data(spark: SparkSession, save_path: str) -> DataFrame:
             ],
         )
         .filter(~F.col("hsagrp").isin(["birth", "maternity", "paeds", "unknown"]))
-        .filter(F.col("fyear").isin([2023]))
+        .filter(~F.col("hsagrp").startswith("op_maternity_"))
+        .filter(F.col("fyear").isin(years))
         .filter(F.col("age") >= 18)
     )
 
@@ -49,11 +51,20 @@ def _get_data(spark: SparkSession, save_path: str) -> DataFrame:
         )
         .filter(F.col("variant") == "migration_category")
         .filter(F.col("age") >= 18)
-        .select(F.col("age"), F.col("sex"), F.col("icb"), F.col("2023").alias("pop"))
-        # join back to the unique combination of icb/sex/fyear/hsagrp, we
-        # will use this below to ensure we have a 0-count row of activity
+        .selectExpr(
+            "age",
+            "sex",
+            "icb",
+            "fyear as base_fyear",
+            f"stack({len(years)}, "
+            + ", ".join([f"'{y}', `{y}`" for y in years])
+            + ") as (fyear, pop)",
+        )
+        .filter(F.col("base_fyear") == F.col("fyear"))
+        .drop("base_fyear")
+        .withColumn("fyear", F.col("fyear").cast("int"))
         .join(
-            dfr.select("icb", "sex", "fyear", "hsagrp").distinct(),
+            dfr.select("icb", "sex", "hsagrp").distinct(),
             ["icb", "sex"],
             "inner",
         )
@@ -62,12 +73,27 @@ def _get_data(spark: SparkSession, save_path: str) -> DataFrame:
     # generate the data. we right join to the demographics and fill the missing rows with 0's,
     # before calculating the activity rate as the amount of activity (count) divided by the
     # population.
-    return (
+    df = (
         dfr.join(demog, ["age", "sex", "icb", "hsagrp", "fyear"], "right")
         .fillna(0)
         .withColumn("activity_rate", F.col("count") / F.col("pop"))
         .drop("count", "pop")
     )
+
+    # remove any rows where all the activity rates are 0
+    w = Window.partitionBy("sex", "icb", "hsagrp", "fyear")
+    to_remove = (
+        df.withColumn(
+            "all_zero",
+            F.sum((F.col("activity_rate") == 0).cast("int")).over(w)
+            == F.count("activity_rate").over(w),
+        )
+        .filter(F.col("all_zero"))
+        .select("icb", "hsagrp", "sex", "fyear")
+        .distinct()
+    )
+
+    return df.join(to_remove, ["icb", "hsagrp", "sex", "fyear"], "anti")
 
 
 def _generate_gam(data: pd.DataFrame, progress: bool = False) -> Any:
@@ -139,10 +165,11 @@ def _generate_activity_tables(spark: SparkSession, all_gams: dict) -> None:
 def main() -> None:
     """Generate GAMs and HSA activity tables"""
     data_version = sys.argv[1]
+    years = [i // 100 for i in json.loads(sys.argv[2])]
     save_path = f"{table_names.model_data_path}/{data_version}"
 
     spark = get_spark()
 
-    dfr = _get_data(spark, save_path)
+    dfr = _get_data(spark, save_path, years)
     all_gams = _generate_gams(dfr)
     _generate_activity_tables(spark, all_gams)
