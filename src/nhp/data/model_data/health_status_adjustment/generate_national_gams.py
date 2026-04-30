@@ -1,5 +1,8 @@
 """Generate GAMs and HSA activity tables"""
 
+import json
+import os
+import pickle as pkl
 import sys
 from functools import reduce
 
@@ -13,21 +16,30 @@ from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
 
 
-def _get_data(spark: SparkSession, save_path: str) -> pd.DataFrame:
+def _get_data(spark: SparkSession, save_path: str, years: list[int]) -> pd.DataFrame:
     dfr = (
         reduce(
             DataFrame.unionByName,
             [
                 (
-                    spark.read.parquet(f"{save_path}/{ds}")
+                    spark.read.parquet(f"{save_path}/ip")
                     .groupBy("fyear", "age", "sex", "hsagrp")
                     .count()
-                )
-                for ds in ["ip", "op", "aae"]
+                ),
+                (
+                    spark.read.parquet(f"{save_path}/op")
+                    .groupBy("fyear", "age", "sex", "hsagrp")
+                    .agg(F.sum("attendances").alias("count"))
+                ),
+                (
+                    spark.read.parquet(f"{save_path}/aae")
+                    .groupBy("fyear", "age", "sex", "hsagrp")
+                    .agg(F.sum("arrivals").alias("count"))
+                ),
             ],
         )
         .filter(~F.col("hsagrp").isin(["birth", "maternity", "paeds", "unknown"]))
-        .filter(F.col("fyear").isin([2023]))
+        .filter(F.col("fyear").isin(years))
     )
 
     # load the demographics data, then cross join to the distinct HSA groups
@@ -37,7 +49,7 @@ def _get_data(spark: SparkSession, save_path: str) -> pd.DataFrame:
         .filter(F.col("area_code").rlike("^E0[6-9]"))
         .filter(F.col("projection") == "migration_category")
         .filter(F.col("age") >= 18)
-        .filter(F.col("year") == 2023)
+        .filter(F.col("year").isin(years))
         .groupBy("age", "sex")
         .agg(F.sum("value").alias("pop"))
         .crossJoin(dfr.select("hsagrp").distinct())
@@ -57,8 +69,8 @@ def _get_data(spark: SparkSession, save_path: str) -> pd.DataFrame:
     )
 
 
-def _generate_gams(spark: SparkSession, save_path: str) -> dict:
-    dfr = _get_data(spark, save_path)
+def _generate_gams(spark: SparkSession, save_path: str, years: list[int]) -> dict:
+    dfr = _get_data(spark, save_path, years)
 
     # generate the GAMs as a nested dictionary by dataset/year/(HSA group, sex).
     # This may be amenable to some parallelisation? or other speed tricks possible with pygam?
@@ -72,6 +84,11 @@ def _generate_gams(spark: SparkSession, save_path: str) -> dict:
             for k, v in list(v2.groupby(["hsagrp", "sex"]))
         }
         all_gams["NATIONAL"][fyear] = g
+
+        path = f"{save_path}/hsa_gams/{fyear=}/dataset=NATIONAL"
+        os.makedirs(path, exist_ok=True)
+        with open(f"{path}/hsa_gams.pkl", "wb") as f:
+            pkl.dump(g, f)
     return all_gams
 
 
@@ -119,9 +136,10 @@ def _generate_activity_tables(spark: SparkSession, all_gams: dict) -> None:
 def main() -> None:
     """Generate GAMs and HSA activity tables"""
     data_version = sys.argv[1]
+    years = [i // 100 for i in json.loads(sys.argv[2])]
     save_path = f"{table_names.model_data_path}/{data_version}"
 
     spark = get_spark()
 
-    all_gams = _generate_gams(spark, save_path)
+    all_gams = _generate_gams(spark, save_path, years)
     _generate_activity_tables(spark, all_gams)
