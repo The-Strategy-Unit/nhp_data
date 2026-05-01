@@ -107,6 +107,7 @@ resources:
             entry_point: model_data-health_status_adjustment-generate_provider_gams
             parameters:
               - "{{job.parameters.data_version}}"
+              - "{{job.parameters.years}}"
           job_cluster_key: nhp_data
           libraries:
             - pypi:
@@ -120,6 +121,7 @@ resources:
             entry_point: model_data-health_status_adjustment-generate_icb_gams
             parameters:
               - "{{job.parameters.data_version}}"
+              - "{{job.parameters.years}}"
           job_cluster_key: nhp_data
           libraries:
             - pypi:
@@ -133,6 +135,7 @@ resources:
             entry_point: model_data-health_status_adjustment-generate_national_gams
             parameters:
               - "{{job.parameters.data_version}}"
+              - "{{job.parameters.years}}"
           job_cluster_key: nhp_data
           libraries:
             - pypi:
