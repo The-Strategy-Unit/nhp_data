@@ -1,36 +1,23 @@
-from pyspark.sql import SparkSession
+from pyspark.dbutils import DBUtils
 
+from nhp.data.default._default_view import create_default_view, get_object_owner_group
+from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
 
 
-def create(spark: SparkSession) -> None:
-    spark.sql(
-        f"""
-    CREATE OR REPLACE VIEW {table_names.default_apc}
-    AS
-    SELECT *
-    FROM   {table_names.raw_data_apc} a
-    WHERE
-      EXISTS (
-        SELECT 1
-        FROM   {table_names.reference_ods_trusts}
-        WHERE  a.provider = org_to
-        AND    org_type LIKE 'ACUTE%'
-      )
-    """
-    )
-
-    spark.sql(
-        f"""
-    CREATE OR REPLACE VIEW {table_names.default_apc_mitigators}
-    AS
-    SELECT *
-    FROM   {table_names.raw_data_apc_mitigators}
-    """
-    )
-
-
 def main() -> None:
-    """Main method to create the apc view"""
-    spark = SparkSession.builder.getOrCreate()
-    create(spark)
+    """Main method to create the default APC and APC mitigators views."""
+    spark = get_spark()
+    dbutils = DBUtils(spark)
+
+    object_owner_group = get_object_owner_group(dbutils)
+
+    create_default_view(
+        spark, table_names.raw_data_apc, table_names.default_apc, object_owner_group
+    )
+    create_default_view(
+        spark,
+        table_names.raw_data_apc_mitigators,
+        table_names.default_apc_mitigators,
+        object_owner_group,
+    )

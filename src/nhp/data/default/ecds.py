@@ -1,27 +1,19 @@
-from pyspark.sql import SparkSession
+from pyspark.dbutils import DBUtils
 
+from nhp.data.default._default_view import create_default_view, get_object_owner_group
+from nhp.data.get_spark import get_spark
 from nhp.data.table_names import table_names
 
 
-def create(spark: SparkSession) -> None:
-    spark.sql(
-        f"""
-    CREATE OR REPLACE VIEW {table_names.default_ecds}
-    AS
-    SELECT *
-    FROM   {table_names.aggregated_data_ecds} a
-    WHERE
-      EXISTS (
-        SELECT 1
-        FROM   {table_names.reference_ods_trusts}
-        WHERE  a.provider = org_to
-        AND    org_type LIKE 'ACUTE%'
-      )
-    """
-    )
-
-
 def main() -> None:
-    """Main method to create the apc view"""
-    spark = SparkSession.builder.getOrCreate()
-    create(spark)
+    """Main method to create the ecds view"""
+    spark = get_spark()
+    dbutils = DBUtils(spark)
+
+    object_owner_group = get_object_owner_group(dbutils)
+    create_default_view(
+        spark,
+        table_names.aggregated_data_ecds,
+        table_names.default_ecds,
+        object_owner_group,
+    )
