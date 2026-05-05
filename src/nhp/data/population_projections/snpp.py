@@ -59,7 +59,7 @@ def _process_births_file(
         str(y)
         for y in range(
             projection_year + 1,
-            projection_year + (25 if projection_year == 2022 else 26),
+            projection_year + (26 if projection_year == 2022 else 27),
         )
     ]
     stack_str = ", ".join(f"'{y}', `{y}`" for y in years)
