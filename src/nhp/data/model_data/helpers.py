@@ -7,7 +7,7 @@ from nhp.data.reference.lsoa_lookups import get_lad22_to_lad23_lookup
 from nhp.data.table_names import table_names
 
 # what years should we support in the extract?
-DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR = 2023, 2043
+DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR = 2023, 2047
 
 
 def create_provider_population_projections(
