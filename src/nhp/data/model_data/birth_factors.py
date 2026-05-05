@@ -82,8 +82,7 @@ def extract_custom_birth_factors(
     path: str,
     fyear: int,
     spark: SparkSession,
-    dataset: str,
-    custom_projection_name: str,
+    custom_projections: list[tuple[str, str]],
 ) -> None:
     """Create custom birth factors file for R0A66, using migration category variant
 
@@ -92,16 +91,15 @@ def extract_custom_birth_factors(
     :type fyear: int
     :param spark: the spark session to use
     :type spark: SparkSession
-    :param dataset: the dataset to extract
-    :type dataset: str
-    :param custom_projection_name: the name of the custom projection
-    :type custom_projection_name: str
+    :param custom_projections dataset: a list of the dataset to extract and the custom projection
+    :type custom_projections: list[tuple[str, str]]
     """
 
-    df, births_path = create_custom_birth_factors(
-        path, fyear, spark, dataset, custom_projection_name
-    )
-    (df.repartition(1).write.mode("overwrite").parquet(births_path))
+    for dataset, projection_name in custom_projections:
+        df, births_path = create_custom_birth_factors(
+            path, fyear, spark, dataset, projection_name
+        )
+        (df.repartition(1).write.mode("overwrite").parquet(births_path))
 
 
 def extract(
@@ -130,13 +128,8 @@ def extract(
         .parquet(f"{save_path}/birth_factors/fyear={fyear // 100}")
     )
 
-    # iterate over and create the custom birth projections. we need to make sure that the standard
-    # birth projections have been created before running this step
-    for dataset, projection_name in [
-        ("R0A", "custom_projection_R0A66"),
-        ("RD8", "custom_projection_RD8"),
-    ]:
-        extract_custom_birth_factors(save_path, fyear, spark, dataset, projection_name)
+    # note that current we have no custom demographics projections, so this won't do anything.
+    extract_custom_birth_factors(save_path, fyear, spark, [])
 
 
 def main():
