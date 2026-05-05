@@ -6,7 +6,7 @@ from nhp.data.table_names import table_names
 
 
 def main() -> None:
-    """Main method to create the apc view"""
+    """Main method to create the default APC and APC mitigators views."""
     spark = get_spark()
     dbutils = DBUtils(spark)
 
