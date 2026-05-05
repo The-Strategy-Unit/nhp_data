@@ -3,7 +3,7 @@
 import sys
 
 import pyspark.sql.functions as F
-from pyspark.sql import DataFrame, SparkSession, Window
+from pyspark.sql import SparkSession
 
 from nhp.data.get_spark import get_spark
 from nhp.data.model_data.helpers import (
