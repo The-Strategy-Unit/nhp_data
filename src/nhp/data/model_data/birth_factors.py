@@ -128,8 +128,10 @@ def extract(
         .parquet(f"{save_path}/birth_factors/fyear={fyear // 100}")
     )
 
-    # note that current we have no custom demographics projections, so this won't do anything.
-    extract_custom_birth_factors(save_path, fyear, spark, [])
+    # Note that currently we have no custom demographics projections configured.
+    custom_projections: list[tuple[str, str]] = []
+    if custom_projections:
+        extract_custom_birth_factors(save_path, fyear, spark, custom_projections)
 
 
 def main():
