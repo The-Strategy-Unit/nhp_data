@@ -91,7 +91,7 @@ def extract_custom_birth_factors(
     :type fyear: int
     :param spark: the spark session to use
     :type spark: SparkSession
-    :param custom_projections dataset: a list of the dataset to extract and the custom projection
+    :param custom_projections: a list of the dataset to extract and the custom projection
     :type custom_projections: list[tuple[str, str]]
     """
 
