@@ -104,7 +104,6 @@ class SynthData:
         # get the raw inpatients data for the whole year, all providers
         df_raw = (
             self.read_dev_file("ip")
-            .filter(F.col("fyear") == self._fyear)
             .drop(
                 "procode3",
                 "person_id",
