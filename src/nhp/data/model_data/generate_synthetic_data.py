@@ -153,9 +153,8 @@ class SynthData:
         df = df_raw.sample(False, ip_R, self._seed).persist()
 
         # generate the avoidance strategies
-        df_ip_aa = (
-            self.read_dev_file("ip_activity_avoidance_strategies")
-            .drop("dataset", "fyear")
+        df_ip_aa = self.read_dev_file("ip_activity_avoidance_strategies").drop(
+            "dataset", "fyear"
         )
 
         df_ip_aa_summary = (
@@ -194,9 +193,8 @@ class SynthData:
         df_ip_aa = df_ip_aa[["rn", "strategy", "sample_rate"]]
 
         # generate the efficiencies strategies
-        df_ip_ef = (
-            self.read_dev_file("ip_efficiencies_strategies")
-            .drop("dataset", "fyear")
+        df_ip_ef = self.read_dev_file("ip_efficiencies_strategies").drop(
+            "dataset", "fyear"
         )
 
         df_ip_ef_summary = (
