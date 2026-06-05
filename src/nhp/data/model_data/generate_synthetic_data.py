@@ -155,7 +155,6 @@ class SynthData:
         # generate the avoidance strategies
         df_ip_aa = (
             self.read_dev_file("ip_activity_avoidance_strategies")
-            .filter(F.col("fyear") == self._fyear)
             .drop("dataset", "fyear")
         )
 
