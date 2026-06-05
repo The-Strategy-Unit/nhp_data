@@ -197,7 +197,6 @@ class SynthData:
         # generate the efficiencies strategies
         df_ip_ef = (
             self.read_dev_file("ip_efficiencies_strategies")
-            .filter(F.col("fyear") == self._fyear)
             .drop("dataset", "fyear")
         )
 
