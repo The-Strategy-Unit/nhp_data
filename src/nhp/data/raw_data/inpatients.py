@@ -128,6 +128,7 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
         .join(df_primary_procedure, ["epikey", "fyear", "procode3"], "left")
         .select(
             F.col("epikey"),
+            F.col("susspellid"),
             F.col("fyear"),
             F.col("procode3"),
             F.col("person_id_deid").alias("person_id"),
