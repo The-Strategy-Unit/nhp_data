@@ -104,10 +104,9 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
             "group",
             F.when(
                 (
-                    F.col("tretspef").isin(["501", "560"])
                     | F.col("admimeth").startswith("3")
                 )
-                & (F.col("sex") == 2)
+                & (F.col("sex") == "2")
                 & F.col("age").between(13, 55),
                 "maternity",
             )
