@@ -102,8 +102,16 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
         .withColumn("is_wla", F.col("admimeth") == "11")
         .withColumn(
             "group",
-            F.when(F.col("admimeth").startswith("1"), "elective")
-            .when(F.col("admimeth").startswith("3"), "maternity")
+            F.when(
+                (
+                    F.col("tretspef").isin(["501", "560"])
+                    | F.col("admimeth").startswith("3")
+                )
+                & (F.col("sex") == 2)
+                & F.col("age").between(13, 55),
+                "maternity",
+            )
+            .when(F.col("admimeth").startswith("1"), "elective")
             .otherwise("non-elective"),
         )
         # add has_procedure column
