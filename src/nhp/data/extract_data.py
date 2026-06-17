@@ -89,6 +89,7 @@ def main():
     try:
         move_inputs_data(dbutils, path, credential)
         move_data(dbutils, path, credential)
+        move_synth_data(dbutils, path, credential)
     except Exception as e:
         print(
             "Error moving files, have you followed the instructions for generating the SAS token?"
