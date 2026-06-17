@@ -196,26 +196,13 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
 def generate_inpatients_data(spark: SparkSession) -> None:
     """Generate Inpatients Data"""
 
-    # allow schema evolution for the Delta table
-    spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", "true")
-
+    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
     hes_apc_processed = get_inpatients_data(spark)
-
-    target = (
-        DeltaTable.createIfNotExists(spark)
-        .tableName(table_names.raw_data_apc)
-        .addColumns(hes_apc_processed.schema)
-        .execute()
-    )
-
     (
-        target.alias("t")
-        .merge(hes_apc_processed.alias("s"), "t.epikey = s.epikey")
-        .withSchemaEvolution()
-        .whenMatchedUpdateAll()
-        .whenNotMatchedInsertAll()
-        .whenNotMatchedBySourceDelete()
-        .execute()
+        hes_apc_processed.write.partitionBy("fyear", "provider")
+        .mode("overwrite")
+        .option("mergeSchema", "true")
+        .saveAsTable(table_names.raw_data_apc)
     )
 
 
