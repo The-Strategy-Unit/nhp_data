@@ -181,10 +181,16 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
             .otherwise(F.concat(F.lit("ip_"), F.col("group"), F.lit("_admission"))),
         )
         .withColumn(
+            "demog_type",
+            F.when(F.col("group") == "maternity", "births")
+            .when(F.col("admimeth").isin(["82", "83"]) & (F.col("age") == 0), "births")
+            .otherwise("demographics"),
+        )
+        .withColumn(
             "ndggrp",
-            F.when(F.col("admimeth").isin("82", "83"), "maternity").otherwise(
-                F.col("group")
-            ),
+            F.when(
+                F.col("admimeth").isin(["82", "83"]) & (F.col("age") == 0), "maternity"
+            ).otherwise(F.col("group")),
         )
         .repartition("fyear", "provider")
     )

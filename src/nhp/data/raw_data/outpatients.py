@@ -150,6 +150,15 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
             .when(F.col("is_first"), "op_first")
             .otherwise("op_follow-up"),
         )
+        .withColumn(
+            "demog_type",
+            F.when(
+                F.col("tretspef").isin(["501", "560"])
+                & (F.col("sex") == 2)
+                & F.col("age").between(13, 55),
+                "births",
+            ).otherwise("demographics"),
+        )
         .withColumn("ndggrp", F.col("group"))
     )
 
