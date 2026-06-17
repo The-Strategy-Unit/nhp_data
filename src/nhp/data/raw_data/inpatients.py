@@ -212,9 +212,7 @@ def generate_inpatients_data(spark: SparkSession) -> None:
         target.alias("t")
         .merge(hes_apc_processed.alias("s"), "t.epikey = s.epikey")
         .withSchemaEvolution()
-        .whenMatchedUpdateAll(
-            condition=" or ".join(f"t.{i} != s.{i}" for i in hes_apc_processed.columns)
-        )
+        .whenMatchedUpdateAll()
         .whenNotMatchedInsertAll()
         .whenNotMatchedBySourceDelete()
         .execute()
