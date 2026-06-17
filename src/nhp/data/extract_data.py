@@ -88,6 +88,6 @@ def main():
         move_inputs_data(dbutils, path, credential)
         move_data(dbutils, path, credential)
         move_synth_data(dbutils, path, credential)
-    except Exception as e:
+    except Exception:
         print("Error moving files, has the client credentials expired?")
         raise
