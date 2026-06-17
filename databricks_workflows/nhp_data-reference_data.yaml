@@ -92,9 +92,9 @@ resources:
               spark.databricks.delta.properties.defaults.autoOptimize.autoCompact: "true"
               spark.databricks.sql.initial.catalog.namespace: udal_lake_mart
             azure_attributes:
-              availability: SPOT_WITH_FALLBACK_AZURE
+              availability: ON_DEMAND_AZURE
               spot_bid_max_price: 100
-            node_type_id: Standard_E16_v3
+            node_type_id: Standard_D4ds_v5
             custom_tags:
               Application: UDAL
               Workload_Type: Job
@@ -106,7 +106,9 @@ resources:
             runtime_engine: STANDARD
             kind: CLASSIC_PREVIEW
             is_single_node: false
-            num_workers: 1
+            autoscale:
+              min_workers: 1
+              max_workers: 4
       tags:
         group: nhp_data
         env: ${bundle.target}
