@@ -26,9 +26,9 @@ resources:
           depends_on:
             - task_key: download_and_extract_ons_files
           for_each_task:
-            inputs: "[\"migration_category\", \"var_proj_5_year_migration\",
-              \"var_proj_10_year_migration\", \"var_proj_high_intl_migration\",
-              \"var_proj_low_intl_migration\", \"var_proj_zero_net_migration\"]"
+            inputs: '["migration_category", "var_proj_5_year_migration",
+              "var_proj_10_year_migration", "var_proj_high_intl_migration",
+              "var_proj_low_intl_migration", "var_proj_zero_net_migration"]'
             task:
               task_key: subnational_population_projections_iteration
               python_wheel_task:
@@ -44,8 +44,8 @@ resources:
           depends_on:
             - task_key: subnational_population_projections
           for_each_task:
-            inputs: "[\"hhh\",\"hlh\",\"hpp\",\"lhl\",\"lll\",\"lpp\",\"php\",\"plp\",\"pnp\
-              \",\"pph\",\"ppl\",\"ppz\",\"rpp\"]"
+            inputs: '["hhh","hlh","hpp","lhl","lll","lpp","php","plp","pnp",
+              "pph","ppl","ppz","rpp"]'
             task:
               task_key: national_population_projections_iteration
               python_wheel_task:
