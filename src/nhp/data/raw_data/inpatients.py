@@ -194,9 +194,9 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
 
 def generate_inpatients_data(spark: SparkSession) -> None:
     """Generate Inpatients Data"""
+    hes_apc_processed = get_inpatients_data(spark)
 
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
-    hes_apc_processed = get_inpatients_data(spark)
     (
         hes_apc_processed.write.partitionBy("fyear", "provider")
         .mode("overwrite")
