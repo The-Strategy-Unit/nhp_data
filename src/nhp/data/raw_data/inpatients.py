@@ -81,7 +81,8 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
                     F.col("admimeth").startswith("3")
                     | F.col("mainspef").isin(["501", "560"])
                 )
-                & (F.col("age") < 56),
+                & (F.col("age").between(13, 55))
+                & (F.col("sex") == "2"),
                 "maternity",
             )
             .when(F.col("admimeth").startswith("2"), "emerg")
