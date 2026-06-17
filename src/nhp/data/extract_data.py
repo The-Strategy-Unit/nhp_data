@@ -1,9 +1,7 @@
 """Move data to NHP storage for use in the model.
 
-You will need to manually generate a SAS token for both the data and the inputs
-data containers, and store these in databricks secrets.
-
-See the script update-sas-tokens.ps1.
+You will need to update the client credentials occassionaly. See documentation
+in the nhp_planning repo.
 """
 
 import os
@@ -91,7 +89,5 @@ def main():
         move_data(dbutils, path, credential)
         move_synth_data(dbutils, path, credential)
     except Exception as e:
-        print(
-            "Error moving files, have you followed the instructions for generating the SAS token?"
-        )
-        raise e
+        print("Error moving files, has the client credentials expired?")
+        raise
