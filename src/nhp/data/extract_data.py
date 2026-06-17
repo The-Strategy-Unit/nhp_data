@@ -1,14 +1,13 @@
 """Move data to NHP storage for use in the model.
 
-You will need to manually generate a SAS token for both the data and the inputs
-data containers, and store these in databricks secrets.
-
-See the script update-sas-tokens.ps1.
+You will need to update the client credentials occassionaly. See documentation
+in the nhp_planning repo.
 """
 
 import os
 
 from azure.core.exceptions import ResourceNotFoundError
+from azure.identity import ClientSecretCredential
 from azure.storage.blob import ContainerClient
 from azure.storage.filedatalake import DataLakeServiceClient
 from pyspark.dbutils import DBUtils
@@ -18,13 +17,20 @@ from nhp.data.get_spark import get_spark
 
 
 def _move_files(
-    path: str, account: str, container_name: str, sas: str, extract_version: str
+    path: str,
+    account: str,
+    container_name: str,
+    credential: ClientSecretCredential,
+    extract_version: str,
 ):
+
     container = ContainerClient(
-        f"https://{account}.blob.core.windows.net/", container_name, credential=sas
+        f"https://{account}.blob.core.windows.net/",
+        container_name,
+        credential=credential,
     )
     dlfs = DataLakeServiceClient(
-        f"https://{account}.dfs.core.windows.net/", credential=sas
+        f"https://{account}.dfs.core.windows.net/", credential=credential
     ).get_file_system_client(container_name)
 
     # remove existing files, this may fail if the directory doesn't exist, but we can ignore that
@@ -49,29 +55,39 @@ def _move_files(
             )
 
 
-def move_inputs_data(dbutils: DBUtils, path: str):
+def move_inputs_data(dbutils: DBUtils, path: str, credential: ClientSecretCredential):
     account = dbutils.secrets.get("nhp", "MLCSU_INPUTS_DATA_ACCOUNT")
-    sas = dbutils.secrets.get("nhp", "MLCSU_INPUTS_DATA_SAS")
-    _move_files(f"{path}/inputs_data/dev", account, "inputs-data", sas, "dev")
+    _move_files(f"{path}/inputs_data/dev", account, "inputs-data", credential, "dev")
 
 
-def move_data(dbutils: DBUtils, path: str):
+def move_data(dbutils: DBUtils, path: str, credential: ClientSecretCredential):
     account = dbutils.secrets.get("nhp", "MLCSU_DATA_ACCOUNT")
-    sas = dbutils.secrets.get("nhp", "MLCSU_DATA_SAS")
-    _move_files(f"{path}/model_data/dev", account, "data", sas, "dev")
+    _move_files(f"{path}/model_data/dev", account, "data", credential, "dev")
+
+
+def move_synth_data(dbutils: DBUtils, path: str, credential: ClientSecretCredential):
+    account = dbutils.secrets.get("nhp", "MLCSU_DATA_ACCOUNT")
+    _move_files(f"{path}/model_data/synth", account, "data", credential, "synth")
 
 
 def main():
     spark = get_spark()
     dbutils = DBUtils(spark)
 
+    client_id = dbutils.secrets.get("nhp", "su-nhp-dev-client-id")
+    tenant_id = dbutils.secrets.get("nhp", "su-nhp-dev-tenant-id")
+    client_secret = dbutils.secrets.get("nhp", "su-nhp-dev-client-secret")
+
+    credential = ClientSecretCredential(
+        client_id=client_id, tenant_id=tenant_id, client_secret=client_secret
+    )
+
     path = "/Volumes/udal_lake_mart/newhospitalprogramme/files"
 
     try:
-        move_inputs_data(dbutils, path)
-        move_data(dbutils, path)
-    except Exception as e:
-        print(
-            "Error moving files, have you followed the instructions for generating the SAS token?"
-        )
-        raise e
+        move_inputs_data(dbutils, path, credential)
+        move_data(dbutils, path, credential)
+        move_synth_data(dbutils, path, credential)
+    except Exception:
+        print("Error moving files, has the client credentials expired?")
+        raise
