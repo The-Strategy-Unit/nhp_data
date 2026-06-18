@@ -25,6 +25,7 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
             F.col("type"),
             F.col("group"),
             F.col("pod"),
+            F.col("demog_type"),
             F.col("hsagrp"),
             F.col("ndggrp"),
             F.col("has_procedures"),
