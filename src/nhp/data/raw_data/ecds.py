@@ -261,6 +261,7 @@ def generate_ecds_data(spark: SparkSession) -> None:
     """Generate ECDS data"""
     hes_ecds_ungrouped = get_ecds_data(spark)
 
+    # rather than overwriting the ecds data, we need to merge it with the existing a&e data
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
 
     (

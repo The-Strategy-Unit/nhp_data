@@ -46,12 +46,11 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
 
 def generate_ecds_data(spark: SparkSession, ecds: DataFrame) -> None:
     """Generate ECDS Data"""
-    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
     (
         ecds.withColumn("index", F.expr("uuid()"))
         .write.partitionBy("fyear", "provider")
         .mode("overwrite")
-        .option("mergeSchema", "true")
+        .option("overwriteSchema", "true")
         .saveAsTable(table_names.aggregated_data_ecds)
     )
 
