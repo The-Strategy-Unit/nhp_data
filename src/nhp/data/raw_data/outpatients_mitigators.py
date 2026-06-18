@@ -52,7 +52,7 @@ def generate_outpatients_mitigators(spark: SparkSession) -> None:
         hes_opa_mitigators.orderBy("fyear", "provider", "strategy", "attendkey")
         .write.partitionBy("fyear", "provider")
         .mode("overwrite")
-        .option("mergeSchema", "true")
+        .option("overwriteSchema", "true")
         .saveAsTable(table_names.raw_data_opa_mitigators)
     )
 

@@ -169,11 +169,10 @@ def generate_outpatients_data(spark: SparkSession) -> None:
     """Generate Outpatients Data"""
     hes_opa_ungrouped = get_outpatients_data(spark)
 
-    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
     (
         hes_opa_ungrouped.write.partitionBy("fyear", "provider")
         .mode("overwrite")
-        .option("mergeSchema", "true")
+        .option("overwriteSchema", "true")
         .saveAsTable(table_names.raw_data_opa)
     )
 

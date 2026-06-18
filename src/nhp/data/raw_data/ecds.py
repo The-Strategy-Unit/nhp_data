@@ -21,6 +21,7 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
     """Get ECDS data"""
     df = (
         spark.read.table(table_names.hes_ecds)
+        .filter(F.col("der_financial_year") >= "2019/20")
         .withColumnRenamed("pseudo_nhs_number_pet", "token_person_id")
         .withColumn("token_person_id", F.col("token_person_id").cast("string"))
         .withColumn("ec_ident", F.col("ec_ident").cast("string"))
@@ -248,6 +249,7 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
         .withColumn("tretspef", F.lit("Other"))
         .withColumn("tretspef_grouped", F.lit("Other"))
         .withColumn("pod", F.concat(F.lit("aae_type-"), F.col("aedepttype")))
+        .withColumn("demog_type", F.lit("demographics"))
         .withColumn("ndggrp", F.col("group"))
         .repartition("fyear", "provider")
     )
@@ -259,6 +261,7 @@ def generate_ecds_data(spark: SparkSession) -> None:
     """Generate ECDS data"""
     hes_ecds_ungrouped = get_ecds_data(spark)
 
+    # rather than overwriting the ecds data, we need to merge it with the existing a&e data
     spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
 
     (

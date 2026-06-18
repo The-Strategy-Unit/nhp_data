@@ -49,11 +49,10 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
 
 def generate_outpatients_data(spark: SparkSession, opa: DataFrame) -> None:
     """Generate Outpatients Data"""
-    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
     (
         opa.write.partitionBy("fyear", "provider")
         .mode("overwrite")
-        .option("mergeSchema", "true")
+        .option("overwriteSchema", "true")
         .saveAsTable(table_names.aggregated_data_opa)
     )
 

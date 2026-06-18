@@ -208,12 +208,10 @@ def generate_aae_data(spark: SparkSession) -> None:
     """Generate AAE data"""
     hes_aae_ungrouped = get_aae_data(spark)
 
-    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
-
     (
         hes_aae_ungrouped.write.partitionBy("fyear", "provider")
         .mode("overwrite")
-        .option("mergeSchema", "true")
+        .option("overwriteSchema", "true")
         .saveAsTable(table_names.raw_data_ecds)
     )
 

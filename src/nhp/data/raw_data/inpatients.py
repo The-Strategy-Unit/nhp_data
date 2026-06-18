@@ -203,11 +203,10 @@ def generate_inpatients_data(spark: SparkSession) -> None:
     """Generate Inpatients Data"""
     hes_apc_processed = get_inpatients_data(spark)
 
-    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
     (
         hes_apc_processed.write.partitionBy("fyear", "provider")
         .mode("overwrite")
-        .option("mergeSchema", "true")
+        .option("overwriteSchema", "true")
         .saveAsTable(table_names.raw_data_apc)
     )
 
