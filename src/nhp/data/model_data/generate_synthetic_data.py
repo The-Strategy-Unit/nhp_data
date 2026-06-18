@@ -106,6 +106,7 @@ class SynthData:
             self.read_dev_file("ip")
             .drop(
                 "procode3",
+                "susspellid",
                 "person_id",
                 "admiage",
                 "admidate",
