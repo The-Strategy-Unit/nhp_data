@@ -21,6 +21,7 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
     """Get ECDS data"""
     df = (
         spark.read.table(table_names.hes_ecds)
+        .filter(F.col("der_financial_year") >= "2019/20")
         .withColumnRenamed("pseudo_nhs_number_pet", "token_person_id")
         .withColumn("token_person_id", F.col("token_person_id").cast("string"))
         .withColumn("ec_ident", F.col("ec_ident").cast("string"))
