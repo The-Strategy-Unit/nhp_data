@@ -8,6 +8,8 @@ from pyspark.sql import DataFrame, SparkSession
 from nhp.data.inputs_data.helpers import inputs_age_group
 from nhp.data.table_names import table_names
 
+logger = logging.getLogger(__name__)
+
 
 def get_ip_df(spark: SparkSession) -> DataFrame:
     """Get Inpatients DataFrame
@@ -79,10 +81,10 @@ def get_ip_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame
     """
 
     if geography_column in _IP_AGE_SEX_DF_CACHE:
-        logging.info("Using cached IP age sex data for %s", geography_column)
+        logger.info("Using cached IP age sex data for %s", geography_column)
         return _IP_AGE_SEX_DF_CACHE[geography_column]
 
-    logging.info("Creating IP age sex data for %s", geography_column)
+    logger.info("Creating IP age sex data for %s", geography_column)
     _IP_AGE_SEX_DF_CACHE[geography_column] = df = (
         get_ip_df(spark)
         .fillna("unknown", [geography_column])
@@ -101,6 +103,6 @@ def get_ip_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame
     )
 
     df.count()  # materialise the cache
-    logging.info("Materialised IP age sex data for %s", geography_column)
+    logger.info("Materialised IP age sex data for %s", geography_column)
 
     return df

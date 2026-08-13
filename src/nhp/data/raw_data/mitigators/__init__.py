@@ -66,7 +66,7 @@ class Mitigator:
             target.alias("target")
             .merge(
                 source.alias("source"),
-                " and ".join(
+                " and ".join(  # noqa: FLY002
                     [
                         "source.fyear = target.fyear",
                         "source.provider = target.provider",
