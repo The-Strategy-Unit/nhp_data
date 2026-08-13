@@ -2,8 +2,8 @@ import logging
 import os
 import sys
 import uuid
+from collections.abc import Callable
 from datetime import datetime
-from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -231,7 +231,7 @@ class SynthData:
 
         df_p["disdate"] = pd.Series(
             [datetime(self._fyear, 4, 1)] * len(df_p)
-        ) + pd.to_timedelta(self._rng.choice(range(0, 365), len(df_p)), unit="D")
+        ) + pd.to_timedelta(self._rng.choice(range(365), len(df_p)), unit="D")
         df_p["admidate"] = df_p["disdate"] - pd.to_timedelta(df_p["speldur"], unit="d")
         # convert the date columns to just date, otherwise pyspark can't read
         df_p["disdate"] = df_p["disdate"].dt.date

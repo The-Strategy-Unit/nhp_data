@@ -73,7 +73,7 @@ def snpp_uri_variant_match(uri: str) -> str | None:
     :return: the variant name we use in the NHP model
     :rtype: str | None
     """
-    file = re.sub("(.*/2022snpp(populationsyoa|births))|\.zip$", "", uri)
+    file = re.sub(r"(.*/2022snpp(populationsyoa|births))|\.zip$", "", uri)
 
     match file:
         case "migcat23":

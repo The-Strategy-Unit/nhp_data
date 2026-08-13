@@ -25,7 +25,7 @@ def create_population_by_imd_decile(
 
     # create age group lookups
     age_groups = spark.createDataFrame(
-        [("0-16", i) for i in range(0, 16 + 1)]
+        [("0-16", i) for i in range(16 + 1)]
         + [("17-40", i) for i in range(17, 40 + 1)]
         + [("41-65", i) for i in range(41, 65 + 1)]
         + [("66-75", i) for i in range(66, 75 + 1)]

@@ -1,7 +1,7 @@
 """Helper methods for Evidence Based Interventions Mitigators"""
 
+from collections.abc import Callable
 from functools import reduce
-from typing import Callable
 
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F

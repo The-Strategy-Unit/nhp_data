@@ -153,7 +153,7 @@ def get_successors_df(processed_orgs: list, ods_df: pd.DataFrame) -> pd.DataFram
     :return: data frame containing the organisation successors
     :rtype: pd.DataFrame
     """
-    successors = defaultdict(lambda: [])
+    successors = defaultdict(list)
 
     for i in processed_orgs:
         for j in i["successors"]:

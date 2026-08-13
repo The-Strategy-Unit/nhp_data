@@ -7,11 +7,11 @@ from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
 from nhp.data.get_spark import get_spark
-from nhp.data.raw_data.mitigators.ip.activity_avoidance import *  # noqa: F403
-from nhp.data.raw_data.mitigators.ip.efficiency import *  # noqa: F403
+from nhp.data.raw_data.mitigators.ip.activity_avoidance import *
+from nhp.data.raw_data.mitigators.ip.efficiency import *
 from nhp.data.table_names import table_names
 
-__registered_mitigators = defaultdict(lambda: {})
+__registered_mitigators = defaultdict(dict)
 
 
 class Mitigator:

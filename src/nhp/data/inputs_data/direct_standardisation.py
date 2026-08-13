@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession

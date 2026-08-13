@@ -20,7 +20,7 @@ def inputs_age_group(spark: SparkSession) -> DataFrame:
         return f"{str(age).rjust(2, '0')}-{str(age + 4).rjust(2, '0')}"
 
     return spark.createDataFrame(
-        [(age, _get_age_str(age)) for age in range(0, 90)] + [(90, "90+")],
+        [(age, _get_age_str(age)) for age in range(90)] + [(90, "90+")],
         ["age", "age_group"],
     )
 
@@ -56,7 +56,7 @@ def complete_age_sex_rows(
     :return: The completed DataFrame with all combinations of the specified dimensions,
         with missing values filled as 0
     """
-    ages = spark.createDataFrame([(i,) for i in range(0, 91)], schema=["age"])
+    ages = spark.createDataFrame([(i,) for i in range(91)], schema=["age"])
 
     age_range = (
         df.groupBy("type", "strategy", "sex")

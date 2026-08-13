@@ -63,7 +63,7 @@ def create_pop_by_lsoa21(spark: SparkSession, table: str) -> None:
                 .rename(columns={"LSOA 2021 Code": "lsoa21cd"})
                 .melt(
                     id_vars="lsoa21cd",
-                    value_vars=[f"{s}{i}" for s in "FM" for i in range(0, 91)],
+                    value_vars=[f"{s}{i}" for s in "FM" for i in range(91)],
                     var_name="sex_age",
                     value_name="population",
                 )
