@@ -1,15 +1,18 @@
-"""Intentional Self Harm Related Admissions (IP-AA-019)
+"""Medically Unexplained Admissions (IP-AA-020)
 
-Emergency admissions to hospital resulting from acts of self harm may be preventable, if appropriate
-support is available in the community or accessible through primary care.
+Around 1 in 4 people who visit their GP have symptoms that the GP is [unable to explain][mua_1]
+even after conducting appropriate testing. Sometimes the symptoms are severe enough to
+precipitate an admission to hospital yet ultimately an underlying physical cause cannot be
+determined.
 
-The model identifies admissions with a cause code relating to intentional self harm/poisoning.
+Some of these symptoms may have a psychological cause and as such may be avoidable through improved
+access to psychological therapy services or through population health measures that promote
+psychological well being.
 
-### Source of Intentional Self Harm Related Admissions codes
+The model identifies admissions where the primary diagnosis is one of a small basket of symptoms
+where a physiological cause is in many cases undetectable.
 
-The [ICD10 diagnosis coding framework][ish_1] includes a range of explicit self harm codes.
-
-[ish_1]: https://icd.who.int/browse10/2019/en#/X60-X84
+[mua_1]: https://www.rcpsych.ac.uk/mental-health/problems-disorders/medically-unexplained-symptoms
 """
 
 from pyspark.sql import functions as F
