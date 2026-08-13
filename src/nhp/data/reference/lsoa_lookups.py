@@ -76,7 +76,7 @@ def download_lsoa11_to_lsoa21_lookup() -> pd.DataFrame:
         The data is sourced from the ONS Open Geography Portal via ArcGIS Hub.
         The CSV content is decoded using 'utf-8-sig' to handle any BOM characters.
     """
-    url = "/".join(
+    url = "/".join(  # noqa: FLY002
         [
             "https://open-geography-portalx-ons.hub.arcgis.com",
             "api",
@@ -144,7 +144,7 @@ def create_lsoa21_to_lad23_lookup() -> pd.DataFrame:
         Column names are converted to lowercase for consistency.
     """
     lsoa21_to_lad23 = download_arcgis_results(
-        "/".join(
+        "/".join(  # noqa: FLY002
             [
                 "https://services1.arcgis.com",
                 "ESMARspQHYMw9BZ9",
@@ -301,7 +301,7 @@ def create_lad22_to_lad23_lookup(spark: SparkSession) -> pd.DataFrame:
         Column names are converted to lowercase for consistency.
     """
     lad22_to_lad23 = download_arcgis_results(
-        "/".join(
+        "/".join(  # noqa: FLY002
             [
                 "https://services1.arcgis.com",
                 "ESMARspQHYMw9BZ9",

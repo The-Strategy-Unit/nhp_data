@@ -22,7 +22,7 @@ from nhp.data.table_names import table_names
 ONS_URL = "https://www.ons.gov.uk"
 BASE_URL = urljoin(
     ONS_URL,
-    "/".join(
+    "/".join(  # noqa: FLY002
         [
             "peoplepopulationandcommunity",
             "populationandmigration",
