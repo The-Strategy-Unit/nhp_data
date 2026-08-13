@@ -46,7 +46,7 @@ def _generate_aec_directory(group):
         v3
         for v1 in load_json("hrgs").values()
         for v2 in v1["subchapters"].values()
-        for v3 in v2["hrgs"].keys()
+        for v3 in v2["hrgs"]
     ]
 
     icd10 = (

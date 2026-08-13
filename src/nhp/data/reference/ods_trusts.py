@@ -118,11 +118,11 @@ def process_organisation(
         "primary_role": _get_attrib(org, "Roles/Role[@primaryRole='true']", "id"),
     }
 
-    operational_date = [
+    operational_date = next(
         i
         for i in org.findall("Date")
         if _get_attrib(i, "Type", "value") == "Operational"
-    ][0]
+    )
     start_date = operational_date.find("Start")
     assert start_date is not None, "Operational date must have a start date"
     org_dict["start_date"] = start_date.get("value")
@@ -172,7 +172,7 @@ def get_successors_df(processed_orgs: list, ods_df: pd.DataFrame) -> pd.DataFram
 
     transitive_closure = []
 
-    for i in successors.keys():
+    for i in successors:
         q = [(i, "1900-01-01")]
 
         while q:
