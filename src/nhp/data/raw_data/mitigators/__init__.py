@@ -112,7 +112,7 @@ def mitigator(mitigator_type: str, mitigator_name: str | None = None):
         m = Mitigator(mitigator_type, mitigator_name, func())
 
         if mitigator_name in __registered_mitigators[mitigator_type]:
-            raise Exception(  # pylint: disable=broad-exception-raised
+            raise DuplicateMitigatorError(
                 f"duplicate mitigator: {mitigator_name} ({mitigator_type})"
             )
 
@@ -134,3 +134,7 @@ def activity_avoidance_mitigator(mitigator_name: str | None = None):
 def efficiency_mitigator(mitigator_name: str | None = None):
     """Efficiency Mitigator Decorator"""
     return mitigator("efficiency", mitigator_name)
+
+
+class DuplicateMitigatorError(Exception):
+    """Duplicate Mitigator Error"""

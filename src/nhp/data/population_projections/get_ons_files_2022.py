@@ -114,7 +114,7 @@ def extract_snpp_zip(uri: str, output_dir: str) -> str | None:
     elif "births" in uri:
         name, dir_name = "Births", "births"
     else:
-        raise Exception("Unexpected uri")
+        raise ValueError("Unexpected uri")
 
     while True:
         response = requests.get(uri)

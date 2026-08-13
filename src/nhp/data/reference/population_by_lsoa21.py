@@ -43,7 +43,10 @@ def create_pop_by_lsoa21(spark: SparkSession, table: str) -> None:
     ]:
         print(f"Processing file: {file_title}")
         file_link = soup.find(
-            "a", attrs={"aria-label": lambda x: x and file_title in x}
+            "a",
+            attrs={
+                "aria-label": lambda x, file_title=file_title: x and file_title in x
+            },
         )
         assert file_link is not None, f"could not find link for {file_title}"
         assert isinstance(file_link, bs4.Tag), "expected bs4.Tag"

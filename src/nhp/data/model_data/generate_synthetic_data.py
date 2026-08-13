@@ -3,7 +3,7 @@ import os
 import sys
 import uuid
 from collections.abc import Callable
-from datetime import datetime
+from datetime import UTC, datetime
 
 import numpy as np
 import pandas as pd
@@ -230,7 +230,7 @@ class SynthData:
         df_p.loc[df_p["pod"] == "ip_elective_daycase", "speldur"] = 0
 
         df_p["disdate"] = pd.Series(
-            [datetime(self._fyear, 4, 1)] * len(df_p)
+            [datetime(self._fyear, 4, 1, tzinfo=UTC)] * len(df_p)
         ) + pd.to_timedelta(self._rng.choice(range(365), len(df_p)), unit="D")
         df_p["admidate"] = df_p["disdate"] - pd.to_timedelta(df_p["speldur"], unit="d")
         # convert the date columns to just date, otherwise pyspark can't read

@@ -24,7 +24,7 @@ import io
 import xml.etree.ElementTree as ET
 import zipfile
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 
 import pandas as pd
 import requests
@@ -55,12 +55,14 @@ def download_ods_full_archive(api_key: str) -> ET.Element:
 
     ods_data = response.content
 
-    with zipfile.ZipFile(io.BytesIO(ods_data)) as z:
-        with z.open("fullfile.zip") as fullfile:
-            with zipfile.ZipFile(fullfile) as fullfile_zip:
-                filename = fullfile_zip.namelist()[0]
-                with fullfile_zip.open(filename) as xml_file:
-                    return ET.fromstring(xml_file.read().decode("utf-8"))
+    with (
+        zipfile.ZipFile(io.BytesIO(ods_data)) as z,
+        z.open("fullfile.zip") as fullfile,
+        zipfile.ZipFile(fullfile) as fullfile_zip,
+    ):
+        filename = fullfile_zip.namelist()[0]
+        with fullfile_zip.open(filename) as xml_file:
+            return ET.fromstring(xml_file.read().decode("utf-8"))
 
 
 def _get_attrib(elem: ET.Element, path: str, attrib: str) -> str | None:
@@ -184,10 +186,9 @@ def get_successors_df(processed_orgs: list, ods_df: pd.DataFrame) -> pd.DataFram
                     {
                         "org_from": i,
                         "org_to": j,
-                        "start_date": datetime.strptime(start_date, "%Y-%m-%d").date(),
+                        "start_date": date.fromisoformat(start_date),
                         "end_date": (
-                            datetime.strptime(end_date, "%Y-%m-%d").date()
-                            - timedelta(days=1)
+                            date.fromisoformat(end_date) - timedelta(days=1)
                             if end_date
                             else None
                         ),
