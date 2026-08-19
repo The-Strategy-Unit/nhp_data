@@ -27,6 +27,8 @@ from nhp.data.inputs_data.op.expat_repat import (
 from nhp.data.inputs_data.save_parquet import save_parquet
 from nhp.data.table_names import table_names
 
+logger = logging.getLogger(__name__)
+
 
 def get_expat_data(spark: SparkSession) -> DataFrame:
     """Get expat data (combined)
@@ -102,7 +104,7 @@ def save_expat_repat_data(path: str, spark: SparkSession) -> None:
 def main():
     geography_column = sys.argv[1]
     if geography_column != "provider":
-        logging.info("skipping expat_repat data generation for non-provider geography")
+        logger.info("skipping expat_repat data generation for non-provider geography")
         return
 
     path = f"{table_names.inputs_save_path}/{geography_column}"

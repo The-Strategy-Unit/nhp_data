@@ -8,7 +8,7 @@ Provides variables for connecting to HES datasets, and methods for working with 
 - `nhp_apc`: the view of `hes_apc` used for the NHP model
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F

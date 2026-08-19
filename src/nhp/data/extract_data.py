@@ -40,7 +40,7 @@ def _move_files(
         pass
 
     # find files to upload
-    all_files = list()
+    all_files = []
     for root, _dirs, files in os.walk(path):
         for file in files:
             src = os.path.join(root, file)

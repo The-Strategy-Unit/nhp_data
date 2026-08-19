@@ -46,7 +46,6 @@ def _readmission_within_28_days():
         .filter(F.col("well_baby_ind") == "N")
         .filter((F.col("sushrg") != "PB03Z") | F.col("sushrg").isNull())
         .filter(~((F.col("tretspef") == "424") & (F.col("epitype") == "3")))
-        #
         .withColumnRenamed("person_id_deid", "person_id")
         .alias("prior")
     )

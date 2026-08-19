@@ -19,7 +19,7 @@ def get_icb_catchments(spark: SparkSession) -> DataFrame:
     :type spark: SparkSession
     """
 
-    url = "/".join(
+    url = "/".join(  # noqa: FLY002
         [
             "https://services1.arcgis.com",
             "ESMARspQHYMw9BZ9",

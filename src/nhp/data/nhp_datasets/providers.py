@@ -2,7 +2,7 @@ from itertools import chain
 
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.types import *  # noqa: F403
+from pyspark.sql.types import *
 
 from nhp.data.table_names import table_names
 

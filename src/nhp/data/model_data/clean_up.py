@@ -16,10 +16,8 @@ def clean_up(path: str) -> None:
     """
     for dirpath, _, filenames in os.walk(path):
         for filename in filenames:
-            if (
-                filename == "_SUCCESS"
-                or filename.startswith("_committed_")
-                or filename.startswith("_started_")
+            if filename == "_SUCCESS" or filename.startswith(
+                ("_committed_", "_started_")
             ):
                 full_path = os.path.join(dirpath, filename)
                 os.remove(full_path)

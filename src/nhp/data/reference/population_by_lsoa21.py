@@ -1,4 +1,5 @@
 import io
+import re
 
 import bs4
 import numpy as np
@@ -16,7 +17,7 @@ from nhp.data.table_names import table_names
 def create_pop_by_lsoa21(spark: SparkSession, table: str) -> None:
     BASE_URL = "https://www.ons.gov.uk"
 
-    url = "/".join(
+    url = "/".join(  # noqa: FLY002
         [
             BASE_URL,
             "peoplepopulationandcommunity",
@@ -43,7 +44,8 @@ def create_pop_by_lsoa21(spark: SparkSession, table: str) -> None:
     ]:
         print(f"Processing file: {file_title}")
         file_link = soup.find(
-            "a", attrs={"aria-label": lambda x: x and file_title in x}
+            "a",
+            attrs={"aria-label": re.compile(re.escape(file_title))},
         )
         assert file_link is not None, f"could not find link for {file_title}"
         assert isinstance(file_link, bs4.Tag), "expected bs4.Tag"
@@ -63,7 +65,7 @@ def create_pop_by_lsoa21(spark: SparkSession, table: str) -> None:
                 .rename(columns={"LSOA 2021 Code": "lsoa21cd"})
                 .melt(
                     id_vars="lsoa21cd",
-                    value_vars=[f"{s}{i}" for s in "FM" for i in range(0, 91)],
+                    value_vars=[f"{s}{i}" for s in "FM" for i in range(91)],
                     var_name="sex_age",
                     value_name="population",
                 )

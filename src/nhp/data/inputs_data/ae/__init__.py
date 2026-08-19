@@ -9,6 +9,8 @@ from pyspark.sql import DataFrame, SparkSession
 from nhp.data.inputs_data.helpers import inputs_age_group
 from nhp.data.table_names import table_names
 
+logger = logging.getLogger(__name__)
+
 
 def get_ae_df(spark: SparkSession) -> DataFrame:
     """Get A&E DataFrame
@@ -74,10 +76,10 @@ def get_ae_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame
     :rtype: DataFrame
     """
     if geography_column in _AE_AGE_SEX_DF_CACHE:
-        logging.info("Using cached AE age sex data for %s", geography_column)
+        logger.info("Using cached AE age sex data for %s", geography_column)
         return _AE_AGE_SEX_DF_CACHE[geography_column]
 
-    logging.info("Creating AE age sex data for %s", geography_column)
+    logger.info("Creating AE age sex data for %s", geography_column)
 
     _AE_AGE_SEX_DF_CACHE[geography_column] = df = (
         get_ae_mitigators(spark)
@@ -88,6 +90,6 @@ def get_ae_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame
     )
 
     df.count()  # materialise the cache
-    logging.info("Materialised AE age sex data for %s", geography_column)
+    logger.info("Materialised AE age sex data for %s", geography_column)
 
     return df

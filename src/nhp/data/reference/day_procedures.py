@@ -156,10 +156,10 @@ def get_day_procedure_code_list(
     )
 
     return {
-        "usually_dc": sorted(list(usually_dc)),
-        "usually_op": sorted(list(usually_op)),
-        "occasionally_dc": sorted(list(occasionally_dc)),
-        "occasionally_op": sorted(list(occasionally_op)),
+        "usually_dc": sorted(usually_dc),
+        "usually_op": sorted(usually_op),
+        "occasionally_dc": sorted(occasionally_dc),
+        "occasionally_op": sorted(occasionally_op),
     }
 
 

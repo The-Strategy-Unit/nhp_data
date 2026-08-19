@@ -1,5 +1,5 @@
 from pyspark.sql import functions as F
-from pyspark.sql.types import *  # noqa: F403
+from pyspark.sql.types import *
 
 from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.icbs import icb_mapping

@@ -22,7 +22,7 @@ from nhp.data.table_names import table_names
 ONS_URL = "https://www.ons.gov.uk"
 BASE_URL = urljoin(
     ONS_URL,
-    "/".join(
+    "/".join(  # noqa: FLY002
         [
             "peoplepopulationandcommunity",
             "populationandmigration",
@@ -73,7 +73,7 @@ def snpp_uri_variant_match(uri: str) -> str | None:
     :return: the variant name we use in the NHP model
     :rtype: str | None
     """
-    file = re.sub("(.*/2022snpp(populationsyoa|births))|\.zip$", "", uri)
+    file = re.sub(r"(.*/2022snpp(populationsyoa|births))|\.zip$", "", uri)
 
     match file:
         case "migcat23":
@@ -114,7 +114,7 @@ def extract_snpp_zip(uri: str, output_dir: str) -> str | None:
     elif "births" in uri:
         name, dir_name = "Births", "births"
     else:
-        raise Exception("Unexpected uri")
+        raise ValueError("Unexpected uri")
 
     while True:
         response = requests.get(uri)

@@ -7,11 +7,11 @@ from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
 from nhp.data.get_spark import get_spark
-from nhp.data.raw_data.mitigators.ip.activity_avoidance import *  # noqa: F403
-from nhp.data.raw_data.mitigators.ip.efficiency import *  # noqa: F403
+from nhp.data.raw_data.mitigators.ip.activity_avoidance import *
+from nhp.data.raw_data.mitigators.ip.efficiency import *
 from nhp.data.table_names import table_names
 
-__registered_mitigators = defaultdict(lambda: {})
+__registered_mitigators = defaultdict(dict)
 
 
 class Mitigator:
@@ -66,7 +66,7 @@ class Mitigator:
             target.alias("target")
             .merge(
                 source.alias("source"),
-                " and ".join(
+                " and ".join(  # noqa: FLY002
                     [
                         "source.fyear = target.fyear",
                         "source.provider = target.provider",
@@ -112,7 +112,7 @@ def mitigator(mitigator_type: str, mitigator_name: str | None = None):
         m = Mitigator(mitigator_type, mitigator_name, func())
 
         if mitigator_name in __registered_mitigators[mitigator_type]:
-            raise Exception(  # pylint: disable=broad-exception-raised
+            raise DuplicateMitigatorError(
                 f"duplicate mitigator: {mitigator_name} ({mitigator_type})"
             )
 
@@ -134,3 +134,7 @@ def activity_avoidance_mitigator(mitigator_name: str | None = None):
 def efficiency_mitigator(mitigator_name: str | None = None):
     """Efficiency Mitigator Decorator"""
     return mitigator("efficiency", mitigator_name)
+
+
+class DuplicateMitigatorError(Exception):
+    """Duplicate Mitigator Error"""

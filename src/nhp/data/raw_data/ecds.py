@@ -4,7 +4,7 @@ from itertools import chain
 
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import *  # noqa: F403
+from pyspark.sql.types import *
 
 from nhp.data.get_spark import get_spark
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping

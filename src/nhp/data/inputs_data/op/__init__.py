@@ -9,6 +9,8 @@ from pyspark.sql import DataFrame, SparkSession
 from nhp.data.inputs_data.helpers import inputs_age_group
 from nhp.data.table_names import table_names
 
+logger = logging.getLogger(__name__)
+
 
 def get_op_df(spark: SparkSession) -> DataFrame:
     """Get Outpatients DataFrame
@@ -93,10 +95,10 @@ def get_op_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame
     :rtype: DataFrame
     """
     if geography_column in _OP_AGE_SEX_DF_CACHE:
-        logging.info("Using cached OP age sex data for %s", geography_column)
+        logger.info("Using cached OP age sex data for %s", geography_column)
         return _OP_AGE_SEX_DF_CACHE[geography_column]
 
-    logging.info("Creating OP age sex data for %s", geography_column)
+    logger.info("Creating OP age sex data for %s", geography_column)
 
     _OP_AGE_SEX_DF_CACHE[geography_column] = df = (
         get_op_mitigators(spark)
@@ -106,6 +108,6 @@ def get_op_age_sex_data(spark: SparkSession, geography_column: str) -> DataFrame
         .persist()
     )
     df.count()  # materialise the cache
-    logging.info("Materialised OP age sex data for %s", geography_column)
+    logger.info("Materialised OP age sex data for %s", geography_column)
 
     return df
