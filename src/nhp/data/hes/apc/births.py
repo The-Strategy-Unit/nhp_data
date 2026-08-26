@@ -18,9 +18,9 @@ def get_hes_apc_births(spark: SparkSession) -> DataFrame:
     )
 
     return df.selectExpr("epikey", "fyear", "procode3", expr).filter(
-        " or ".join(
+        " OR ".join(
             [
-                f"!{i} is null"
+                f"{i} IS NOT NULL"
                 for i in [
                     "biresus",
                     "birordr",
