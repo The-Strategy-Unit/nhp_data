@@ -17,5 +17,7 @@ def get_hes_opa(spark):
     )
     # convert fyear
     df = df.withColumn("fyear", F.col("fyear").cast("int") + 200000)
+    # rename patient identifier
+    df = df.withColumnRenamed("der_pseudo_nhs_number", "person_id_deid")
 
     return df

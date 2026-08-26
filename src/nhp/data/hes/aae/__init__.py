@@ -17,5 +17,7 @@ def get_hes_aae(spark):
     )
     # convert fyear
     df = df.withColumn("fyear", F.col("fyear").cast("int") + 200000)
+    # rename patient identifier
+    df = df.withColumnRenamed("hesid_standard", "person_id_deid")
 
     return df
