@@ -9,9 +9,10 @@ from nhp.data.table_names import table_names
 
 def get_hes_apc_procedures(spark: SparkSession) -> DataFrame:
     n = 24
-    expr = "stack({0}, {1}) as(procedure_order, procedure_code, date)".format(
-        n, ", ".join(f"{i}, opertn_{i:02}, opdate_{i:02}" for i in range(1, n + 1))
+    stack_cols = ", ".join(
+        f"{i}, opertn_{i:02}, opdate_{i:02}" for i in range(1, n + 1)
     )
+    expr = f"stack({n}, {stack_cols}) as(procedure_order, procedure_code, date)"
 
     df = (
         get_hes_apc(spark)

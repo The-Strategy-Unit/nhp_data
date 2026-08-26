@@ -9,13 +9,11 @@ def get_hes_apc_births(spark: SparkSession) -> DataFrame:
     df = get_hes_apc(spark)
 
     n = 9
-    expr = "stack({0}, {1}) as(biresus, birordr, birstat, birweit, delmeth, delplac, delstat, gestat, sexbaby)".format(
-        n,
-        ", ".join(
-            f"biresus_{i}, birordr_{i}, birstat_{i}, birweit_{i}, delmeth_{i}, delplac_{i}, delstat_{i}, gestat_{i}, sexbaby_{i}"
-            for i in range(1, n + 1)
-        ),
+    stack_cols = ", ".join(
+        f"biresus_{i}, birordr_{i}, birstat_{i}, birweit_{i}, delmeth_{i}, delplac_{i}, delstat_{i}, gestat_{i}, sexbaby_{i}"
+        for i in range(1, n + 1)
     )
+    expr = f"stack({n}, {stack_cols}) as(biresus, birordr, birstat, birweit, delmeth, delplac, delstat, gestat, sexbaby)"
 
     return df.selectExpr("epikey", "fyear", "procode3", expr).filter(
         " OR ".join(
