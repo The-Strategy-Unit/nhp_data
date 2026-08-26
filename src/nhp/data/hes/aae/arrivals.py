@@ -84,5 +84,3 @@ def main() -> None:
     """main method"""
     spark = get_spark()
     generate_aae_arrivals(spark)
-    generate_aae_arrivals(spark)
-    generate_aae_arrivals(spark)
