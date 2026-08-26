@@ -1,18 +1,17 @@
 resources:
   jobs:
-    Generate_HES:
-      name: Generate HES Data
+    Generate_HES_APC:
+      name: Generate HES Data (APC)
       tasks:
-        - task_key: run_hes
+        - task_key: run_hes_apc
           condition_task:
             op: EQUAL_TO
-            left: "{{job.parameters.run_hes}}"
+            left: "{{job.parameters.run_hes_apc}}"
             right: "True"
 
-        # APC
         - task_key: nhp-hes-apc-episodes
           depends_on:
-            - task_key: run_hes
+            - task_key: run_hes_apc
               outcome: "true"
           python_wheel_task:
             package_name: nhp_data
@@ -51,78 +50,6 @@ resources:
           libraries:
             - whl: ../dist/*.whl
 
-        # OPA
-        - task_key: nhp-hes-opa-attendances
-          depends_on:
-            - task_key: nhp-hes-apc-procedures
-          python_wheel_task:
-            package_name: nhp_data
-            entry_point: hes-opa-attendances
-          job_cluster_key: nhp_data
-          libraries:
-            - whl: ../dist/*.whl
-
-        - task_key: nhp-hes-opa-diagnoses
-          depends_on:
-            - task_key: nhp-hes-opa-attendances
-          python_wheel_task:
-            package_name: nhp_data
-            entry_point: hes-opa-diagnoses
-          job_cluster_key: nhp_data
-          libraries:
-            - whl: ../dist/*.whl
-
-        - task_key: nhp-hes-opa-procedures
-          depends_on:
-            - task_key: nhp-hes-opa-diagnoses
-          python_wheel_task:
-            package_name: nhp_data
-            entry_point: hes-opa-procedures
-          job_cluster_key: nhp_data
-          libraries:
-            - whl: ../dist/*.whl
-
-        # AAE
-        - task_key: nhp-hes-aae-arrivals
-          depends_on:
-            - task_key: nhp-hes-opa-procedures
-          python_wheel_task:
-            package_name: nhp_data
-            entry_point: hes-aae-arrivals
-          job_cluster_key: nhp_data
-          libraries:
-            - whl: ../dist/*.whl
-
-        - task_key: nhp-hes-aae-diagnoses
-          depends_on:
-            - task_key: nhp-hes-aae-arrivals
-          python_wheel_task:
-            package_name: nhp_data
-            entry_point: hes-aae-diagnoses
-          job_cluster_key: nhp_data
-          libraries:
-            - whl: ../dist/*.whl
-
-        - task_key: nhp-hes-aae-investigations
-          depends_on:
-            - task_key: nhp-hes-aae-diagnoses
-          python_wheel_task:
-            package_name: nhp_data
-            entry_point: hes-aae-investigations
-          job_cluster_key: nhp_data
-          libraries:
-            - whl: ../dist/*.whl
-
-        - task_key: nhp-hes-aae-treatments
-          depends_on:
-            - task_key: nhp-hes-aae-investigations
-          python_wheel_task:
-            package_name: nhp_data
-            entry_point: hes-aae-treatments
-          job_cluster_key: nhp_data
-          libraries:
-            - whl: ../dist/*.whl
-
       job_clusters:
         - job_cluster_key: nhp_data
           new_cluster:
@@ -155,5 +82,5 @@ resources:
       queue:
         enabled: true
       parameters:
-        - name: run_hes
+        - name: run_hes_apc
           default: "True"
