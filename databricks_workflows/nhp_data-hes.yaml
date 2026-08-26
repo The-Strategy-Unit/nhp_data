@@ -24,7 +24,6 @@ resources:
         - task_key: nhp-hes-apc-births
           depends_on:
             - task_key: nhp-hes-apc-episodes
-              outcome: "true"
           python_wheel_task:
             package_name: nhp_data
             entry_point: hes-apc-births
@@ -35,7 +34,6 @@ resources:
         - task_key: nhp-hes-apc-diagnoses
           depends_on:
             - task_key: nhp-hes-apc-births
-              outcome: "true"
           python_wheel_task:
             package_name: nhp_data
             entry_point: hes-apc-diagnoses
@@ -46,7 +44,6 @@ resources:
         - task_key: nhp-hes-apc-procedures
           depends_on:
             - task_key: nhp-hes-apc-diagnoses
-              outcome: "true"
           python_wheel_task:
             package_name: nhp_data
             entry_point: hes-apc-procedures
@@ -58,7 +55,6 @@ resources:
         - task_key: nhp-hes-opa-attendances
           depends_on:
             - task_key: nhp-hes-apc-procedures
-              outcome: "true"
           python_wheel_task:
             package_name: nhp_data
             entry_point: hes-opa-attendances
@@ -69,7 +65,6 @@ resources:
         - task_key: nhp-hes-opa-diagnoses
           depends_on:
             - task_key: nhp-hes-opa-attendances
-              outcome: "true"
           python_wheel_task:
             package_name: nhp_data
             entry_point: hes-opa-diagnoses
@@ -80,7 +75,6 @@ resources:
         - task_key: nhp-hes-opa-procedures
           depends_on:
             - task_key: nhp-hes-opa-diagnoses
-              outcome: "true"
           python_wheel_task:
             package_name: nhp_data
             entry_point: hes-opa-procedures
@@ -92,7 +86,6 @@ resources:
         - task_key: nhp-hes-aae-arrivals
           depends_on:
             - task_key: nhp-hes-opa-procedures
-              outcome: "true"
           python_wheel_task:
             package_name: nhp_data
             entry_point: hes-aae-arrivals
@@ -103,7 +96,6 @@ resources:
         - task_key: nhp-hes-aae-diagnoses
           depends_on:
             - task_key: nhp-hes-aae-arrivals
-              outcome: "true"
           python_wheel_task:
             package_name: nhp_data
             entry_point: hes-aae-diagnoses
@@ -114,7 +106,6 @@ resources:
         - task_key: nhp-hes-aae-investigations
           depends_on:
             - task_key: nhp-hes-aae-diagnoses
-              outcome: "true"
           python_wheel_task:
             package_name: nhp_data
             entry_point: hes-aae-investigations
@@ -125,7 +116,6 @@ resources:
         - task_key: nhp-hes-aae-treatments
           depends_on:
             - task_key: nhp-hes-aae-investigations
-              outcome: "true"
           python_wheel_task:
             package_name: nhp_data
             entry_point: hes-aae-treatments
