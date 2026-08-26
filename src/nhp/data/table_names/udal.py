@@ -2,6 +2,12 @@ from nhp.data.table_names.table_names import TableNames
 
 udal = TableNames(
     # --------------------------------------------------------------------------
+    # source tables
+    # --------------------------------------------------------------------------
+    source_aae="udal_patientlevel.hesaea.vw_hesaea",
+    source_apc="udal_silver_restricted.seft_hes.hesapc",
+    source_opa="udal_silver_restricted.seft_hes.hesopa",
+    # --------------------------------------------------------------------------
     # hes tables
     # --------------------------------------------------------------------------
     hes_aae="udal_lake_mart.newhospitalprogramme.hes_aae",
@@ -10,6 +16,7 @@ udal = TableNames(
     hes_aae_treatments="udal_lake_mart.newhospitalprogramme.hes_aae_treatments",
     # ---
     hes_apc="udal_lake_mart.newhospitalprogramme.hes_apc",
+    hes_apc_births="udal_lake_mart.newhospitalprogramme.hes_apc_births",
     hes_apc_procedures="udal_lake_mart.newhospitalprogramme.hes_apc_procedures",
     hes_apc_diagnoses="udal_lake_mart.newhospitalprogramme.hes_apc_diagnoses",
     # ---

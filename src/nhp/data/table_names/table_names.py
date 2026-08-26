@@ -4,6 +4,12 @@ from dataclasses import dataclass
 @dataclass
 class TableNames:
     # --------------------------------------------------------------------------
+    # source tables
+    # --------------------------------------------------------------------------
+    source_aae: str
+    source_apc: str
+    source_opa: str
+    # --------------------------------------------------------------------------
     # hes tables
     # --------------------------------------------------------------------------
     hes_aae: str
@@ -12,6 +18,7 @@ class TableNames:
     hes_aae_treatments: str
     # ---
     hes_apc: str
+    hes_apc_births: str
     hes_apc_procedures: str
     hes_apc_diagnoses: str
     # ---
