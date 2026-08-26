@@ -83,4 +83,3 @@ def generate_hes_opa_attendances(spark: SparkSession) -> None:
 def main() -> None:
     spark = get_spark()
     generate_hes_opa_attendances(spark)
-    generate_hes_opa_attendances(spark)
