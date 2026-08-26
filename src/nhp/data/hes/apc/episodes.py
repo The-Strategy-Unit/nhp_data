@@ -143,10 +143,10 @@ def get_hes_apc_episodes(spark: SparkSession) -> DataFrame:
 
     fns = [
         lambda x: fix_icd10_or_opcs4(x, "cause"),
+        _hes_apc_add_maternity_episode_type,  # ensure this happens before removing normalised columns, as it uses delmeth_1 and delplac_1
         _hes_apc_episodes_remove_normalised_columns,
         _hes_apc_episodes_add_imd_decile,
         _hes_apc_episodes_add_last_episode_in_spell,
-        _hes_apc_add_maternity_episode_type,
     ]
     return reduce(lambda x, fn: fn(x), fns, df)
 
