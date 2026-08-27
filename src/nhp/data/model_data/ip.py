@@ -6,6 +6,7 @@ import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.model_data.functional_areas.ip.wards import get_ip_functional_area_wards
 from nhp.data.table_names import table_names
 
 
@@ -19,6 +20,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
     :param fyear: what year to extract
     :type fyear: int
     """
+    # extract ip data
     apc = (
         spark.read.table(table_names.default_apc)
         .filter(F.col("fyear") == fyear)
@@ -36,6 +38,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
         .parquet(f"{save_path}/ip")
     )
 
+    # extract ip tpma data
     for k, v in [
         ("activity_avoidance", "activity_avoidance"),
         ("efficiencies", "efficiency"),
@@ -54,6 +57,15 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
             .partitionBy(["fyear", "dataset"])
             .parquet(f"{save_path}/ip_{k}_strategies")
         )
+
+    # extract ip functional areas
+    (
+        get_ip_functional_area_wards(apc, spark)
+        .repartition(1)
+        .write.mode("overwrite")
+        .partitionBy(["fyear", "dataset"])
+        .parquet(f"{save_path}/ip_functional_areas_wards")
+    )
 
 
 def main():
