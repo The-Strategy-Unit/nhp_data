@@ -25,17 +25,6 @@ def inputs_age_group(spark: SparkSession) -> DataFrame:
     )
 
 
-def treatment_function_grouping(spark: SparkSession) -> DataFrame:
-    """Get Treatment Function Groupings
-
-    :param spark: The spark session to use
-    :type spark: SparkSession
-    :return: Treatment Function Grouping Table
-    :rtype: DataFrame
-    """
-    return spark.read.table(table_names.reference_tretspef_grouping)
-
-
 def complete_age_sex_rows(
     spark: SparkSession, df: DataFrame, geography_column: str
 ) -> DataFrame:
