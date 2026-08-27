@@ -40,7 +40,6 @@ mlcsu = TableNames(
     reference_ods_trusts="nhp.reference.ods_trusts",
     reference_population_by_imd_decile="nhp.reference.population_by_imd_decile",
     reference_provider_main_icb="nhp.reference.provider_main_icb",
-    reference_tretspef_grouping="nhp.reference.tretspef_grouping",
     reference_lsoa11_to_lsoa21="nhp.reference.lsoa11_to_lsoa21",
     reference_lsoa21_to_lad23="nhp.reference.lsoa21_to_lad23",
     reference_pop_by_lsoa21="nhp.reference.pop_by_lsoa21",
