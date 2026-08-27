@@ -1,0 +1,86 @@
+resources:
+  jobs:
+    Generate_HES_APC:
+      name: Generate HES Data (APC)
+      tasks:
+        - task_key: run_hes_apc
+          condition_task:
+            op: EQUAL_TO
+            left: "{{job.parameters.run_hes_apc}}"
+            right: "True"
+
+        - task_key: nhp-hes-apc-episodes
+          depends_on:
+            - task_key: run_hes_apc
+              outcome: "true"
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: hes-apc-episodes
+          job_cluster_key: nhp_data
+          libraries:
+            - whl: ../dist/*.whl
+
+        - task_key: nhp-hes-apc-births
+          depends_on:
+            - task_key: nhp-hes-apc-episodes
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: hes-apc-births
+          job_cluster_key: nhp_data
+          libraries:
+            - whl: ../dist/*.whl
+
+        - task_key: nhp-hes-apc-diagnoses
+          depends_on:
+            - task_key: nhp-hes-apc-births
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: hes-apc-diagnoses
+          job_cluster_key: nhp_data
+          libraries:
+            - whl: ../dist/*.whl
+
+        - task_key: nhp-hes-apc-procedures
+          depends_on:
+            - task_key: nhp-hes-apc-diagnoses
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: hes-apc-procedures
+          job_cluster_key: nhp_data
+          libraries:
+            - whl: ../dist/*.whl
+
+      job_clusters:
+        - job_cluster_key: nhp_data
+          new_cluster:
+            spark_version: 17.3.x-scala2.13
+            spark_conf:
+              spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite: "true"
+              spark.databricks.delta.properties.defaults.autoOptimize.autoCompact: "true"
+              spark.databricks.sql.initial.catalog.namespace: udal_lake_mart
+            azure_attributes:
+              availability: ON_DEMAND_AZURE
+              spot_bid_max_price: 100
+            node_type_id: Standard_D4ds_v5
+            custom_tags:
+              Application: UDAL
+              Workload_Type: Job
+              Workload_Size: Small
+            spark_env_vars:
+              PYSPARK_PYTHON: /databricks/python3/bin/python3
+            policy_id: 000816B2986C0B29
+            data_security_mode: USER_ISOLATION
+            runtime_engine: STANDARD
+            kind: CLASSIC_PREVIEW
+            is_single_node: false
+            autoscale:
+              min_workers: 1
+              max_workers: 4
+      tags:
+        group: nhp_data
+        env: ${bundle.target}
+      queue:
+        enabled: true
+      parameters:
+        - name: run_hes_apc
+          default: "True"

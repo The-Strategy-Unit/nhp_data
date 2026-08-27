@@ -2,9 +2,16 @@ from nhp.data.table_names.table_names import TableNames
 
 mlcsu = TableNames(
     # --------------------------------------------------------------------------
+    # source tables
+    # --------------------------------------------------------------------------
+    source_aae="",
+    source_apc="",
+    source_opa="",
+    # --------------------------------------------------------------------------
     # hes tables
     # --------------------------------------------------------------------------
     hes_aae="hes.silver.aae",
+    hes_apc_births="hes.silver.apc_births",
     hes_aae_diagnoses="hes.silver.aae_diagnoses",
     hes_aae_investigations="hes.silver.aae_investigations",
     hes_aae_treatments="hes.silver.aae_treatments",
