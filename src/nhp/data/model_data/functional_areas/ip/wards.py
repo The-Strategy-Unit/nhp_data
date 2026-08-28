@@ -1,10 +1,7 @@
 import pyspark.sql.functions as F
-from nhp.capacity.functional_areas.ip_daycase import *
-from nhp.capacity.functional_areas.ip_maternity import *
-from nhp.capacity.functional_areas.ip_wards import *
-from nhp.capacity.functional_areas.processing_helpers import *
 from pyspark.sql import DataFrame, SparkSession, Window
 
+from nhp.data.functional_areas.ip_ward_groups import create_ip_ward_groupings
 from nhp.data.table_names import table_names
 
 
@@ -28,7 +25,7 @@ def get_ip_functional_area_wards(apc: DataFrame, spark: SparkSession) -> DataFra
         .drop("fyear", "speldur")
     )
 
-    df = (
+    df = create_ip_ward_groupings(
         apc.select(
             "rn",
             "susspellid",
@@ -41,49 +38,6 @@ def get_ip_functional_area_wards(apc: DataFrame, spark: SparkSession) -> DataFra
         .join(episodes, "susspellid")
         .withColumn("is_zero_length_episode", (F.col("epidur") == 0).cast("int"))
         .join(spark.read.table(table_names.reference_tretspef_type), "tretspef", "left")
-        # TODO: this should be in the functional area package
-        .withColumn(
-            "grouping",
-            F
-            # maternity
-            .when(is_normal_delivery_zerolos(), "maternity_normal_delivery_zerolos")
-            .when(
-                is_normal_delivery_nonzerolos(), "maternity_normal_delivery_nonzerolos"
-            )
-            .when(is_assisted_delivery_zerolos(), "maternity_assisted_delivery_zerolos")
-            .when(
-                is_assisted_delivery_nonzerolos(),
-                "maternity_assisted_delivery_nonzerolos",
-            )
-            .when(is_maternity_assessment(), "maternity_assessment")
-            .when(
-                is_nonelective_csection_zerolos(),
-                "maternity_nonelective_csection_zerolos",
-            )
-            .when(
-                is_nonelective_csection_nonzerolos(),
-                "maternity_nonelective_csection_nonzerolos",
-            )
-            .when(is_elective_csection_zerolos(), "maternity_elective_csection_zerolos")
-            .when(
-                is_elective_csection_nonzerolos(),
-                "maternity_elective_csection_nonzerolos",
-            )
-            .when(is_overnight_no_birth_event(), "maternity_overnight_no_birth")
-            # daycase
-            .when(
-                is_renal_elective() | is_renal_regular_day_night(),
-                "daycase_renal_episode",
-            )
-            .when(is_daycase_haem_onc(), "daycase_haem_onc_episode")
-            .when(is_daycase_endoscopy(), "daycase_endoscopy_episode")
-            .when(is_daycase_adult_medical(), "daycase_adult_medical_episode")
-            .when(is_daycase_adult_surgical(), "daycase_adult_surgical_episode")
-            .when(is_daycase_child_medical(), "daycase_child_medical_episode")
-            .when(is_daycase_child_surgical(), "daycase_child_surgical_episode")
-            # ip
-            .otherwise(build_ward_grouping_column()),
-        )
     )
 
     w = Window.partitionBy("rn")

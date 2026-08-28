@@ -196,21 +196,6 @@ wheels = [
 ]
 
 [[package]]
-name = "azure-data-tables"
-version = "12.7.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "azure-core" },
-    { name = "isodate" },
-    { name = "typing-extensions" },
-    { name = "yarl" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ad/b8/e76cfa7f5f847722664c6f8108c391deadcb9d9aad579650c128affd4669/azure_data_tables-12.7.0.tar.gz", hash = "sha256:b14fc94a3223a2835ff5688e17d8e107b27c7cd7c4114138f2ac81373723705d", size = 258650, upload-time = "2025-05-06T17:51:06.323Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/14/3e/2b8da274b49402659cd732def2ae217f2e86312278feb56b55ccbffbbc26/azure_data_tables-12.7.0-py3-none-any.whl", hash = "sha256:24ed9b5690aa46c213182e32bb1b39a68dd9f526d84f447c287e3a401b437c10", size = 133178, upload-time = "2025-05-06T17:51:07.65Z" },
-]
-
-[[package]]
 name = "azure-identity"
 version = "1.25.3"
 source = { registry = "https://pypi.org/simple" }
@@ -713,17 +698,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/88/7f/731ff914b0255d3d065f45fd4e626d4b8c95dbcbaada049f337a6ac16410/docker-7.2.0.tar.gz", hash = "sha256:cebb93773d334f778e023a7ee352a8d6e13ab1bd3b863a4d4a59dec897df43ac", size = 118731, upload-time = "2026-07-09T14:53:46.39Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/75/23/529140fe1aab80fc6992f93a706deec709140a6397439139a054e1515c45/docker-7.2.0-py3-none-any.whl", hash = "sha256:a3f45fdeb9165e2d25d9a1d02ddf3bc70fb572cf5ebbf9b58558c22caf29b71f", size = 148775, upload-time = "2026-07-09T14:53:45.224Z" },
-]
-
-[[package]]
-name = "dotenv"
-version = "0.9.9"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "python-dotenv" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b2/b7/545d2c10c1fc15e48653c91efde329a790f2eecfbbf2bd16003b5db2bab0/dotenv-0.9.9-py2.py3-none-any.whl", hash = "sha256:29cf74a087b31dafdb5a446b6d7e11cbce8ed2741540e2339c69fbef92c94ce9", size = 1892, upload-time = "2025-02-19T22:15:01.647Z" },
 ]
 
 [[package]]
@@ -1646,7 +1620,6 @@ dependencies = [
     { name = "beautifulsoup4" },
     { name = "databricks-connect" },
     { name = "mlflow" },
-    { name = "nhp-functional-area-mapping" },
     { name = "openpyxl" },
     { name = "pandas" },
     { name = "pygam" },
@@ -1664,7 +1637,6 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.13.4" },
     { name = "databricks-connect", specifier = ">=16.4" },
     { name = "mlflow", specifier = ">=3.3.2" },
-    { name = "nhp-functional-area-mapping", git = "https://github.com/the-strategy-unit/nhp_functional_area_mapping.git" },
     { name = "openpyxl", specifier = ">=3.1.5" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "pygam", specifier = ">=0.9.1" },
@@ -1672,21 +1644,6 @@ requires-dist = [
     { name = "statsmodels", specifier = ">=0.14.5" },
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "xlrd", specifier = ">=2.0.2" },
-]
-
-[[package]]
-name = "nhp-functional-area-mapping"
-version = "0.1.0"
-source = { git = "https://github.com/the-strategy-unit/nhp_functional_area_mapping.git#1eaa3675b46293c33d4f72325733b78d7e98edbc" }
-dependencies = [
-    { name = "azure-data-tables" },
-    { name = "azure-identity" },
-    { name = "azure-storage-blob" },
-    { name = "databricks-connect" },
-    { name = "dotenv" },
-    { name = "openpyxl" },
-    { name = "pandas" },
-    { name = "pyspark" },
 ]
 
 [[package]]
