@@ -37,6 +37,7 @@ mlcsu = TableNames(
     reference_ccg_to_icb="strategyunit.reference.ccg_to_icb",
     reference_icb_catchments="nhp.reference.icb_catchments",
     reference_icd10_codes="strategyunit.reference.icd10_codes",
+    reference_tretspef_type="strategyunit.reference.tretpef_type",
     reference_ods_trusts="nhp.reference.ods_trusts",
     reference_population_by_imd_decile="nhp.reference.population_by_imd_decile",
     reference_provider_main_icb="nhp.reference.provider_main_icb",
