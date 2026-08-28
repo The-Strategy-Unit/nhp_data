@@ -31,6 +31,7 @@ def get_ip_functional_area_wards(apc: DataFrame, spark: SparkSession) -> DataFra
             "susspellid",
             "dataset",
             # apply last episode values to the rest of the episodes
+            "speldur",
             "fyear",
             "group",
             "age",
