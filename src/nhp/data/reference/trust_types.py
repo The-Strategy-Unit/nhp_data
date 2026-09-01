@@ -55,7 +55,7 @@ def get_eric_trust_data(year: int, link: str) -> pd.DataFrame:
 
     uri = next(a.attrs["href"] for a in div.find_all("a") if "Trust" in a.text)
 
-    response = requests.get(uri)
+    response = requests.get(str(uri))
     response.raise_for_status()
 
     # more recent years are UTF-8, but earlier years are Latin alphabet No. 1
