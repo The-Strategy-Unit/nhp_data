@@ -3,8 +3,6 @@
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
-from nhp.data.table_names import table_names
-
 
 def inputs_age_group(spark: SparkSession) -> DataFrame:
     """Get age groupings
