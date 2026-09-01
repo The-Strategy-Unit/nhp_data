@@ -227,7 +227,7 @@ class SynthData:
         df_fa_wards = (
             self.read_dev_file("ip_functional_areas_wards/")
             .join(df.select(*grouping_cols, "rn"), "rn")
-            .drop("group_los", "los_total", "sitetret")
+            .drop("group_los", "los_total", "sitetret", "dataset", "fyear")
         )
 
         df_fa_wards_means = (
