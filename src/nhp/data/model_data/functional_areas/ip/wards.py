@@ -43,7 +43,7 @@ def get_ip_functional_area_wards(apc: DataFrame, spark: SparkSession) -> DataFra
 
     w = Window.partitionBy("rn")
     return (
-        df.groupBy("fyear", "dataset", "rn", "sitetret", "grouping")
+        df.groupBy("fyear", "dataset", "rn", "sitetret", "ward_grouping")
         .agg(
             F.sum("epidur").alias("group_los"),
             F.count("epikey").alias("episodes"),
