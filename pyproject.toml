@@ -14,7 +14,6 @@ dependencies = [
   "openpyxl>=3.1.5",
   "pandas>=2.2.3",
   "pygam>=0.9.1",
-  "pyjanitor>=0.31.0",
   "pyspark>=3.5.2",
   "statsmodels>=0.14.5",
   "tqdm>=4.67.1",
@@ -40,6 +39,9 @@ exclude = ["**/*.pyi"]
 
 [tool.ty.src]
 exclude = ["**/*.pyi"]
+
+[tool.uv.sources]
+nhp-functional-area-mapping = { git = "https://github.com/the-strategy-unit/nhp_functional_area_mapping.git" }
 
 [project.scripts]
 aggregated_data-ecds = "nhp.data.aggregated_data.ecds:main"

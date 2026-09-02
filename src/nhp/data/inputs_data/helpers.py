@@ -3,8 +3,6 @@
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
-from nhp.data.table_names import table_names
-
 
 def inputs_age_group(spark: SparkSession) -> DataFrame:
     """Get age groupings
@@ -23,17 +21,6 @@ def inputs_age_group(spark: SparkSession) -> DataFrame:
         [(age, _get_age_str(age)) for age in range(90)] + [(90, "90+")],
         ["age", "age_group"],
     )
-
-
-def treatment_function_grouping(spark: SparkSession) -> DataFrame:
-    """Get Treatment Function Groupings
-
-    :param spark: The spark session to use
-    :type spark: SparkSession
-    :return: Treatment Function Grouping Table
-    :rtype: DataFrame
-    """
-    return spark.read.table(table_names.reference_tretspef_grouping)
 
 
 def complete_age_sex_rows(

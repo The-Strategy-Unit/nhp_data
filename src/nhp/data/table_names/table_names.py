@@ -42,7 +42,7 @@ class TableNames:
     reference_ods_trusts: str
     reference_population_by_imd_decile: str
     reference_provider_main_icb: str
-    reference_tretspef_grouping: str
+    reference_tretspef_type: str
     reference_lsoa11_to_lsoa21: str
     reference_lsoa21_to_lad23: str
     reference_lsoa11_to_lad23: str
