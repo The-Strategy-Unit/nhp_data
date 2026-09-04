@@ -265,13 +265,13 @@ def create_ip_ward_groupings(df: DataFrame) -> DataFrame:
         # daycase
         .when(
             is_renal_elective() | is_renal_regular_day_night(),
-            "daycase_renal_spells",
+            "daycase_renal",
         )
-        .when(is_daycase_haem_onc(), "daycase_haem_onc_spells")
-        .when(is_daycase_endoscopy(), "daycase_endoscopy_spells")
-        .when(is_daycase_adult_medical(), "daycase_adult_medical_spells")
-        .when(is_daycase_adult_surgical(), "daycase_adult_surgical_spells")
-        .when(is_daycase_child_medical(), "daycase_child_medical_spells")
-        .when(is_daycase_child_surgical(), "daycase_child_surgical_spells")
+        .when(is_daycase_haem_onc(), "daycase_haem_onc")
+        .when(is_daycase_endoscopy(), "daycase_endoscopy")
+        .when(is_daycase_adult_medical(), "adult_daycase_medical")
+        .when(is_daycase_adult_surgical(), "adult_daycase_surgical")
+        .when(is_daycase_child_medical(), "paediatric_daycase_medical")
+        .when(is_daycase_child_surgical(), "paediatric_daycase_surgical")
         .otherwise(build_ordinary_admissions_ward_groupings()),
     )
