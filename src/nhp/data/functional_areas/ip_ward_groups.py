@@ -228,7 +228,8 @@ def build_ordinary_admissions_ward_groupings():
 # Overall function
 # ------------------------------------------------------------------------------
 def create_ip_ward_groupings(df: DataFrame) -> DataFrame:
-    """Adds "functional_area" column to the IP data with the functional areas for IP daycase
+    """Adds "functional_area" column to the IP data with the functional areas for Inpatient activity (including
+    maternity and daycases).
 
     Args:
         df (DataFrame): DataFrame representing the IP data
