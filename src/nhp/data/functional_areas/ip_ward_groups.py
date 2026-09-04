@@ -228,16 +228,17 @@ def build_ordinary_admissions_ward_groupings():
 # Overall function
 # ------------------------------------------------------------------------------
 def create_ip_ward_groupings(df: DataFrame) -> DataFrame:
-    """Adds "ward_grouping" column to the IP data with the functional areas for IP daycase
+    """Adds "functional_area" column to the IP data with the functional areas for IP daycase
 
     Args:
         df (DataFrame): DataFrame representing the IP data
 
     Returns:
-        DataFrame: DataFrame representing the IP data with the added "ward_grouping" column for the daycase functional area grouping
+        DataFrame: DataFrame representing the IP data with the added "functional_area" column for the daycase functional
+        area grouping
     """
     return df.withColumn(
-        "ward_grouping",
+        "functional_area",
         F
         # maternity
         .when(is_normal_delivery_zerolos(), "maternity_normal_delivery_zerolos")
