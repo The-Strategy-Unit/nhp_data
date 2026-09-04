@@ -231,7 +231,7 @@ class SynthData:
         )
 
         df_fa_wards_means = (
-            df_fa_wards.groupBy(*grouping_cols, "ward_grouping")
+            df_fa_wards.groupBy(*grouping_cols, "functional_area")
             .agg(
                 F.mean("episodes").alias("episodes"),
                 F.mean("zero_length_episodes").alias("zero_length_episodes"),
@@ -243,7 +243,7 @@ class SynthData:
             df_fa_wards.drop(
                 "episodes", "zero_length_episodes", "group_los", "los_total"
             )
-            .join(df_fa_wards_means, grouping_cols + ["ward_grouping"])
+            .join(df_fa_wards_means, grouping_cols + ["functional_area"])
             .drop(*grouping_cols)
             .toPandas()
         )

@@ -228,16 +228,18 @@ def build_ordinary_admissions_ward_groupings():
 # Overall function
 # ------------------------------------------------------------------------------
 def create_ip_ward_groupings(df: DataFrame) -> DataFrame:
-    """Adds "ward_grouping" column to the IP data with the functional areas for IP daycase
+    """Adds "functional_area" column to the IP data with the functional areas for Inpatient activity (including
+    maternity and daycases).
 
     Args:
         df (DataFrame): DataFrame representing the IP data
 
     Returns:
-        DataFrame: DataFrame representing the IP data with the added "ward_grouping" column for the daycase functional area grouping
+        DataFrame: DataFrame representing the IP data with the added "functional_area" column for the daycase functional
+        area grouping
     """
     return df.withColumn(
-        "ward_grouping",
+        "functional_area",
         F
         # maternity
         .when(is_normal_delivery_zerolos(), "maternity_normal_delivery_zerolos")
@@ -265,13 +267,13 @@ def create_ip_ward_groupings(df: DataFrame) -> DataFrame:
         # daycase
         .when(
             is_renal_elective() | is_renal_regular_day_night(),
-            "daycase_renal_spells",
+            "daycase_renal",
         )
-        .when(is_daycase_haem_onc(), "daycase_haem_onc_spells")
-        .when(is_daycase_endoscopy(), "daycase_endoscopy_spells")
-        .when(is_daycase_adult_medical(), "daycase_adult_medical_spells")
-        .when(is_daycase_adult_surgical(), "daycase_adult_surgical_spells")
-        .when(is_daycase_child_medical(), "daycase_child_medical_spells")
-        .when(is_daycase_child_surgical(), "daycase_child_surgical_spells")
+        .when(is_daycase_haem_onc(), "daycase_haem_onc")
+        .when(is_daycase_endoscopy(), "daycase_endoscopy")
+        .when(is_daycase_adult_medical(), "adult_daycase_medical")
+        .when(is_daycase_adult_surgical(), "adult_daycase_surgical")
+        .when(is_daycase_child_medical(), "paediatric_daycase_medical")
+        .when(is_daycase_child_surgical(), "paediatric_daycase_surgical")
         .otherwise(build_ordinary_admissions_ward_groupings()),
     )
