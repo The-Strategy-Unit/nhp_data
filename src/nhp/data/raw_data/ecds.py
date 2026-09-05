@@ -133,6 +133,16 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
         "1066321000000107",  # Left care setting before treatment completed (finding)
     ]
 
+    discharged_no_treatment = {
+        "investigations": [
+            "1088291000000101",  # Clinical investigation not indicated (situation)
+        ],
+        "treatments": [
+            "183964008",  # Treatment not indicated (situation)
+            "413334001",  # Patient given written advice (situation)
+        ],
+    }
+
     # add main icb column
     df = add_main_icb(spark, df)
     # add age and age_group columns
@@ -177,11 +187,19 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
             (
                 (
                     F.isnull("Der_EC_Investigation_All")
-                    | (F.col("Der_EC_Investigation_All") == "1088291000000101")
+                    | (
+                        F.col("Der_EC_Investigation_All").isin(
+                            discharged_no_treatment["investigations"]
+                        )
+                    )
                 )
                 & (
                     F.isnull("Der_EC_Treatment_All")
-                    | (F.col("Der_EC_Treatment_All") == "183964008")
+                    | (
+                        F.col("Der_EC_Treatment_All").isin(
+                            discharged_no_treatment["treatments"]
+                        )
+                    )
                 )
             ),
         )

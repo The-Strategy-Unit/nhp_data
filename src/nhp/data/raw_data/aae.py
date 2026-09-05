@@ -62,13 +62,13 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
 
     df_treatments = (
         spark.read.table(table_names.hes_aae_treatments)
-        .filter(F.col("treatment") != "24")
+        .filter(~F.col("treatment").isin(["22", "99"]))
         .select("aekey", "fyear", "procode3")
     )
 
     df_investigations = (
         spark.read.table(table_names.hes_aae_investigations)
-        .filter(~F.col("investigation").isin(["22", "99"]))
+        .filter(F.col("investigation") != "24")
         .select("aekey", "fyear", "procode3")
     )
 
