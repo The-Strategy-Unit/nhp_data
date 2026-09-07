@@ -93,3 +93,4 @@ venv.bak/
 .eggs/
 dist/
 build/
+src/nhp/data/__version.py

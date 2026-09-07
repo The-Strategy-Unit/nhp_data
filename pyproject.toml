@@ -1,6 +1,6 @@
 [project]
-name = "nhp_data"
-version = "0.1.0"
+name = "nhp-data"
+dynamic = ["version"]
 description = "Add your description here"
 readme = "readme.md"
 requires-python = ">=3.12"
@@ -23,6 +23,10 @@ dependencies = [
 # Explicitly specify which packages to include
 [tool.setuptools]
 package-dir = { "" = "src" }
+
+[tool.setuptools_scm]
+write_to = "src/nhp/data/__version.py"
+fallback_version = "0.0.0"
 
 [tool.setuptools.packages.find]
 where = ["src"]
