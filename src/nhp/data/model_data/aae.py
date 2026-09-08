@@ -25,6 +25,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
         .filter(F.col("fyear") == fyear)
         .withColumnRenamed("provider", "dataset")
         .withColumn("fyear", F.floor(F.col("fyear") / 100))
+        .fillna({"sitetret": "unknown"})
     )
 
     (

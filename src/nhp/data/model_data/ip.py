@@ -29,6 +29,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
         .withColumn("fyear", F.floor(F.col("fyear") / 100))
         .withColumn("sex", F.col("sex").cast("int"))
         .withColumn("sushrg_trimmed", F.expr("substring(sushrg, 1, 4)"))
+        .fillna({"sitetret": "unknown"})
     )
 
     (
