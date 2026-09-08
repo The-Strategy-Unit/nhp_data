@@ -26,6 +26,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
         .withColumnRenamed("provider", "dataset")
         .withColumn("fyear", F.floor(F.col("fyear") / 100))
         .withColumn("is_wla", F.lit(True))
+        .fillna({"sitetret": "unknown"})
     )
 
     inequalities = (
