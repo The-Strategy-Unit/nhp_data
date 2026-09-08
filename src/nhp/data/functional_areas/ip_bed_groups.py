@@ -221,7 +221,7 @@ def build_ordinary_admissions_ward_groupings():
 
         when_chain = when_chain.when(condition, label)
 
-    return when_chain.otherwise("unknown")
+    return when_chain.otherwise("ip_beds_unknown")
 
 
 # ------------------------------------------------------------------------------
