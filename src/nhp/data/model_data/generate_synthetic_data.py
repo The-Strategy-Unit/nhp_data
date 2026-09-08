@@ -223,7 +223,7 @@ class SynthData:
 
         df_ip_ef = df_ip_ef[["rn", "strategy", "sample_rate"]]
 
-        # generate the functional areas
+        # generate the functional areas (beds)
         df_fa_beds = (
             self.read_dev_file("ip_functional_areas_beds/")
             .join(df.select(*grouping_cols, "rn"), "rn")
@@ -261,6 +261,29 @@ class SynthData:
             / df_fa_beds_p.groupby("rn")["group_pcnt"].transform("sum")
         ).fillna(0).clip(lower=0, upper=1) + 0
 
+        # generate the functional areas (procedures)
+        df_fa_procedures = (
+            self.read_dev_file("ip_functional_areas_procedures/")
+            .join(df.select(*grouping_cols, "rn"), "rn")
+            .drop("sitetret", "dataset", "fyear")
+        )
+
+        df_fa_procedures_means = (
+            df_fa_procedures.groupBy(*grouping_cols, "functional_area")
+            .agg(
+                F.mean("count").alias("count"),
+            )
+            .persist()
+        )
+
+        df_fa_procedures_p = (
+            df_fa_procedures.drop("count")
+            .join(df_fa_procedures_means, grouping_cols + ["functional_area"])
+            .drop(*grouping_cols)
+            .toPandas()
+        )
+        df_fa_procedures_p["count"] = np.random.poisson(df_fa_procedures_p["count"])
+
         # now generate the sample ip data
         df_p = df.join(mean_los, grouping_cols).toPandas()
 
@@ -295,11 +318,15 @@ class SynthData:
         df_fa_beds_p["rn"] = df_fa_beds_p["rn"].map(new_rn)
         df_fa_beds_p = df_fa_beds_p.merge(df_p[["rn", "sitetret"]], on="rn")
 
+        df_fa_procedures_p["rn"] = df_fa_procedures_p["rn"].map(new_rn)
+        df_fa_procedures_p = df_fa_procedures_p.merge(df_p[["rn", "sitetret"]], on="rn")
+
         # save the dataframes
         self.save_synth_file("ip", df_p)
         self.save_synth_file("ip_activity_avoidance_strategies", df_ip_aa)
         self.save_synth_file("ip_efficiencies_strategies", df_ip_ef)
         self.save_synth_file("ip_functional_areas_beds", df_fa_beds_p)
+        self.save_synth_file("ip_functional_areas_procedures", df_fa_procedures_p)
 
     @generate_data("inequalities")
     def _inequalities(self, df: DataFrame) -> pd.DataFrame:

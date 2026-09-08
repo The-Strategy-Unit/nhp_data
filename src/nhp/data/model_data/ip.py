@@ -7,6 +7,9 @@ from pyspark.sql import SparkSession
 
 from nhp.data.get_spark import get_spark
 from nhp.data.model_data.functional_areas.ip.beds import get_ip_functional_area_beds
+from nhp.data.model_data.functional_areas.ip.procedures import (
+    get_ip_functional_areas_procedures,
+)
 from nhp.data.table_names import table_names
 
 
@@ -65,6 +68,13 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
         .write.mode("overwrite")
         .partitionBy(["fyear", "dataset"])
         .parquet(f"{save_path}/ip_functional_areas_beds")
+    )
+    (
+        get_ip_functional_areas_procedures(apc, spark)
+        .repartition(1)
+        .write.mode("overwrite")
+        .partitionBy(["fyear", "dataset"])
+        .parquet(f"{save_path}/ip_functional_areas_procedures")
     )
 
 
