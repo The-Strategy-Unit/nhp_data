@@ -224,14 +224,14 @@ class SynthData:
         df_ip_ef = df_ip_ef[["rn", "strategy", "sample_rate"]]
 
         # generate the functional areas
-        df_fa_wards = (
-            self.read_dev_file("ip_functional_areas_wards/")
+        df_fa_beds = (
+            self.read_dev_file("ip_functional_areas_beds/")
             .join(df.select(*grouping_cols, "rn"), "rn")
             .drop("group_los", "los_total", "sitetret", "dataset", "fyear")
         )
 
-        df_fa_wards_means = (
-            df_fa_wards.groupBy(*grouping_cols, "functional_area")
+        df_fa_beds_means = (
+            df_fa_beds.groupBy(*grouping_cols, "functional_area")
             .agg(
                 F.mean("episodes").alias("episodes"),
                 F.mean("zero_length_episodes").alias("zero_length_episodes"),
@@ -239,26 +239,26 @@ class SynthData:
             .persist()
         )
 
-        df_fa_wards_p = (
-            df_fa_wards.drop(
+        df_fa_beds_p = (
+            df_fa_beds.drop(
                 "episodes", "zero_length_episodes", "group_los", "los_total"
             )
-            .join(df_fa_wards_means, grouping_cols + ["functional_area"])
+            .join(df_fa_beds_means, grouping_cols + ["functional_area"])
             .drop(*grouping_cols)
             .toPandas()
         )
 
-        df_fa_wards_p["episodes"] = np.random.poisson(df_fa_wards_p["episodes"] - 1) + 1
-        df_fa_wards_p["zero_length_episodes"] = np.random.poisson(
-            df_fa_wards_p["zero_length_episodes"]
+        df_fa_beds_p["episodes"] = np.random.poisson(df_fa_beds_p["episodes"] - 1) + 1
+        df_fa_beds_p["zero_length_episodes"] = np.random.poisson(
+            df_fa_beds_p["zero_length_episodes"]
         )
-        df_fa_wards_p["group_pcnt"] = df_fa_wards_p["group_pcnt"] * np.random.uniform(
-            -0.1, 0.1, len(df_fa_wards_p["group_pcnt"])
+        df_fa_beds_p["group_pcnt"] = df_fa_beds_p["group_pcnt"] * np.random.uniform(
+            -0.1, 0.1, len(df_fa_beds_p["group_pcnt"])
         )
         # we can end up with -0, the clip and +0 ensures that we only have +0
-        df_fa_wards_p["group_pcnt"] = (
-            df_fa_wards_p["group_pcnt"]
-            / df_fa_wards_p.groupby("rn")["group_pcnt"].transform("sum")
+        df_fa_beds_p["group_pcnt"] = (
+            df_fa_beds_p["group_pcnt"]
+            / df_fa_beds_p.groupby("rn")["group_pcnt"].transform("sum")
         ).fillna(0).clip(lower=0, upper=1) + 0
 
         # now generate the sample ip data
@@ -292,14 +292,14 @@ class SynthData:
         df_ip_ef["rn"] = df_ip_ef["rn"].map(new_rn)
 
         # remap the rn column in the functional areas table
-        df_fa_wards_p["rn"] = df_fa_wards_p["rn"].map(new_rn)
-        df_fa_wards_p = df_fa_wards_p.merge(df_p[["rn", "sitetret"]], on="rn")
+        df_fa_beds_p["rn"] = df_fa_beds_p["rn"].map(new_rn)
+        df_fa_beds_p = df_fa_beds_p.merge(df_p[["rn", "sitetret"]], on="rn")
 
         # save the dataframes
         self.save_synth_file("ip", df_p)
         self.save_synth_file("ip_activity_avoidance_strategies", df_ip_aa)
         self.save_synth_file("ip_efficiencies_strategies", df_ip_ef)
-        self.save_synth_file("ip_functional_areas_wards", df_fa_wards_p)
+        self.save_synth_file("ip_functional_areas_beds", df_fa_beds_p)
 
     @generate_data("inequalities")
     def _inequalities(self, df: DataFrame) -> pd.DataFrame:
