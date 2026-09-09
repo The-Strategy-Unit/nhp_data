@@ -78,7 +78,7 @@ def create_ip_procedure_groupings(df: DataFrame) -> DataFrame:
 
     Returns:
         DataFrame: DataFrame representing the IP data with the added "functional_area" column for procedure groupings
-
+    """
     GROUPINGS = [
         (
             "adult_elective_surgical_procedures",
