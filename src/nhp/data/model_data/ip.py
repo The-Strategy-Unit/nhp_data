@@ -6,10 +6,6 @@ import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 
 from nhp.data.get_spark import get_spark
-from nhp.data.model_data.functional_areas.ip.beds import get_ip_functional_area_beds
-from nhp.data.model_data.functional_areas.ip.procedures import (
-    get_ip_functional_areas_procedures,
-)
 from nhp.data.table_names import table_names
 
 
