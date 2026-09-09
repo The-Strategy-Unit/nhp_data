@@ -1,4 +1,4 @@
-"""Extract IP data for model"""
+"""Extract IP TPMAs data for model"""
 
 import sys
 
