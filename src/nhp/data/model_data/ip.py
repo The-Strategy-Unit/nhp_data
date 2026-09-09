@@ -41,42 +41,6 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
         .parquet(f"{save_path}/ip")
     )
 
-    # extract ip tpma data
-    for k, v in [
-        ("activity_avoidance", "activity_avoidance"),
-        ("efficiencies", "efficiency"),
-    ]:
-        (
-            spark.read.table(table_names.default_apc_mitigators)
-            .filter(F.col("type") == v)
-            .filter(F.col("fyear") == fyear)
-            .drop("type", "fyear")
-            .withColumnRenamed("epikey", "rn")
-            .withColumnRenamed("provider", "dataset")
-            .join(apc, ["dataset", "rn"], "inner")
-            .select("dataset", "fyear", "rn", "strategy", "sample_rate")
-            .repartition(1)
-            .write.mode("overwrite")
-            .partitionBy(["fyear", "dataset"])
-            .parquet(f"{save_path}/ip_{k}_strategies")
-        )
-
-    # extract ip functional areas
-    (
-        get_ip_functional_area_beds(apc, spark)
-        .repartition(1)
-        .write.mode("overwrite")
-        .partitionBy(["fyear", "dataset"])
-        .parquet(f"{save_path}/ip_functional_areas_beds")
-    )
-    (
-        get_ip_functional_areas_procedures(apc, spark)
-        .repartition(1)
-        .write.mode("overwrite")
-        .partitionBy(["fyear", "dataset"])
-        .parquet(f"{save_path}/ip_functional_areas_procedures")
-    )
-
 
 def main():
     data_version = sys.argv[1]
