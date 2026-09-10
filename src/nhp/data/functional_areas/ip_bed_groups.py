@@ -221,13 +221,13 @@ def build_ordinary_admissions_ward_groupings():
 
         when_chain = when_chain.when(condition, label)
 
-    return when_chain.otherwise("unknown")
+    return when_chain.otherwise("ip_beds_unknown")
 
 
 # ------------------------------------------------------------------------------
 # Overall function
 # ------------------------------------------------------------------------------
-def create_ip_ward_groupings(df: DataFrame) -> DataFrame:
+def create_ip_bed_groupings(df: DataFrame) -> DataFrame:
     """Adds "functional_area" column to the IP data with the functional areas for Inpatient activity (including
     maternity and daycases).
 
@@ -235,8 +235,7 @@ def create_ip_ward_groupings(df: DataFrame) -> DataFrame:
         df (DataFrame): DataFrame representing the IP data
 
     Returns:
-        DataFrame: DataFrame representing the IP data with the added "functional_area" column for the daycase functional
-        area grouping
+        DataFrame: DataFrame representing the IP data with the added "functional_area" column for the bed groupings
     """
     return df.withColumn(
         "functional_area",

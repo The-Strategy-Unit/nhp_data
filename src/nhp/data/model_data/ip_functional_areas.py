@@ -1,4 +1,4 @@
-"""Extract IP data for model"""
+"""Extract IP functional areas data for model"""
 
 import sys
 
@@ -6,11 +6,15 @@ import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.model_data.functional_areas.ip.beds import get_ip_functional_area_beds
+from nhp.data.model_data.functional_areas.ip.procedures import (
+    get_ip_functional_areas_procedures,
+)
 from nhp.data.table_names import table_names
 
 
 def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
-    """Extract IP (+mitigators) data
+    """Extract IP functional areas data
 
     :param spark: the spark session to use
     :type spark: SparkSession
@@ -19,23 +23,22 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
     :param fyear: what year to extract
     :type fyear: int
     """
-    # extract ip data
-    apc = (
-        spark.read.table(table_names.default_apc)
-        .filter(F.col("fyear") == fyear)
-        .withColumnRenamed("epikey", "rn")
-        .withColumnRenamed("provider", "dataset")
-        .withColumn("fyear", F.floor(F.col("fyear") / 100))
-        .withColumn("sex", F.col("sex").cast("int"))
-        .withColumn("sushrg_trimmed", F.expr("substring(sushrg, 1, 4)"))
-        .fillna({"sitetret": "unknown"})
+    apc = spark.read.parquet(f"{save_path}/ip").filter(F.col("fyear") == fyear // 100)
+
+    (
+        get_ip_functional_area_beds(apc, spark)
+        .repartition(1)
+        .write.mode("overwrite")
+        .partitionBy(["fyear", "dataset"])
+        .parquet(f"{save_path}/ip_functional_areas_beds")
     )
 
     (
-        apc.repartition(1)
+        get_ip_functional_areas_procedures(apc, spark)
+        .repartition(1)
         .write.mode("overwrite")
         .partitionBy(["fyear", "dataset"])
-        .parquet(f"{save_path}/ip")
+        .parquet(f"{save_path}/ip_functional_areas_procedures")
     )
 
 

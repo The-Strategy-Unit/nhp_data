@@ -1,11 +1,11 @@
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession, Window
 
-from nhp.data.functional_areas.ip_ward_groups import create_ip_ward_groupings
+from nhp.data.functional_areas.ip_bed_groups import create_ip_bed_groupings
 from nhp.data.table_names import table_names
 
 
-def get_ip_functional_area_wards(apc: DataFrame, spark: SparkSession) -> DataFrame:
+def get_ip_functional_area_beds(apc: DataFrame, spark: SparkSession) -> DataFrame:
     episode_primary_procedure = (
         spark.read.table(table_names.hes_apc_procedures)
         .filter(F.col("procedure_order") == 1)
@@ -25,7 +25,7 @@ def get_ip_functional_area_wards(apc: DataFrame, spark: SparkSession) -> DataFra
         .drop("fyear", "speldur")
     )
 
-    df = create_ip_ward_groupings(
+    df = create_ip_bed_groupings(
         apc.select(
             "rn",
             "susspellid",
@@ -37,7 +37,6 @@ def get_ip_functional_area_wards(apc: DataFrame, spark: SparkSession) -> DataFra
             "age",
         )
         .join(episodes, "susspellid")
-        .withColumn("is_zero_length_episode", (F.col("epidur") == 0).cast("int"))
         .join(spark.read.table(table_names.reference_tretspef_type), "tretspef", "left")
     )
 
@@ -47,7 +46,6 @@ def get_ip_functional_area_wards(apc: DataFrame, spark: SparkSession) -> DataFra
         .agg(
             F.sum("epidur").alias("group_los"),
             F.count("epikey").alias("episodes"),
-            F.sum("is_zero_length_episode").alias("zero_length_episodes"),
         )
         .withColumn("los_total", F.sum("group_los").over(w))
         .withColumn(

@@ -49,6 +49,7 @@ mlcsu = TableNames(
     reference_pop_by_lad23="nhp.reference.pop_by_lad23",
     reference_lsoa11_to_lad23="nhp.reference.lsoa11_to_lad23",
     reference_lad22_to_lad23="nhp.reference.lad22_to_lad23",
+    reference_theatre_times="nhp.reference.theatre_times",
     # ---
     reference_day_procedures_code_list="/Volumes/nhp/reference/files/day_procedures.json",
     reference_frailty_risk_scores="/Volumes/nhp/reference/files/frailty_risk_scores.csv",
