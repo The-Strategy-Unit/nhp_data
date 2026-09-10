@@ -3,24 +3,37 @@
 import sys
 
 import pyspark.sql.functions as F
-from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.model_data.helpers import extract
 from nhp.data.table_names import table_names
 
+APC_EXCLUDE_COLS = {
+    "person_id",
+    "admiage",
+    "imd_decile",
+    "imd_quintile",
+    "lsoa11",
+    "lad23cd",
+    "operstat",
+    "icb",
+    "primary_procedure",
+}
 
-def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
-    """Extract IP (+mitigators) data
 
-    :param spark: the spark session to use
-    :type spark: SparkSession
+@extract("ip", True, APC_EXCLUDE_COLS)
+def extract_ip(save_path: str, fyear: int, spark: SparkSession) -> DataFrame:
+    """Extract Inpatients data
+
     :param save_path: where to save the parquet files
     :type save_path: str
     :param fyear: what year to extract
     :type fyear: int
+    :param spark: the spark session to use
+    :type spark: SparkSession
     """
-    # extract ip data
-    apc = (
+    return (
         spark.read.table(table_names.default_apc)
         .filter(F.col("fyear") == fyear)
         .withColumnRenamed("epikey", "rn")
@@ -31,13 +44,6 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
         .fillna({"sitetret": "unknown"})
     )
 
-    (
-        apc.repartition(1)
-        .write.mode("overwrite")
-        .partitionBy(["fyear", "dataset"])
-        .parquet(f"{save_path}/ip")
-    )
-
 
 def main():
     data_version = sys.argv[1]
@@ -46,4 +52,4 @@ def main():
 
     spark = get_spark()
 
-    extract(save_path, fyear, spark)
+    extract_ip(save_path, fyear, spark)

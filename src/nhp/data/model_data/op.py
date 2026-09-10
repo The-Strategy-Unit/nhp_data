@@ -6,18 +6,22 @@ import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.model_data.helpers import extract
 from nhp.data.table_names import table_names
 
+OPA_EXCLUDE_COLS = {"imd_quintile", "sushrg_trimmed", "icb"}
 
-def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
+
+@extract("op", True, OPA_EXCLUDE_COLS)
+def extract_op(save_path: str, fyear: int, spark: SparkSession) -> DataFrame:
     """Extract OP data
 
-    :param spark: the spark session to use
-    :type spark: SparkSession
     :param save_path: where to save the parquet files
     :type save_path: str
     :param fyear: what year to extract
     :type fyear: int
+    :param spark: the spark session to use
+    :type spark: SparkSession
     """
 
     opa = (
@@ -54,14 +58,7 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
         inequalities, how="semi", on=["icb", "dataset", "sushrg_trimmed"]
     )
 
-    opa = DataFrame.unionByName(opa_collapse, opa_dont_collapse)
-
-    (
-        opa.repartition(1)
-        .write.mode("overwrite")
-        .partitionBy(["fyear", "dataset"])
-        .parquet(f"{save_path}/op")
-    )
+    return opa_collapse.unionByName(opa_dont_collapse)
 
 
 def main():
@@ -71,4 +68,4 @@ def main():
 
     spark = get_spark()
 
-    extract(save_path, fyear, spark)
+    extract_op(save_path, fyear, spark)

@@ -4,20 +4,23 @@ import sys
 
 import pyspark.sql.functions as F
 from pyspark.sql import SparkSession
+from pyspark.sql.dataframe import DataFrame
 
 from nhp.data.get_spark import get_spark
+from nhp.data.model_data.helpers import extract
 from nhp.data.table_names import table_names
 
 
-def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
+@extract("inequalities", check_for_nulls=False)
+def extract_inequalities(save_path: str, fyear: int, spark: SparkSession) -> DataFrame:
     """Extract inequalities data for model
 
-    :param spark: the spark session to use
-    :type spark: SparkSession
     :param save_path: where to save the parquet files
     :type save_path: str
     :param fyear: what year to extract
     :type fyear: int
+    :param spark: the spark session to use
+    :type spark: SparkSession
     """
 
     fyear_converted = fyear // 100
@@ -34,17 +37,10 @@ def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
         .distinct()
     )
 
-    inequalities_with_missing_providers = (
+    return (
         inequalities.join(providers, on="provider", how="right")
         .withColumn("fyear", F.lit(fyear_converted))
         .withColumnRenamed("provider", "dataset")
-    )
-
-    (
-        inequalities_with_missing_providers.repartition(1)
-        .write.mode("overwrite")
-        .partitionBy(["fyear", "dataset"])
-        .parquet(f"{save_path}/inequalities")
     )
 
 
@@ -55,4 +51,4 @@ def main():
 
     spark = get_spark()
 
-    extract(save_path, fyear, spark)
+    extract_inequalities(save_path, fyear, spark)
