@@ -45,7 +45,7 @@ def get_ip_functional_areas_procedures(
                 "primary_procedure", F.col("mean").alias("theatre_time")
             ),
             "primary_procedure",
-            "left",
+            "semi",
         )
         .join(spark.read.table(table_names.reference_tretspef_type), "tretspef", "left")
     )

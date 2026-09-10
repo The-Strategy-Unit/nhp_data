@@ -16,10 +16,6 @@ from nhp.data.functional_areas.classifications import (
 )
 
 
-def is_unknown_time() -> Column:
-    return F.col("theatre_time").isNull()
-
-
 def is_adult_elective_surgical_procedures() -> Column:
     return (
         class_age_adult() & class_elective() & class_has_procedure() & class_surgical()
@@ -111,9 +107,6 @@ def create_ip_procedure_groupings(df: DataFrame) -> DataFrame:
     ).when(is_cardiac_catheter_procedure(), "cardiac_catheter_procedure")
     for label, predicate_fn in GROUPINGS:
         when_chain = when_chain.when(
-            predicate_fn & is_unknown_time(),
-            f"{label}_unknown_time",
-        ).when(
             predicate_fn,
             label,
         )
