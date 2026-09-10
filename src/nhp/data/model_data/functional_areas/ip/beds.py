@@ -37,7 +37,6 @@ def get_ip_functional_area_beds(apc: DataFrame, spark: SparkSession) -> DataFram
             "age",
         )
         .join(episodes, "susspellid")
-        .withColumn("is_zero_length_episode", (F.col("epidur") == 0).cast("int"))
         .join(spark.read.table(table_names.reference_tretspef_type), "tretspef", "left")
     )
 
@@ -47,7 +46,6 @@ def get_ip_functional_area_beds(apc: DataFrame, spark: SparkSession) -> DataFram
         .agg(
             F.sum("epidur").alias("group_los"),
             F.count("epikey").alias("episodes"),
-            F.sum("is_zero_length_episode").alias("zero_length_episodes"),
         )
         .withColumn("los_total", F.sum("group_los").over(w))
         .withColumn(
