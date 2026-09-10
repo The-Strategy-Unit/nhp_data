@@ -3,42 +3,60 @@
 import sys
 
 import pyspark.sql.functions as F
-from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
+from nhp.data.model_data.helpers import extract
 from nhp.data.table_names import table_names
 
 
-def extract(save_path: str, fyear: int, spark: SparkSession) -> None:
-    """Extract IP TPMAs data
+def _extract_ip_tpmas(
+    tpma_type: str, save_path: str, fyear: int, spark: SparkSession
+) -> DataFrame:
+    apc = spark.read.parquet(f"{save_path}/ip").filter(F.col("fyear") == fyear // 100)
 
-    :param spark: the spark session to use
-    :type spark: SparkSession
+    return (
+        spark.read.table(table_names.default_apc_mitigators)
+        .filter(F.col("type") == tpma_type)
+        .filter(F.col("fyear") == fyear)
+        .drop("type", "fyear")
+        .withColumnRenamed("epikey", "rn")
+        .withColumnRenamed("provider", "dataset")
+        .join(apc, ["dataset", "rn"], "inner")
+        .select("dataset", "fyear", "rn", "strategy", "sample_rate")
+    )
+
+
+@extract("ip_activity_avoidance_strategies")
+def extract_ip_activity_avoidance_tpmas(
+    save_path: str, fyear: int, spark: SparkSession
+) -> DataFrame:
+    """Extract IP activity avoidance TPMAs data
+
     :param save_path: where to save the parquet files
     :type save_path: str
     :param fyear: what year to extract
     :type fyear: int
+    :param spark: the spark session to use
+    :type spark: SparkSession
     """
-    apc = spark.read.parquet(f"{save_path}/ip").filter(F.col("fyear") == fyear // 100)
+    return _extract_ip_tpmas("activity_avoidance", save_path, fyear, spark)
 
-    for k, v in [
-        ("activity_avoidance", "activity_avoidance"),
-        ("efficiencies", "efficiency"),
-    ]:
-        (
-            spark.read.table(table_names.default_apc_mitigators)
-            .filter(F.col("type") == v)
-            .filter(F.col("fyear") == fyear)
-            .drop("type", "fyear")
-            .withColumnRenamed("epikey", "rn")
-            .withColumnRenamed("provider", "dataset")
-            .join(apc, ["dataset", "rn"], "inner")
-            .select("dataset", "fyear", "rn", "strategy", "sample_rate")
-            .repartition(1)
-            .write.mode("overwrite")
-            .partitionBy(["fyear", "dataset"])
-            .parquet(f"{save_path}/ip_{k}_strategies")
-        )
+
+@extract("ip_efficiency_strategies")
+def extract_ip_efficiency_tpmas(
+    save_path: str, fyear: int, spark: SparkSession
+) -> DataFrame:
+    """Extract IP efficiency TPMAs data
+
+    :param save_path: where to save the parquet files
+    :type save_path: str
+    :param fyear: what year to extract
+    :type fyear: int
+    :param spark: the spark session to use
+    :type spark: SparkSession
+    """
+    return _extract_ip_tpmas("efficiencies", save_path, fyear, spark)
 
 
 def main():
@@ -48,4 +66,5 @@ def main():
 
     spark = get_spark()
 
-    extract(save_path, fyear, spark)
+    extract_ip_activity_avoidance_tpmas(save_path, fyear, spark)
+    extract_ip_efficiency_tpmas(save_path, fyear, spark)
