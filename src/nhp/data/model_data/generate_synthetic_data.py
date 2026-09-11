@@ -232,26 +232,18 @@ class SynthData:
 
         df_fa_beds_means = (
             df_fa_beds.groupBy(*grouping_cols, "functional_area")
-            .agg(
-                F.mean("episodes").alias("episodes"),
-                F.mean("zero_length_episodes").alias("zero_length_episodes"),
-            )
+            .agg(F.mean("episodes").alias("episodes"))
             .persist()
         )
 
         df_fa_beds_p = (
-            df_fa_beds.drop(
-                "episodes", "zero_length_episodes", "group_los", "los_total"
-            )
+            df_fa_beds.drop("episodes", "group_los", "los_total")
             .join(df_fa_beds_means, grouping_cols + ["functional_area"])
             .drop(*grouping_cols)
             .toPandas()
         )
 
         df_fa_beds_p["episodes"] = np.random.poisson(df_fa_beds_p["episodes"] - 1) + 1
-        df_fa_beds_p["zero_length_episodes"] = np.random.poisson(
-            df_fa_beds_p["zero_length_episodes"]
-        )
         df_fa_beds_p["group_pcnt"] = df_fa_beds_p["group_pcnt"] * np.random.uniform(
             -0.1, 0.1, len(df_fa_beds_p["group_pcnt"])
         )
