@@ -3,7 +3,7 @@
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
-from nhp.data.get_spark import get_spark
+from nhp.data.get_spark import PartitionOverwriteMode, get_spark
 from nhp.data.table_names import table_names
 
 
@@ -43,7 +43,7 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
     )
 
 
-def generate_ecds_data(spark: SparkSession, ecds: DataFrame) -> None:
+def generate_ecds_data(ecds: DataFrame) -> None:
     """Generate ECDS Data"""
     (
         ecds.withColumn("index", F.expr("uuid()"))
@@ -56,6 +56,6 @@ def generate_ecds_data(spark: SparkSession, ecds: DataFrame) -> None:
 
 def main() -> None:
     """main method"""
-    spark = get_spark()
+    spark = get_spark(PartitionOverwriteMode.STATIC)
     ecds = get_ecds_data(spark)
-    generate_ecds_data(spark, ecds)
+    generate_ecds_data(ecds)

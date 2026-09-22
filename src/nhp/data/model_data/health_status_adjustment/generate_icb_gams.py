@@ -12,8 +12,35 @@ from pygam import GAM
 from pyspark.sql import DataFrame, SparkSession, Window
 
 from nhp.data.get_spark import get_spark
-from nhp.data.model_data.helpers import create_icb_population_projections
 from nhp.data.table_names import table_names
+
+
+def _create_icb_population_projections(
+    spark: SparkSession, projection_year: int = 2022
+) -> DataFrame:
+    catchments = spark.read.table(table_names.reference_icb_catchments)
+
+    projections_to_include = [
+        "migration_category",
+        "var_proj_5_year_migration",
+        "var_proj_10_year_migration",
+        "var_proj_high_intl_migration",
+        "var_proj_low_intl_migration",
+        "var_proj_zero_net_migration",
+    ]
+
+    return (
+        spark.read.table(table_names.population_projections_demographics)
+        .filter(F.col("projection_year") == projection_year)
+        .filter(F.col("projection").isin(projections_to_include))
+        .join(catchments, ["area_code"])
+        .withColumnRenamed("projection", "variant")
+        .withColumnRenamed("provider", "dataset")
+        .groupBy("icb", "variant", "age", "sex")
+        .pivot("year")
+        .agg(F.sum(F.col("value") * F.col("pcnt")))
+        .orderBy("icb", "variant", "age", "sex")
+    )
 
 
 def _get_data(spark: SparkSession, save_path: str, years: list[int]) -> DataFrame:
@@ -46,9 +73,7 @@ def _get_data(spark: SparkSession, save_path: str, years: list[int]) -> DataFram
 
     # load the demographics data
     demog = (
-        create_icb_population_projections(
-            spark, spark.read.table(table_names.population_projections_demographics)
-        )
+        _create_icb_population_projections(spark)
         .filter(F.col("variant") == "migration_category")
         .filter(F.col("age") >= 18)
         .selectExpr(

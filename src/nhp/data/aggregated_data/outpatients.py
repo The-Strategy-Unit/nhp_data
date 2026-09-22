@@ -3,7 +3,7 @@
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
-from nhp.data.get_spark import get_spark
+from nhp.data.get_spark import PartitionOverwriteMode, get_spark
 from nhp.data.table_names import table_names
 
 
@@ -46,7 +46,7 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
     )
 
 
-def generate_outpatients_data(spark: SparkSession, opa: DataFrame) -> None:
+def generate_outpatients_data(opa: DataFrame) -> None:
     """Generate Outpatients Data"""
     (
         opa.write.partitionBy("fyear", "provider")
@@ -58,6 +58,6 @@ def generate_outpatients_data(spark: SparkSession, opa: DataFrame) -> None:
 
 def main() -> None:
     """main method"""
-    spark = get_spark()
+    spark = get_spark(PartitionOverwriteMode.STATIC)
     opa = get_outpatients_data(spark)
-    generate_outpatients_data(spark, opa)
+    generate_outpatients_data(opa)

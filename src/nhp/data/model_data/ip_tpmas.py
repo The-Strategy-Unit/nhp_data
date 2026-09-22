@@ -43,11 +43,11 @@ def extract_ip_activity_avoidance_tpmas(
     return _extract_ip_tpmas("activity_avoidance", save_path, fyear, spark)
 
 
-@extract("ip_efficiency_strategies")
-def extract_ip_efficiency_tpmas(
+@extract("ip_efficiencies_strategies")
+def extract_ip_efficiencies_tpmas(
     save_path: str, fyear: int, spark: SparkSession
 ) -> DataFrame:
-    """Extract IP efficiency TPMAs data
+    """Extract IP efficiencies TPMAs data
 
     :param save_path: where to save the parquet files
     :type save_path: str
@@ -56,7 +56,7 @@ def extract_ip_efficiency_tpmas(
     :param spark: the spark session to use
     :type spark: SparkSession
     """
-    return _extract_ip_tpmas("efficiencies", save_path, fyear, spark)
+    return _extract_ip_tpmas("efficiency", save_path, fyear, spark)
 
 
 def main():
@@ -67,4 +67,4 @@ def main():
     spark = get_spark()
 
     extract_ip_activity_avoidance_tpmas(save_path, fyear, spark)
-    extract_ip_efficiency_tpmas(save_path, fyear, spark)
+    extract_ip_efficiencies_tpmas(save_path, fyear, spark)

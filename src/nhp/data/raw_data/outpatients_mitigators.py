@@ -5,7 +5,7 @@ from functools import reduce
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
-from nhp.data.get_spark import get_spark
+from nhp.data.get_spark import PartitionOverwriteMode, get_spark
 from nhp.data.table_names import table_names
 
 
@@ -58,5 +58,5 @@ def generate_outpatients_mitigators(spark: SparkSession) -> None:
 
 def main() -> None:
     """main method"""
-    spark = get_spark()
+    spark = get_spark(PartitionOverwriteMode.STATIC)
     generate_outpatients_mitigators(spark)

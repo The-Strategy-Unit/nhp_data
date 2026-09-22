@@ -86,6 +86,17 @@ resources:
           job_cluster_key: nhp_data
           libraries:
             - whl: ../dist/*.whl
+        - task_key: extract_demographics
+          depends_on:
+            - task_key: extract_inequalities
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: inputs_data-demographics
+            parameters:
+              - provider
+          job_cluster_key: nhp_data
+          libraries:
+            - whl: ../dist/*.whl
       job_clusters:
         - job_cluster_key: nhp_data
           new_cluster:

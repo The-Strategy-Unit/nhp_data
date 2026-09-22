@@ -50,6 +50,8 @@ mlcsu = TableNames(
     reference_lsoa11_to_lad23="nhp.reference.lsoa11_to_lad23",
     reference_lad22_to_lad23="nhp.reference.lad22_to_lad23",
     reference_theatre_times="nhp.reference.theatre_times",
+    reference_population_provider_births="unhp.population_projections.provider_births",
+    reference_population_provider_demographics="unhp.population_projections.provider_demographics",
     # ---
     reference_day_procedures_code_list="/Volumes/nhp/reference/files/day_procedures.json",
     reference_frailty_risk_scores="/Volumes/nhp/reference/files/frailty_risk_scores.csv",

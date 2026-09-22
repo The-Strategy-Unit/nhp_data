@@ -3,7 +3,7 @@
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
-from nhp.data.get_spark import get_spark
+from nhp.data.get_spark import PartitionOverwriteMode, get_spark
 from nhp.data.nhp_datasets.apc import apc_primary_procedures, hes_apc
 from nhp.data.nhp_datasets.icbs import add_main_icb
 from nhp.data.raw_data.helpers import (
@@ -182,5 +182,5 @@ def generate_inpatients_data(spark: SparkSession) -> None:
 
 def main() -> None:
     """main method"""
-    spark = get_spark()
+    spark = get_spark(partition_overwrite_mode=PartitionOverwriteMode.STATIC)
     generate_inpatients_data(spark)
