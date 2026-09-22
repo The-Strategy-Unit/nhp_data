@@ -9,7 +9,6 @@ from nhp.data.nhp_datasets.local_authorities import lsoa11_to_lad23
 from nhp.data.nhp_datasets.providers import read_data_with_provider
 from nhp.data.raw_data.helpers import (
     add_age_group_column,
-    add_tretspef_grouped_column,
     remove_mental_health_providers,
 )
 from nhp.data.table_names import table_names
@@ -32,8 +31,6 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
 
     # add main icb column
     df = add_main_icb(spark, df)
-    # add the tretspef grouped column
-    df = add_tretspef_grouped_column(df)
     # add age and age_group columns
     df = df.withColumn(
         "age",
@@ -101,7 +98,6 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
             F.col("imd_quintile"),
             F.col("ethnos"),
             F.col("tretspef"),
-            F.col("tretspef_grouped"),
             F.col("sitetret"),
             F.col("has_procedures"),
             F.col("sushrg"),
