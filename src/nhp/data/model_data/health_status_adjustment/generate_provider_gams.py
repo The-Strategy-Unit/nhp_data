@@ -51,7 +51,7 @@ def _get_data(spark: SparkSession, save_path: str, years: list[int]) -> DataFram
 
     # load the demographics data
     demog = (
-        spark.read.parquet(f"{save_path}/demographic_factors/")
+        spark.read.table(table_names.reference_population_provider_demographics)
         .filter(F.col("variant") == "migration_category")
         .filter(F.col("age") >= 18)
         .selectExpr(

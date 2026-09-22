@@ -82,6 +82,12 @@ resources:
             entry_point: reference-day_procedures
             parameters:
               - "{{job.parameters.day_procedures_base_year}}"
+        - task_key: create_provider_population
+          depends_on:
+            - task_key: create_day_procedure_code_list
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: reference-provider-population
           job_cluster_key: nhp_data
       job_clusters:
         - job_cluster_key: nhp_data

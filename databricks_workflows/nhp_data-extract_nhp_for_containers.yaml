@@ -81,43 +81,9 @@ resources:
               job_cluster_key: nhp_data
               libraries:
                 - whl: ../dist/*.whl
-        - task_key: run_extract_demographic_factors_data
-          depends_on:
-            - task_key: run_extract_ecds_data
-          for_each_task:
-            inputs: "{{job.parameters.years}}"
-            task:
-              task_key: extract_demographic_factors_data
-              python_wheel_task:
-                package_name: nhp_data
-                entry_point: model_data-demographic_factors
-                parameters:
-                  - "{{job.parameters.data_version}}"
-                  - "{{input}}"
-                  - "{{job.parameters.projection_year}}"
-              job_cluster_key: nhp_data
-              libraries:
-                - whl: ../dist/*.whl
-        - task_key: run_extract_birth_factors_data
-          depends_on:
-            - task_key: run_extract_demographic_factors_data
-          for_each_task:
-            inputs: "{{job.parameters.years}}"
-            task:
-              task_key: extract_birth_factors_data
-              python_wheel_task:
-                package_name: nhp_data
-                entry_point: model_data-birth_factors
-                parameters:
-                  - "{{job.parameters.data_version}}"
-                  - "{{input}}"
-                  - "{{job.parameters.projection_year}}"
-              job_cluster_key: nhp_data
-              libraries:
-                - whl: ../dist/*.whl
         - task_key: run_extract_inequalities_data
           depends_on:
-            - task_key: run_extract_birth_factors_data
+            - task_key: run_extract_ecds_data
           for_each_task:
             inputs: "{{job.parameters.years}}"
             task:

@@ -50,6 +50,8 @@ udal = TableNames(
     reference_lsoa11_to_lad23="udal_lake_mart.newhospitalprogramme.reference_lsoa11_to_lad23",
     reference_lad22_to_lad23="udal_lake_mart.newhospitalprogramme.reference_lad22_to_lad23",
     reference_theatre_times="udal_lake_mart.newhospitalprogramme.reference_theatre_times",
+    reference_population_provider_births="udal_lake_mart.newhospitalprogramme.population_projections_provider_births",
+    reference_population_provider_demographics="udal_lake_mart.newhospitalprogramme.population_projections_demographics",
     # ---
     reference_day_procedures_code_list="/Volumes/udal_lake_mart/newhospitalprogramme/files/reference/day_procedures.json",
     reference_frailty_risk_scores="/Volumes/udal_lake_mart/newhospitalprogramme/files/reference/frailty_risk_scores.csv",
