@@ -15,7 +15,7 @@ from nhp.data.table_names import table_names
 
 
 @extract("ip_functional_areas_beds", check_for_nulls=False)
-def extract_ip_functional_areas(
+def extract_ip_functional_areas_beds(
     save_path: str, fyear: int, spark: SparkSession
 ) -> DataFrame:
     apc = spark.read.parquet(f"{save_path}/ip").filter(F.col("fyear") == fyear // 100)
@@ -37,5 +37,5 @@ def main():
 
     spark = get_spark()
 
-    extract_ip_functional_areas(save_path, fyear, spark)
+    extract_ip_functional_areas_beds(save_path, fyear, spark)
     extract_ip_functional_areas_procedures(save_path, fyear, spark)
