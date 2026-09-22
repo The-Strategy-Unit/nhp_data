@@ -8,7 +8,6 @@ from nhp.data.nhp_datasets.apc import apc_primary_procedures, hes_apc
 from nhp.data.nhp_datasets.icbs import add_main_icb
 from nhp.data.raw_data.helpers import (
     add_age_group_column,
-    add_tretspef_grouped_column,
     remove_mental_health_providers,
 )
 from nhp.data.table_names import table_names
@@ -27,7 +26,6 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
     )
 
     df = add_main_icb(spark, hes_apc)
-    df = add_tretspef_grouped_column(df)
     df = add_age_group_column(df)
     df = remove_mental_health_providers(spark, df, "provider")
 
@@ -119,7 +117,6 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
             F.col("classpat"),
             F.col("mainspef"),
             F.col("tretspef"),
-            F.col("tretspef_grouped"),
             F.col("hsagrp"),
             F.col("group"),
             F.col("admidate"),
