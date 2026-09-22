@@ -96,6 +96,9 @@ def check_extract_for_nulls(
 
     cols = list(set(df.columns) - exclude_cols)
 
+    if not cols:
+        return
+
     melt_str = ", ".join([f"'{c}', `{c}`" for c in cols])
 
     stack_expr = F.expr(f"stack({len(cols)}, {melt_str}) as (column, null_count)")
@@ -107,11 +110,12 @@ def check_extract_for_nulls(
         .collect()
     )
 
-    assert len(null_check) == 0, (
-        "Nulls found in the following columns ["
-        + ", ".join([i["column"] for i in null_check])
-        + "]"
-    )
+    if null_check:
+        raise ValueError(
+            "Nulls/NaNs found in the following columns ["
+            + ", ".join([i["column"] for i in null_check])
+            + "]"
+        )
 
 
 def extract(
@@ -133,7 +137,7 @@ def extract(
                 fyear (int): the fiscal year
                 spark (SparkSession): the Spark session
             """
-            df = func(save_path, fyear, spark, *args, **kwargs)
+            df = func(save_path, fyear, spark, *args, **kwargs).persist()
             if check_for_nulls:
                 check_extract_for_nulls(df, exclude_cols)
 
@@ -145,6 +149,7 @@ def extract(
                 .partitionBy(["fyear", "dataset"])
                 .parquet(f"{save_path}/{extract_name}")
             )
+            df.unpersist()
 
         return wrapper
 
