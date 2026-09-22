@@ -51,19 +51,21 @@ def _get_data(spark: SparkSession, save_path: str, years: list[int]) -> DataFram
 
     # load the demographics data
     demog = (
-        spark.read.parquet(f"{save_path}/demographic_factors/")
+        spark.read.parquet(
+            f"{table_names.inputs_save_path}/provider/demographic_factors.parquet"
+        )
         .filter(F.col("variant") == "migration_category")
         .filter(F.col("age") >= 18)
         .selectExpr(
             "age",
             "sex",
-            "dataset",
+            "provider as dataset",
             "fyear as base_fyear",
             f"stack({len(years)}, "
             + ", ".join([f"'{y}', `{y}`" for y in years])
             + ") as (fyear, pop)",
         )
-        .filter(F.col("base_fyear") == F.col("fyear"))
+        .filter(F.col("base_fyear").cast("string").substr(0, 4) == F.col("fyear"))
         .drop("base_fyear")
         .withColumn("fyear", F.col("fyear").cast("int"))
         .join(
