@@ -52,6 +52,8 @@ class TableNames:
     reference_pop_by_lad23: str
     reference_lad22_to_lad23: str
     reference_theatre_times: str
+    reference_population_provider_births: str
+    reference_population_provider_demographics: str
     # TODO: convert these to tables
     reference_day_procedures_code_list: str
     reference_frailty_risk_scores: str

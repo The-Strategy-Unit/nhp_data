@@ -3,7 +3,7 @@
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
-from nhp.data.get_spark import get_spark
+from nhp.data.get_spark import PartitionOverwriteMode, get_spark
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp.data.nhp_datasets.local_authorities import lsoa11_to_lad23
 from nhp.data.nhp_datasets.providers import read_data_with_provider
@@ -178,5 +178,5 @@ def generate_outpatients_data(spark: SparkSession) -> None:
 
 def main() -> None:
     """main method"""
-    spark = get_spark()
+    spark = get_spark(PartitionOverwriteMode.STATIC)
     generate_outpatients_data(spark)

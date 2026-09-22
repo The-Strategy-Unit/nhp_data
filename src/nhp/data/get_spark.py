@@ -1,9 +1,18 @@
 """Helper method to get the spark session."""
 
+import enum
+
 from pyspark.sql import SparkSession
 
 
-def get_spark() -> SparkSession:
+class PartitionOverwriteMode(enum.Enum):
+    DYNAMIC = "dynamic"
+    STATIC = "static"
+
+
+def get_spark(
+    partition_overwrite_mode: PartitionOverwriteMode = PartitionOverwriteMode.DYNAMIC,
+) -> SparkSession:
     """Get spark session
 
     :return: get the spark session to use
@@ -14,5 +23,7 @@ def get_spark() -> SparkSession:
     from databricks.connect import DatabricksSession
 
     spark = DatabricksSession.builder.getOrCreate()
-    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
+    spark.conf.set(
+        "spark.sql.sources.partitionOverwriteMode", partition_overwrite_mode.value
+    )
     return spark
