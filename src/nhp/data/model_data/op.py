@@ -12,7 +12,7 @@ from nhp.data.table_names import table_names
 OPA_EXCLUDE_COLS = {"imd_quintile", "sushrg_trimmed", "icb"}
 
 
-@extract("op", True, OPA_EXCLUDE_COLS)
+@extract("op", check_for_nulls=True, exclude_cols=OPA_EXCLUDE_COLS)
 def extract_op(save_path: str, fyear: int, spark: SparkSession) -> DataFrame:
     """Extract OP data
 

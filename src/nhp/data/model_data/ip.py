@@ -22,7 +22,7 @@ APC_EXCLUDE_COLS = {
 }
 
 
-@extract("ip", True, APC_EXCLUDE_COLS)
+@extract("ip", check_for_nulls=True, exclude_cols=APC_EXCLUDE_COLS)
 def extract_ip(save_path: str, fyear: int, spark: SparkSession) -> DataFrame:
     """Extract Inpatients data
 
