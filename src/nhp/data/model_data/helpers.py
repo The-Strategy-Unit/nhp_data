@@ -86,11 +86,11 @@ def create_icb_population_projections(
 def check_extract_for_nulls(
     df: DataFrame, exclude_cols: set[str] | None = None
 ) -> None:
-    """Check a dataframe for any null columns and raise an error if any are found.
+    """Check a dataframe for any null values and raise an error if any are found.
 
     Args:
         df (DataFrame): the dataframe to check
-        exclude_cols (set[str]): columns to exclude from the null check
+        exclude_cols (set[str] | None): columns to exclude from the null check
     """
     if exclude_cols is None:
         exclude_cols = set()
