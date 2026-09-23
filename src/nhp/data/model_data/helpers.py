@@ -1,6 +1,7 @@
 """Helper methods/tables"""
 
 from collections.abc import Callable
+from functools import wraps
 
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
@@ -127,6 +128,7 @@ def extract(
     Callable[..., None],
 ]:
     def decorator(func: Callable[..., DataFrame]):
+        @wraps(func)
         def wrapper(
             save_path: str, fyear: int, spark: SparkSession, *args, **kwargs
         ) -> None:
