@@ -94,7 +94,7 @@ def check_extract_for_nulls(
     if exclude_cols is None:
         exclude_cols = set()
 
-    cols = list(set(df.columns) - exclude_cols)
+    cols = sorted(set(df.columns) - exclude_cols)
 
     if not cols:
         return
