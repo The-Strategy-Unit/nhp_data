@@ -3,43 +3,40 @@
 import sys
 
 import pyspark.sql.functions as F
-from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame, SparkSession
 
 from nhp.data.get_spark import get_spark
 from nhp.data.model_data.helpers import (
     DEMOGRAPHICS_MAX_YEAR,
     DEMOGRAPHICS_MIN_YEAR,
     create_provider_population_projections,
+    extract,
 )
 from nhp.data.table_names import table_names
 
 
-def extract(
-    save_path: str, fyear: int, projection_year: int, spark: SparkSession
-) -> None:
+@extract("demographic_factors")
+def extract_demographics(
+    save_path: str, fyear: int, spark: SparkSession, projection_year: int
+) -> DataFrame:
     """Extract Demographic Factors data
 
-    :param spark: the spark session to use
-    :type spark: SparkSession
     :param save_path: where to save the parquet files
     :type save_path: str
     :param fyear: what year to extract
     :type fyear: int
+    :param spark: the spark session to use
+    :type spark: SparkSession
+    :param projection_year: the year for which to project the population
+    :type projection_year: int
     """
-
     demographics = spark.read.table(
         table_names.population_projections_demographics
     ).filter(F.col("year").between(DEMOGRAPHICS_MIN_YEAR, DEMOGRAPHICS_MAX_YEAR))
 
-    (
-        create_provider_population_projections(
-            spark, demographics, fyear, projection_year
-        )
-        .repartition(1)
-        .write.mode("overwrite")
-        .partitionBy("dataset")
-        .parquet(f"{save_path}/demographic_factors/fyear={fyear // 100}")
-    )
+    return create_provider_population_projections(
+        spark, demographics, fyear, projection_year
+    ).withColumn("fyear", F.lit(fyear // 100))
 
 
 def main():
@@ -50,4 +47,4 @@ def main():
 
     spark = get_spark()
 
-    extract(save_path, fyear, projection_year, spark)
+    extract_demographics(save_path, fyear, spark, projection_year)
