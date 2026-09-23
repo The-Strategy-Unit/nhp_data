@@ -138,18 +138,20 @@ def extract(
                 spark (SparkSession): the Spark session
             """
             df = func(save_path, fyear, spark, *args, **kwargs).persist()
-            if check_for_nulls:
-                check_extract_for_nulls(df, exclude_cols)
+            try:
+                if check_for_nulls:
+                    check_extract_for_nulls(df, exclude_cols)
 
-            print(f"Rows to extract: {df.count():,}")
+                print(f"Rows to extract: {df.count():,}")
 
-            (
-                df.repartition(1)
-                .write.mode("overwrite")
-                .partitionBy(["fyear", "dataset"])
-                .parquet(f"{save_path}/{extract_name}")
-            )
-            df.unpersist()
+                (
+                    df.repartition(1)
+                    .write.mode("overwrite")
+                    .partitionBy(["fyear", "dataset"])
+                    .parquet(f"{save_path}/{extract_name}")
+                )
+            finally:
+                df.unpersist()
 
         return wrapper
 
