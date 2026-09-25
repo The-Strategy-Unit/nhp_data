@@ -135,6 +135,14 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
     ]
 
     discharged_no_treatment = {
+        "destinations": [
+            "306694006",  # Discharge to nursing home
+            "306691003",  # Discharge to residential home
+            "306689006",  # Discharge to home
+            "306705005",  # Discharge to police custody
+            "306706006",  # Discharge to ward
+            "50861005",  # Patient discharge, to legal custody (procedure)
+        ],
         "investigations": [
             "1088291000000101",  # Clinical investigation not indicated (situation)
         ],
@@ -185,7 +193,10 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
         )
         .withColumn(
             "is_discharged_no_treatment",
-            (
+            F.when(
+                F.col("Discharge_Destination_SNOMED_CT").isin(
+                    discharged_no_treatment["destinations"]
+                ),
                 (
                     F.isnull("Der_EC_Investigation_All")
                     | (
@@ -201,8 +212,8 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
                             discharged_no_treatment["treatments"]
                         )
                     )
-                )
-            ),
+                ),
+            ).otherwise(False),
         )
         # for the boolean columns, default to False if null
         .fillna(
