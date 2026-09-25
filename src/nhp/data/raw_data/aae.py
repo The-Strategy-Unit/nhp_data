@@ -63,7 +63,8 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
 
     df_treatments = (
         spark.read.table(table_names.hes_aae_treatments)
-        .filter(~F.col("treatment").isin(["22", "99"]))
+        .filter(~F.col("treatment").startswith("22"))
+        .filter(F.col("treatment") != "99")
         .select("aekey", "fyear", "procode3")
     )
 
