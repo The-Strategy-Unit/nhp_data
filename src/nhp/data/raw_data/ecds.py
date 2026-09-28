@@ -140,7 +140,6 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
             "306691003",  # Discharge to residential home
             "306689006",  # Discharge to home
             "306705005",  # Discharge to police custody
-            "306706006",  # Discharge to ward
             "50861005",  # Patient discharge, to legal custody (procedure)
         ],
         "investigations": [
