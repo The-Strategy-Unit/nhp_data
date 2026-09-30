@@ -51,3 +51,25 @@ def remove_mental_health_providers(
     )
 
     return df.join(mental_health_providers, provider_col, "anti")
+
+
+def replace_invalid_tretspef_values(
+    spark: SparkSession, df: DataFrame, column: str = "tretspef"
+) -> DataFrame:
+    """Replace invalid values in the tretspef column with 'Other'
+
+    :param spark: The Spark session
+    :type spark: SparkSession
+    :param df: The data frame to process
+    :type df: DataFrame
+    :param column: The column name containing treatment specification values
+    :type column: str
+    :return: The data frame with invalid tretspef values replaced
+    :rtype: DataFrame
+    """
+    tretspefs = spark.read.table(table_names.reference_tretspef_type).select("tretspef")
+    valid_values = [row[0] for row in tretspefs.collect()]
+    return df.withColumn(
+        column,
+        F.when(F.col(column).isin(valid_values), F.col(column)).otherwise("Other"),
+    )

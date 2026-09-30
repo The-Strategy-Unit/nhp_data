@@ -9,6 +9,7 @@ from nhp.data.nhp_datasets.icbs import add_main_icb
 from nhp.data.raw_data.helpers import (
     add_age_group_column,
     remove_mental_health_providers,
+    replace_invalid_tretspef_values,
 )
 from nhp.data.table_names import table_names
 
@@ -28,6 +29,7 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
     df = add_main_icb(spark, hes_apc)
     df = add_age_group_column(df)
     df = remove_mental_health_providers(spark, df, "provider")
+    df = replace_invalid_tretspef_values(spark, df, "tretspef")
 
     df_primary_diagnosis = spark.read.table(table_names.hes_apc_diagnoses).filter(
         F.col("diag_order") == 1

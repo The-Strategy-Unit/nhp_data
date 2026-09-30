@@ -10,6 +10,7 @@ from nhp.data.nhp_datasets.providers import read_data_with_provider
 from nhp.data.raw_data.helpers import (
     add_age_group_column,
     remove_mental_health_providers,
+    replace_invalid_tretspef_values,
 )
 from nhp.data.table_names import table_names
 
@@ -18,6 +19,7 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
     """Get Outpatients Data"""
     df = read_data_with_provider(spark, table_names.hes_opa)
     df = remove_mental_health_providers(spark, df, "provider")
+    df = replace_invalid_tretspef_values(spark, df, "tretspef")
 
     # Calculate icb column
     df = df.withColumn(
