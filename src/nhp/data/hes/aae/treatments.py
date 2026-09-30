@@ -13,7 +13,7 @@ def get_hes_aae_treatments(spark: SparkSession) -> DataFrame:
     )
 
     to_melt = [f"treat_{i:02}" for i in range(1, 12)]
-    melt_str = ",".join([f"'{c}', `{c}`" for c in to_melt])
+    melt_str = ",".join([f"'{i + 1}', `{c}`" for i, c in enumerate(to_melt)])
 
     stack_expr = F.expr(
         f"stack({len(to_melt)}, {melt_str}) as (treatment_order, treatment)"
