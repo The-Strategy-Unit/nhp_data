@@ -18,8 +18,7 @@ def get_ae_baseline(spark: SparkSession, geography_column: str) -> DataFrame:
     """
     return (
         get_ae_df(spark)
-        .groupBy("fyear", geography_column, "group")
+        .groupBy("fyear", geography_column, "group", "tretspef")
         .agg(F.count("fyear").alias("count"))
         .withColumn("activity_type", F.lit("aae"))
-        .withColumn("tretspef", F.lit(None).cast("string"))
     )
