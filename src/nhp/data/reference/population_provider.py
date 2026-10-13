@@ -1,7 +1,7 @@
 """Helper methods/tables"""
 
 import pyspark.sql.functions as F
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import SparkSession
 
 from nhp.data.get_spark import get_spark
 from nhp.data.reference.lsoa_lookups import get_lad22_to_lad23_lookup
