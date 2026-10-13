@@ -127,7 +127,6 @@ class SynthData:
             )
             .withColumn("icb", F.when(F.col("is_main_icb"), "A").otherwise("B"))
             .withColumn("mainspef", F.col("tretspef"))
-            .filter(~F.col("tretspef_grouped").startswith("Other"))
             .orderBy("rn")
             .persist()
         )

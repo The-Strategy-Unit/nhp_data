@@ -18,12 +18,6 @@ def get_ip_baseline(spark: SparkSession, geography_column: str) -> DataFrame:
     """
     return (
         get_ip_df(spark)
-        .withColumn(
-            "tretspef",
-            F.when(F.col("group") == "maternity", "Other (Medical)").otherwise(
-                F.col("tretspef")
-            ),
-        )
         .groupBy("fyear", geography_column, "group", "tretspef")
         .agg(F.count("fyear").alias("count"))
         .withColumn("activity_type", F.lit("ip"))

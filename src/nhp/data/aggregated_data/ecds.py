@@ -22,7 +22,6 @@ def get_ecds_data(spark: SparkSession) -> DataFrame:
             F.col("attendance_category"),
             F.col("acuity"),
             F.col("tretspef"),
-            F.col("tretspef_grouped"),
             F.col("group"),
             F.col("pod"),
             F.col("demog_type"),
