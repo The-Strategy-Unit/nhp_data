@@ -83,6 +83,17 @@ resources:
             parameters:
               - "{{job.parameters.day_procedures_base_year}}"
           job_cluster_key: nhp_data
+          libraries:
+            - whl: ../dist/*.whl
+        - task_key: create_population_provider
+          depends_on:
+            - task_key: create_day_procedure_code_list
+          python_wheel_task:
+            package_name: nhp_data
+            entry_point: reference-population_provider
+          job_cluster_key: nhp_data
+          libraries:
+            - whl: ../dist/*.whl
       job_clusters:
         - job_cluster_key: nhp_data
           new_cluster:
