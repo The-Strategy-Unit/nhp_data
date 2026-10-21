@@ -178,29 +178,30 @@ resources:
       job_clusters:
         - job_cluster_key: nhp_data
           new_cluster:
-            spark_version: 17.3.x-scala2.13
+            spark_version: 18.x-scala2.13
             spark_conf:
+              spark.databricks.sql.initial.catalog.namespace: udal_lake_mart
               spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite: "true"
               spark.databricks.delta.properties.defaults.autoOptimize.autoCompact: "true"
-              spark.databricks.sql.initial.catalog.namespace: udal_lake_mart
+              spark.master: local[*, 4]
+              spark.databricks.cluster.profile: singleNode
             azure_attributes:
               availability: ON_DEMAND_AZURE
               spot_bid_max_price: 100
-            node_type_id: Standard_D4ds_v5
+            node_type_id: Standard_E8ads_v7
             custom_tags:
               Application: UDAL
               Workload_Type: Job
-              Workload_Size: Small
+              Workload_Size: Medium
+              ResourceClass: SingleNode
             spark_env_vars:
               PYSPARK_PYTHON: /databricks/python3/bin/python3
-            policy_id: 000816B2986C0B29
-            data_security_mode: USER_ISOLATION
+            policy_id: 001D6F598E9C0B76
+            data_security_mode: SINGLE_USER
             runtime_engine: STANDARD
             kind: CLASSIC_PREVIEW
-            is_single_node: false
-            autoscale:
-              min_workers: 1
-              max_workers: 4
+            is_single_node: true
+            num_workers: 0
       tags:
         group: nhp_data_model
         env: ${bundle.target}

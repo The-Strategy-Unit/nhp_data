@@ -48,7 +48,7 @@ resources:
       job_clusters:
         - job_cluster_key: nhp_data
           new_cluster:
-            spark_version: 17.3.x-scala2.13
+            spark_version: 18.x-scala2.13
             spark_conf:
               spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite: "true"
               spark.databricks.delta.properties.defaults.autoOptimize.autoCompact: "true"
@@ -56,14 +56,15 @@ resources:
             azure_attributes:
               availability: ON_DEMAND_AZURE
               spot_bid_max_price: 100
-            node_type_id: Standard_D4ds_v5
+            node_type_id: Standard_D8ds_v5
+            driver_node_type_id: Standard_D8ds_v5
             custom_tags:
               Application: UDAL
               Workload_Type: Job
-              Workload_Size: Small
+              Workload_Size: Medium
             spark_env_vars:
               PYSPARK_PYTHON: /databricks/python3/bin/python3
-            policy_id: 000816B2986C0B29
+            policy_id: 0001CA9D7F08DD46
             data_security_mode: USER_ISOLATION
             runtime_engine: STANDARD
             kind: CLASSIC_PREVIEW
