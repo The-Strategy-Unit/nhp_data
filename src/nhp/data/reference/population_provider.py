@@ -89,16 +89,15 @@ def create_birth_factors(spark: SparkSession) -> None:
 
 
 def main():
-    """Main entry point for generating provider catchment population tables.
+    """Main entry point for generating the provider population reference tables.
 
-    This function creates the population by provider table, which includes calculating
-    provider-to-LAD23 splits based on APC data and applying those splits to population
-    estimates. The get_pop_by_provider() call will trigger creation of all dependent
-    tables if they don't already exist.
+    This function creates the demographic factors and birth factors tables in the
+    reference layer by applying provider-to-LAD23 catchment splits to the
+    population projections.
 
     Tables generated:
-        - Provider to LAD23 splits (if not exists)
-        - Population by provider (if not exists)
+        - reference_population_provider_demographics
+        - reference_population_provider_births
     """
     spark = get_spark()
 
