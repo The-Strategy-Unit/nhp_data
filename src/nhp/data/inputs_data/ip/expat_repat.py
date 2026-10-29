@@ -18,12 +18,6 @@ def get_ip_expat_data(spark: SparkSession) -> DataFrame:
     """
     return (
         get_ip_df(spark)
-        .withColumn(
-            "tretspef",
-            F.when(F.col("group") == "maternity", "Other (Medical)").otherwise(
-                F.col("tretspef")
-            ),
-        )
         .groupBy("fyear", "provider", "group", "tretspef")
         .count()
         .withColumn("activity_type", F.lit("ip"))
@@ -34,12 +28,6 @@ def get_ip_expat_data(spark: SparkSession) -> DataFrame:
 def _get_icb_df(spark: SparkSession) -> DataFrame:
     return (
         get_ip_df(spark)
-        .withColumn(
-            "tretspef",
-            F.when(F.col("group") == "maternity", "Other (Medical)").otherwise(
-                F.col("tretspef")
-            ),
-        )
         .filter(F.isnotnull("icb"))
         .groupBy("fyear", "icb", "is_main_icb", "provider", "group", "tretspef")
         .count()

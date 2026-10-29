@@ -6,49 +6,6 @@ from pyspark.sql import DataFrame, SparkSession
 from nhp.data.table_names import table_names
 
 
-def add_tretspef_grouped_column(self: DataFrame) -> DataFrame:
-    """Add tretspef grouped column to DataFrame
-
-    :param self: The data frame to add the tretpsef grouped column to
-    :type df: DataFrame
-    :return: The data frame
-    :rtype: DataFrame
-    """
-
-    specialties = [
-        "100",
-        "101",
-        "110",
-        "120",
-        "130",
-        "140",
-        "150",
-        "160",
-        "170",
-        "300",
-        "301",
-        "320",
-        "330",
-        "340",
-        "400",
-        "410",
-        "430",
-        "502",
-    ]
-
-    tretspef_column = (
-        F.when(F.col("tretspef").isin(specialties), F.col("tretspef"))
-        .when(F.expr("tretspef RLIKE '^1(?!80|9[02])'"), F.lit("Other (Surgical)"))
-        .when(
-            F.expr("tretspef RLIKE '^(1(80|9[02])|[2346]|5(?!60)|83[134])'"),
-            F.lit("Other (Medical)"),
-        )
-        .otherwise(F.lit("Other"))
-    )
-
-    return self.withColumn("tretspef_grouped", tretspef_column)
-
-
 def add_age_group_column(self: DataFrame) -> DataFrame:
     return self.withColumn(
         "age_group",
@@ -94,3 +51,25 @@ def remove_mental_health_providers(
     )
 
     return df.join(mental_health_providers, provider_col, "anti")
+
+
+def replace_invalid_tretspef_values(
+    spark: SparkSession, df: DataFrame, column: str = "tretspef"
+) -> DataFrame:
+    """Replace invalid values in the tretspef column with 'Other'
+
+    :param spark: The Spark session
+    :type spark: SparkSession
+    :param df: The data frame to process
+    :type df: DataFrame
+    :param column: The column name containing treatment specification values
+    :type column: str
+    :return: The data frame with invalid tretspef values replaced
+    :rtype: DataFrame
+    """
+    tretspefs = spark.read.table(table_names.reference_tretspef_type).select("tretspef")
+    valid_values = [row[0] for row in tretspefs.collect()]
+    return df.withColumn(
+        column,
+        F.when(F.col(column).isin(valid_values), F.col(column)).otherwise("Other"),
+    )

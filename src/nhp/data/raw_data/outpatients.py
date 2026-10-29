@@ -3,14 +3,14 @@
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
-from nhp.data.get_spark import get_spark
+from nhp.data.get_spark import PartitionOverwriteMode, get_spark
 from nhp.data.nhp_datasets.icbs import add_main_icb, icb_mapping
 from nhp.data.nhp_datasets.local_authorities import lsoa11_to_lad23
 from nhp.data.nhp_datasets.providers import read_data_with_provider
 from nhp.data.raw_data.helpers import (
     add_age_group_column,
-    add_tretspef_grouped_column,
     remove_mental_health_providers,
+    replace_invalid_tretspef_values,
 )
 from nhp.data.table_names import table_names
 
@@ -19,6 +19,7 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
     """Get Outpatients Data"""
     df = read_data_with_provider(spark, table_names.hes_opa)
     df = remove_mental_health_providers(spark, df, "provider")
+    df = replace_invalid_tretspef_values(spark, df, "tretspef")
 
     # Calculate icb column
     df = df.withColumn(
@@ -32,8 +33,6 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
 
     # add main icb column
     df = add_main_icb(spark, df)
-    # add the tretspef grouped column
-    df = add_tretspef_grouped_column(df)
     # add age and age_group columns
     df = df.withColumn(
         "age",
@@ -101,7 +100,6 @@ def get_outpatients_data(spark: SparkSession) -> DataFrame:
             F.col("imd_quintile"),
             F.col("ethnos"),
             F.col("tretspef"),
-            F.col("tretspef_grouped"),
             F.col("sitetret"),
             F.col("has_procedures"),
             F.col("sushrg"),
@@ -178,5 +176,5 @@ def generate_outpatients_data(spark: SparkSession) -> None:
 
 def main() -> None:
     """main method"""
-    spark = get_spark()
+    spark = get_spark(PartitionOverwriteMode.STATIC)
     generate_outpatients_data(spark)

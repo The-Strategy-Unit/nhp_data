@@ -75,8 +75,6 @@ class SynthData:
         self._inequalities()
         self._aae()
         self._op()
-        self._birth_factors()
-        self._demographic_factors()
         self._hsa_activity_tables()
 
     @property
@@ -127,7 +125,6 @@ class SynthData:
             )
             .withColumn("icb", F.when(F.col("is_main_icb"), "A").otherwise("B"))
             .withColumn("mainspef", F.col("tretspef"))
-            .filter(~F.col("tretspef_grouped").startswith("Other"))
             .orderBy("rn")
             .persist()
         )
@@ -392,26 +389,6 @@ class SynthData:
         op["rn"] = [str(uuid.uuid4()) for _ in op.index]
 
         return op
-
-    @generate_data("birth_factors")
-    def _birth_factors(self, df: DataFrame) -> pd.DataFrame:
-        return (
-            df.drop("dataset")
-            .filter(~F.col("variant").startswith("custom_projection_"))
-            .toPandas()
-            .groupby(["variant", "sex", "age"], as_index=False)
-            .mean()
-        )
-
-    @generate_data("demographic_factors")
-    def _demographic_factors(self, df: DataFrame) -> pd.DataFrame:
-        return (
-            df.drop("dataset")
-            .filter(~F.col("variant").startswith("custom_projection_"))
-            .toPandas()
-            .groupby(["variant", "sex", "age"], as_index=False)
-            .mean()
-        )
 
     @generate_data("hsa_activity_tables")
     def _hsa_activity_tables(self, df: DataFrame) -> pd.DataFrame:

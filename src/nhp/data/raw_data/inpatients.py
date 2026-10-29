@@ -3,13 +3,13 @@
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
-from nhp.data.get_spark import get_spark
+from nhp.data.get_spark import PartitionOverwriteMode, get_spark
 from nhp.data.nhp_datasets.apc import apc_primary_procedures, hes_apc
 from nhp.data.nhp_datasets.icbs import add_main_icb
 from nhp.data.raw_data.helpers import (
     add_age_group_column,
-    add_tretspef_grouped_column,
     remove_mental_health_providers,
+    replace_invalid_tretspef_values,
 )
 from nhp.data.table_names import table_names
 
@@ -27,9 +27,9 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
     )
 
     df = add_main_icb(spark, hes_apc)
-    df = add_tretspef_grouped_column(df)
     df = add_age_group_column(df)
     df = remove_mental_health_providers(spark, df, "provider")
+    df = replace_invalid_tretspef_values(spark, df, "tretspef")
 
     df_primary_diagnosis = spark.read.table(table_names.hes_apc_diagnoses).filter(
         F.col("diag_order") == 1
@@ -119,7 +119,6 @@ def get_inpatients_data(spark: SparkSession) -> DataFrame:
             F.col("classpat"),
             F.col("mainspef"),
             F.col("tretspef"),
-            F.col("tretspef_grouped"),
             F.col("hsagrp"),
             F.col("group"),
             F.col("admidate"),
@@ -182,5 +181,5 @@ def generate_inpatients_data(spark: SparkSession) -> None:
 
 def main() -> None:
     """main method"""
-    spark = get_spark()
+    spark = get_spark(partition_overwrite_mode=PartitionOverwriteMode.STATIC)
     generate_inpatients_data(spark)
