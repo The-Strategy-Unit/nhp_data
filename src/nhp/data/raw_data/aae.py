@@ -62,13 +62,14 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
 
     df_treatments = (
         spark.read.table(table_names.hes_aae_treatments)
-        .filter(F.col("treatment") != "24")
+        .filter(~F.col("treatment").startswith("22"))
+        .filter(F.col("treatment") != "99")
         .select("aekey", "fyear", "procode3")
     )
 
     df_investigations = (
         spark.read.table(table_names.hes_aae_investigations)
-        .filter(~F.col("investigation").isin(["22", "99"]))
+        .filter(F.col("investigation") != "24")
         .select("aekey", "fyear", "procode3")
     )
 
@@ -143,9 +144,14 @@ def get_aae_data(spark: SparkSession) -> DataFrame:
         .fillna(True, ["is_discharged_no_treatment"])
         .withColumn(
             "is_discharged_no_treatment",
-            F.when(F.col("aeattenddisp") != "03", False).otherwise(
-                F.col("is_discharged_no_treatment")
-            ),
+            # Only consider discharged no treatment for attendances with disposition
+            # - 02: Discharged – follow-up treatment to be provided by general practitioner
+            # - 03: Discharged – did not require any follow-up treatment
+            # otherwise, assume that there was some treatment or investigation
+            F.when(
+                F.col("aeattenddisp").isin(["02", "03"]),
+                F.col("is_discharged_no_treatment"),
+            ).otherwise(False),
         )
         .join(df_pri_diag, ["procode3", "fyear", "aekey"], how="left")
         .join(df_pri_treat, ["procode3", "fyear", "aekey"], how="left")
